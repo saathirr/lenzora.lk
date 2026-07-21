@@ -33,11 +33,11 @@ const initialProducts = [
 ]
 
 const initialOrders = [
-  { id: '#001', customer: 'Sarah Perera', email: 'sarah@email.com', service: 'Logo Design', amount: 8000, status: 'In Progress', date: '2024-01-15' },
-  { id: '#002', customer: 'Kavindu Silva', email: 'kavindu@email.com', service: 'Photo Retouch (10)', amount: 5000, status: 'Completed', date: '2024-01-14' },
-  { id: '#003', customer: 'Dulani Fernando', email: 'dulani@email.com', service: 'Brand Identity Kit', amount: 15000, status: 'Pending', date: '2024-01-13' },
-  { id: '#004', customer: 'Amila Jay', email: 'amila@email.com', service: 'Reel Edit', amount: 4000, status: 'Pending', date: '2024-01-12' },
-  { id: '#005', customer: 'Nadee Perera', email: 'nadee@email.com', service: 'Social Media Pack', amount: 2500, status: 'Completed', date: '2024-01-11' },
+  { id: '#001', customer: 'Sarah Perera', email: 'sarah@email.com', service: 'Logo Design', amount: 8000, status: 'In Progress', paymentStatus: 'confirmed', date: '2024-01-15' },
+  { id: '#002', customer: 'Kavindu Silva', email: 'kavindu@email.com', service: 'Photo Retouch (10)', amount: 5000, status: 'Completed', paymentStatus: 'confirmed', date: '2024-01-14' },
+  { id: '#003', customer: 'Dulani Fernando', email: 'dulani@email.com', service: 'Brand Identity Kit', amount: 15000, status: 'Pending', paymentStatus: 'paid', slipName: 'slip-dulani.jpg', date: '2024-01-13' },
+  { id: '#004', customer: 'Amila Jay', email: 'amila@email.com', service: 'Reel Edit', amount: 4000, status: 'Pending', paymentStatus: 'unpaid', date: '2024-01-12' },
+  { id: '#005', customer: 'Nadee Perera', email: 'nadee@email.com', service: 'Social Media Pack', amount: 2500, status: 'Completed', paymentStatus: 'confirmed', date: '2024-01-11' },
 ]
 
 const initialMessages = [
@@ -53,6 +53,8 @@ export function AppProvider({ children }) {
   const [products, setProducts] = useState(initialProducts)
   const [orders, setOrders] = useState(initialOrders)
   const [messages, setMessages] = useState(initialMessages)
+  const [cart, setCart] = useState([])
+  const [customerOrders, setCustomerOrders] = useState([])
 
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
@@ -60,23 +62,31 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-        setProfile(data)
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+          setProfile(data)
+        }
+      } catch (err) {
+        console.error('Auth session error:', err)
       }
       setLoading(false)
     }
     getSession()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
-        setProfile(data)
-      } else {
-        setProfile(null)
+      try {
+        setUser(session?.user ?? null)
+        if (session?.user) {
+          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
+          setProfile(data)
+        } else {
+          setProfile(null)
+        }
+      } catch (err) {
+        console.error('Auth state change error:', err)
       }
     })
 
@@ -89,6 +99,11 @@ export function AppProvider({ children }) {
     setProfile(null)
   }
 
+  const addOrder = (order) => {
+    setOrders((prev) => [order, ...prev])
+    setCustomerOrders((prev) => [order, ...prev])
+  }
+
   return (
     <AppContext.Provider value={{
       services, setServices,
@@ -96,6 +111,9 @@ export function AppProvider({ children }) {
       products, setProducts,
       orders, setOrders,
       messages, setMessages,
+      cart, setCart,
+      customerOrders, setCustomerOrders,
+      addOrder,
       user, profile, loading, signOut
     }}>
       {children}

@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /Lenzora.lk/
+
+  # If the file already exists on disk, serve it directly (skip root index.html)
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^(?!index\.html$) - [L]
+
+  # Serve files from dist/ if they exist there
+  RewriteCond %{DOCUMENT_ROOT}/Lenzora.lk/dist/$1 -f
+  RewriteRule ^(.+)$ dist/$1 [L]
+
+  # Everything else → SPA entry point
+  RewriteRule .* dist/index.html [L]
+</IfModule>

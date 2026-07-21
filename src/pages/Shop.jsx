@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { Link, useNavigate } from 'react-router-dom'
 import { HiShoppingCart, HiX } from 'react-icons/hi'
 import { useApp } from '../lib/AppContext'
 
 export default function Shop() {
-  const { products } = useApp()
-  const [cart, setCart] = useState([])
+  const { products, cart, setCart } = useApp()
   const [showCart, setShowCart] = useState(false)
+  const navigate = useNavigate()
 
   const addToCart = (product) => {
     setCart((prev) => {
@@ -114,7 +115,10 @@ export default function Shop() {
                   <span className="font-semibold text-dark">Total</span>
                   <span className="text-2xl font-bold text-primary">LKR {total.toLocaleString()}</span>
                 </div>
-                <button className="w-full py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition shadow-lg">
+                <button
+                  onClick={() => { setShowCart(false); navigate('/checkout') }}
+                  className="w-full py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition shadow-lg"
+                >
                   Proceed to Checkout
                 </button>
               </div>
