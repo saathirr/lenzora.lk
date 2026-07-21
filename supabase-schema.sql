@@ -1,8 +1,8 @@
 -- Supabase SQL Schema for Lenzora.lk
--- Run this in your Supabase SQL Editor (https://supabase.com/dashboard/project/_/sql)
+-- Safe to run multiple times (idempotent)
 
 -- Services table
-CREATE TABLE services (
+CREATE TABLE IF NOT EXISTS services (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
@@ -14,7 +14,7 @@ CREATE TABLE services (
 );
 
 -- Portfolio table
-CREATE TABLE portfolio (
+CREATE TABLE IF NOT EXISTS portfolio (
   id BIGSERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   image TEXT,
@@ -24,7 +24,7 @@ CREATE TABLE portfolio (
 );
 
 -- Products (Shop) table
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
@@ -36,7 +36,7 @@ CREATE TABLE products (
 );
 
 -- Orders table
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
   id BIGSERIAL PRIMARY KEY,
   customer_name TEXT NOT NULL,
   customer_email TEXT NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE orders (
 );
 
 -- Contact Messages table
-CREATE TABLE contact_messages (
+CREATE TABLE IF NOT EXISTS contact_messages (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
@@ -66,14 +66,17 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('payment-slips', 'payment
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for payment-slips bucket
+DROP POLICY IF EXISTS "Authenticated users can upload slips" ON storage.objects;
 CREATE POLICY "Authenticated users can upload slips"
   ON storage.objects FOR INSERT
   WITH CHECK (bucket_id = 'payment-slips' AND auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Public can view slips" ON storage.objects;
 CREATE POLICY "Public can view slips"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'payment-slips');
 
+DROP POLICY IF EXISTS "Admin can delete slips" ON storage.objects;
 CREATE POLICY "Admin can delete slips"
   ON storage.objects FOR DELETE
   USING (
@@ -84,7 +87,7 @@ CREATE POLICY "Admin can delete slips"
 -- ============================================
 -- PROFILES TABLE (extends Supabase auth.users)
 -- ============================================
-CREATE TABLE profiles (
+CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
   phone TEXT,
@@ -109,12 +112,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE TRIGGER on_auth_user_created
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- Cart Items table
-CREATE TABLE cart_items (
+CREATE TABLE IF NOT EXISTS cart_items (
   id BIGSERIAL PRIMARY KEY,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   product_id BIGINT REFERENCES products(id) ON DELETE CASCADE,
@@ -123,7 +127,7 @@ CREATE TABLE cart_items (
 );
 
 -- Payment Slips table
-CREATE TABLE payment_slips (
+CREATE TABLE IF NOT EXISTS payment_slips (
   id BIGSERIAL PRIMARY KEY,
   order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -141,24 +145,36 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_slip_id BIGINT REFERENCES pa
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
 
 -- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE portfolio ENABLE ROW LEVEL SECURITY;
-ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE payment_slips ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS services ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS portfolio ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS cart_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS payment_slips ENABLE ROW LEVEL SECURITY;
 
 -- Public read policies
+DROP POLICY IF EXISTS "Public can read services" ON services;
 CREATE POLICY "Public can read services" ON services FOR SELECT USING (active = true);
+
+DROP POLICY IF EXISTS "Public can read portfolio" ON portfolio;
 CREATE POLICY "Public can read portfolio" ON portfolio FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public can read active products" ON products;
 CREATE POLICY "Public can read active products" ON products FOR SELECT USING (active = true);
+
+DROP POLICY IF EXISTS "Anyone can insert contact messages" ON contact_messages;
 CREATE POLICY "Anyone can insert contact messages" ON contact_messages FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Users can insert orders" ON orders;
 CREATE POLICY "Users can insert orders" ON orders FOR INSERT WITH CHECK (true);
 
 -- Profile policies
+DROP POLICY IF EXISTS "Users can read own profile" ON profiles;
 CREATE POLICY "Users can read own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 
 -- Admin access (via admin role check)
@@ -199,19 +215,26 @@ CREATE POLICY "Users can manage own cart" ON cart_items FOR ALL
   WITH CHECK (auth.uid() = user_id);
 
 -- Payment slip policies
+DROP POLICY IF EXISTS "Users can insert own payment slips" ON payment_slips;
 CREATE POLICY "Users can insert own payment slips" ON payment_slips FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Users can read own payment slips" ON payment_slips;
 CREATE POLICY "Users can read own payment slips" ON payment_slips FOR SELECT USING (auth.uid() = user_id);
+
 DROP POLICY IF EXISTS "Admin full access payment_slips" ON payment_slips;
 CREATE POLICY "Admin full access payment_slips" ON payment_slips FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Customer order policies
+DROP POLICY IF EXISTS "Users can read own orders" ON orders;
 CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Users can insert own orders" ON orders;
 CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- ============================================
--- SEED DATA (run after tables exist)
+-- SEED DATA
 -- ============================================
 
 INSERT INTO services (name, description, price, category, active) VALUES
