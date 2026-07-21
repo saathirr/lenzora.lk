@@ -192,3 +192,36 @@ CREATE POLICY "Admin full access payment_slips" ON payment_slips FOR ALL USING (
 -- Customer order policies
 CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================
+-- SEED DATA (run after tables exist)
+-- ============================================
+
+INSERT INTO services (name, description, price, category, active) VALUES
+('Photo Editing', 'Professional retouching, color grading, background removal, and restoration for personal or commercial use.', 1500, 'Editing', true),
+('Graphic Design', 'Eye-catching designs for print and digital banners, posters, flyers, business cards, and more.', 2500, 'Design', true),
+('Brand Identity', 'Complete branding solutions including logo design, color palettes, typography, and brand guidelines.', 8000, 'Branding', true),
+('Video Editing', 'Short-form content, Instagram Reels, TikToks, promos, and event highlight edits.', 3000, 'Video', true),
+('Social Media Graphics', 'Engaging visuals for Instagram, Facebook, LinkedIn, and TikTok that drive engagement.', 1000, 'Social', true),
+('UI/UX Design', 'Modern, user-friendly website and app mockups with clean aesthetics and smooth flows.', 15000, 'Design', true)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO products (name, description, price, stock, active) VALUES
+('Social Media Pack', '5 custom Instagram post designs.', 2500, 10, true),
+('Logo Package', '3 logo concepts with revisions.', 8000, 5, true),
+('Photo Retouch (10)', 'Professional retouching for 10 images.', 5000, 20, true),
+('Business Card Design', 'Front & back design, print-ready.', 3000, 15, true),
+('Brand Identity Kit', 'Logo, palette, typography, mockups.', 15000, 3, true),
+('Reel Edit (1 min)', '1-minute Instagram Reel edit.', 4000, 10, true)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO portfolio (title, image, category) VALUES
+('Social Media Post', 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=600&fit=crop', 'Graphic Design'),
+('Brand Identity Pack', 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=600&fit=crop', 'Branding'),
+('Flyer Design', 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=600&h=600&fit=crop', 'Graphic Design'),
+('Color Grading', 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&h=600&fit=crop', 'Photo Editing'),
+('Instagram Template', 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=600&h=600&fit=crop', 'Social Media'),
+('Logo Design', 'https://images.unsplash.com/photo-1557838923-2985c318be48?w=600&h=600&fit=crop', 'Branding'),
+('Portrait Retouch', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=600&fit=crop', 'Photo Editing'),
+('Business Card', 'https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=600&fit=crop', 'Graphic Design')
+ON CONFLICT DO NOTHING;
