@@ -2,14 +2,31 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { HiMail, HiPhone, HiLocationMarker, HiCheck } from 'react-icons/hi'
 import { FaInstagram, FaWhatsapp } from 'react-icons/fa'
+import { createMessage } from '../lib/db'
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false)
+  const [sending, setSending] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', phone: '', service: '', message: '' })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitted(true)
+    setSending(true)
+    try {
+      await createMessage({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || null,
+        service: form.service || null,
+        message: form.message,
+      })
+      setSubmitted(true)
+      setForm({ name: '', email: '', phone: '', service: '', message: '' })
+    } catch (err) {
+      console.error('Failed to send message:', err)
+      alert('Failed to send message. Please try again.')
+    }
+    setSending(false)
     setTimeout(() => setSubmitted(false), 5000)
   }
 
@@ -109,9 +126,10 @@ export default function Contact() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition shadow-lg shadow-primary/25"
+                  disabled={sending}
+                  className="w-full py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition shadow-lg shadow-primary/25 disabled:opacity-50"
                 >
-                  Send Message
+                  {sending ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             )}

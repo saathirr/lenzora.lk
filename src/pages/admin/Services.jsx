@@ -3,37 +3,60 @@ import { HiPlus, HiPencil, HiTrash } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminServices() {
-  const { services, setServices } = useApp()
+  const { services, setServices, createService, updateService, deleteService, dataLoading } = useApp()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ name: '', desc: '', price: '', category: '', active: true })
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState({ name: '', description: '', price: '', category: '', active: true })
 
   const openNew = () => {
     setEditing(null)
-    setForm({ name: '', desc: '', price: '', category: '', active: true })
+    setForm({ name: '', description: '', price: '', category: '', active: true })
     setShowForm(true)
   }
 
   const openEdit = (s) => {
     setEditing(s.id)
-    setForm({ name: s.name, desc: s.desc || '', price: s.price, category: s.category, active: s.active })
+    setForm({ name: s.name, description: s.description || '', price: s.price, category: s.category, active: s.active })
     setShowForm(true)
   }
 
-  const handleSave = () => {
-    const payload = { ...form, price: Number(form.price) }
-    if (editing) {
-      setServices((prev) => prev.map((s) => (s.id === editing ? { ...s, ...payload } : s)))
-    } else {
-      setServices((prev) => [...prev, { id: Date.now(), icon: 'HiPhotograph', features: [], ...payload }])
+  const handleSave = async () => {
+    setSaving(true)
+    const payload = { name: form.name, description: form.description, price: Number(form.price), category: form.category, active: form.active }
+    try {
+      if (editing) {
+        const updated = await updateService(editing, payload)
+        setServices((prev) => prev.map((s) => (s.id === editing ? updated : s)))
+      } else {
+        const created = await createService(payload)
+        setServices((prev) => [...prev, created])
+      }
+      setShowForm(false)
+    } catch (err) {
+      console.error('Failed to save service:', err)
+      alert('Failed to save service.')
     }
-    setShowForm(false)
+    setSaving(false)
   }
 
-  const handleDelete = (id) => {
-    if (confirm('Delete this service?')) {
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this service?')) return
+    try {
+      await deleteService(id)
       setServices((prev) => prev.filter((s) => s.id !== id))
+    } catch (err) {
+      console.error('Failed to delete service:', err)
+      alert('Failed to delete service.')
     }
+  }
+
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -57,7 +80,7 @@ export default function AdminServices() {
           <h3 className="font-bold text-dark mb-4">{editing ? 'Edit Service' : 'New Service'}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Service name" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
-            <input value={form.desc} onChange={(e) => setForm({ ...form, desc: e.target.value })} placeholder="Description" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
+            <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
             <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price (LKR)" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
             <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Category" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
           </div>
@@ -66,7 +89,9 @@ export default function AdminServices() {
               <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 accent-primary" />
               <span className="text-sm text-gray-600">Active</span>
             </label>
-            <button onClick={handleSave} className="px-4 py-2 bg-primary text-white text-sm rounded-full hover:bg-primary-dark">Save</button>
+            <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-primary text-white text-sm rounded-full hover:bg-primary-dark disabled:opacity-50">
+              {saving ? 'Saving...' : 'Save'}
+            </button>
             <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancel</button>
           </div>
         </div>

@@ -61,7 +61,7 @@ export default function Gallery() {
                 onClick={() => setSelected(item)}
                 className="relative group overflow-hidden rounded-2xl aspect-square cursor-pointer"
               >
-                <img src={item.src} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                <img src={item.image || item.src} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex items-end p-4">
                   <span className="text-white font-semibold text-sm">{item.title}</span>
                 </div>
@@ -87,7 +87,7 @@ export default function Gallery() {
               onClick={(e) => e.stopPropagation()}
               className="relative max-w-2xl w-full rounded-2xl overflow-hidden"
             >
-              <img src={selected.src} alt={selected.title} className="w-full" />
+              <img src={selected.image || selected.src} alt={selected.title} className="w-full" />
               <div className="absolute top-4 right-4">
                 <button onClick={() => setSelected(null)} className="p-2 bg-black/50 text-white rounded-full hover:bg-black/70 transition">
                   <HiX size={20} />

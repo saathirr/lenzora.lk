@@ -9,19 +9,23 @@ const iconMap = {
   HiVideoCamera, HiChartBar, HiTemplate,
 }
 
-const prices = {
-  'Photo Editing': 'From LKR 1,500',
-  'Graphic Design': 'From LKR 2,500',
-  'Brand Identity': 'From LKR 8,000',
-  'Video Editing': 'From LKR 3,000',
-  'Social Media Graphics': 'From LKR 1,000',
-  'UI/UX Design': 'From LKR 15,000',
-}
+const iconList = [HiPhotograph, HiColorSwatch, HiPencil, HiVideoCamera, HiChartBar, HiTemplate]
 
 export default function Services() {
   const { services } = useApp()
   const active = services.filter((s) => s.active)
   const [activeTab, setActiveTab] = useState(0)
+
+  if (active.length === 0) {
+    return (
+      <div className="py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl sm:text-5xl font-bold text-dark mb-4">Our Services</h1>
+          <p className="text-gray-500">Coming soon.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="py-20 sm:py-28">
@@ -45,7 +49,7 @@ export default function Services() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 flex lg:flex-col gap-3 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
             {active.map((s, i) => {
-              const Icon = iconMap[s.icon] || HiPhotograph
+              const Icon = iconMap[s.icon] || iconList[i % iconList.length] || HiPhotograph
               return (
                 <button
                   key={s.id}
@@ -63,50 +67,39 @@ export default function Services() {
             })}
           </div>
 
-          {active.length > 0 && (
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="lg:col-span-2 p-6 sm:p-8 rounded-2xl bg-white border border-gray-100 shadow-xl"
-            >
-              {(() => {
-                const s = active[activeTab]
-                const Icon = iconMap[s.icon] || HiPhotograph
-                return (
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Icon className="text-primary" size={24} />
-                      </div>
-                      <div className="min-w-0">
-                        <h2 className="text-xl sm:text-2xl font-bold text-dark truncate">{s.name}</h2>
-                        <span className="text-sm text-primary font-semibold">{prices[s.name] || 'Contact for pricing'}</span>
-                      </div>
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-2 p-6 sm:p-8 rounded-2xl bg-white border border-gray-100 shadow-xl"
+          >
+            {(() => {
+              const s = active[activeTab]
+              const Icon = iconMap[s.icon] || iconList[activeTab % iconList.length] || HiPhotograph
+              const priceText = s.price ? `From LKR ${Number(s.price).toLocaleString()}` : 'Contact for pricing'
+              return (
+                <div>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Icon className="text-primary" size={24} />
                     </div>
-                    <p className="text-gray-600 mt-4">{s.desc}</p>
-                    {s.features && s.features.length > 0 && (
-                      <ul className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {s.features.map((f) => (
-                          <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                            <HiCheck className="text-primary shrink-0" />
-                            {f}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    <Link
-                      to="/contact"
-                      className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition shadow-lg"
-                    >
-                      Order This Service
-                      <HiArrowRight />
-                    </Link>
+                    <div className="min-w-0">
+                      <h2 className="text-xl sm:text-2xl font-bold text-dark truncate">{s.name}</h2>
+                      <span className="text-sm text-primary font-semibold">{priceText}</span>
+                    </div>
                   </div>
-                )
-              })()}
-            </motion.div>
-          )}
+                  <p className="text-gray-600 mt-4">{s.description || s.desc || ''}</p>
+                  <Link
+                    to="/contact"
+                    className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition shadow-lg"
+                  >
+                    Order This Service
+                    <HiArrowRight />
+                  </Link>
+                </div>
+              )
+            })()}
+          </motion.div>
         </div>
       </div>
     </div>

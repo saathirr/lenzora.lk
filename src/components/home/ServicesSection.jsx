@@ -29,7 +29,7 @@ export default function ServicesSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {active.map((s, i) => {
-            const Icon = iconMap[s.icon] || HiPhotograph
+            const Icon = iconMap[s.icon] || [HiPhotograph, HiColorSwatch, HiPencil, HiVideoCamera, HiChartBar, HiTemplate][i % 6]
             return (
               <motion.div
                 key={s.id}
@@ -43,7 +43,7 @@ export default function ServicesSection() {
                   <Icon className="text-primary group-hover:text-white transition" size={24} />
                 </div>
                 <h3 className="text-lg font-semibold text-dark mb-2">{s.name}</h3>
-                <p className="text-sm text-gray-500">{s.desc}</p>
+                <p className="text-sm text-gray-500">{s.description || s.desc || ''}</p>
               </motion.div>
             )
           })}

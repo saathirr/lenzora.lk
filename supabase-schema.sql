@@ -61,6 +61,26 @@ CREATE TABLE contact_messages (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Storage bucket for payment slips
+INSERT INTO storage.buckets (id, name, public) VALUES ('payment-slips', 'payment-slips', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for payment-slips bucket
+CREATE POLICY "Authenticated users can upload slips"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'payment-slips' AND auth.role() = 'authenticated');
+
+CREATE POLICY "Public can view slips"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'payment-slips');
+
+CREATE POLICY "Admin can delete slips"
+  ON storage.objects FOR DELETE
+  USING (
+    bucket_id = 'payment-slips' AND
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
 -- ============================================
 -- PROFILES TABLE (extends Supabase auth.users)
 -- ============================================

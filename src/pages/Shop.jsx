@@ -62,7 +62,7 @@ export default function Shop() {
               className="group p-6 rounded-2xl bg-white border border-gray-100 hover:border-primary/20 hover:shadow-xl transition-all"
             >
               <h3 className="text-lg font-bold text-dark">{p.name}</h3>
-              <p className="text-sm text-gray-500 mt-1">{p.desc || 'Professional digital service'}</p>
+              <p className="text-sm text-gray-500 mt-1">{p.description || p.desc || 'Professional digital service'}</p>
               <div className="mt-4 flex items-center justify-between gap-3">
                 <span className="text-xl sm:text-2xl font-bold text-primary">LKR {p.price.toLocaleString()}</span>
                 <button

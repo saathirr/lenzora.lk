@@ -3,37 +3,60 @@ import { HiPlus, HiPencil, HiTrash } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminProducts() {
-  const { products, setProducts } = useApp()
+  const { products, setProducts, createProduct, updateProduct, deleteProduct, dataLoading } = useApp()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ name: '', desc: '', price: '', stock: '' })
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState({ name: '', description: '', price: '', stock: '' })
 
   const openNew = () => {
     setEditing(null)
-    setForm({ name: '', desc: '', price: '', stock: '' })
+    setForm({ name: '', description: '', price: '', stock: '' })
     setShowForm(true)
   }
 
   const openEdit = (p) => {
     setEditing(p.id)
-    setForm({ name: p.name, desc: p.desc || '', price: p.price, stock: p.stock })
+    setForm({ name: p.name, description: p.description || '', price: p.price, stock: p.stock })
     setShowForm(true)
   }
 
-  const handleSave = () => {
-    const payload = { ...form, price: Number(form.price), stock: Number(form.stock) }
-    if (editing) {
-      setProducts((prev) => prev.map((p) => (p.id === editing ? { ...p, ...payload } : p)))
-    } else {
-      setProducts((prev) => [...prev, { id: Date.now(), ...payload }])
+  const handleSave = async () => {
+    setSaving(true)
+    const payload = { name: form.name, description: form.description, price: Number(form.price), stock: Number(form.stock) }
+    try {
+      if (editing) {
+        const updated = await updateProduct(editing, payload)
+        setProducts((prev) => prev.map((p) => (p.id === editing ? updated : p)))
+      } else {
+        const created = await createProduct(payload)
+        setProducts((prev) => [...prev, created])
+      }
+      setShowForm(false)
+    } catch (err) {
+      console.error('Failed to save product:', err)
+      alert('Failed to save product.')
     }
-    setShowForm(false)
+    setSaving(false)
   }
 
-  const handleDelete = (id) => {
-    if (confirm('Delete this product?')) {
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this product?')) return
+    try {
+      await deleteProduct(id)
       setProducts((prev) => prev.filter((p) => p.id !== id))
+    } catch (err) {
+      console.error('Failed to delete product:', err)
+      alert('Failed to delete product.')
     }
+  }
+
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -57,11 +80,13 @@ export default function AdminProducts() {
           <h3 className="font-bold text-dark mb-4">{editing ? 'Edit Product' : 'New Product'}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Product name" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
-            <input value={form.desc} onChange={(e) => setForm({ ...form, desc: e.target.value })} placeholder="Description" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
+            <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
             <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price (LKR)" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
             <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} placeholder="Stock" className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none" />
             <div className="flex items-center gap-2">
-              <button onClick={handleSave} className="px-4 py-2 bg-primary text-white text-sm rounded-full hover:bg-primary-dark">Save</button>
+              <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-primary text-white text-sm rounded-full hover:bg-primary-dark disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save'}
+              </button>
               <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancel</button>
             </div>
           </div>

@@ -30,7 +30,7 @@ export default function PortfolioHighlight() {
               className="relative group overflow-hidden rounded-2xl aspect-square"
             >
               <img
-                src={item.src}
+                src={item.image || item.src}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
               />

@@ -1,12 +1,27 @@
 import { useState } from 'react'
 import { useApp } from '../../lib/AppContext'
+import { updateMessage } from '../../lib/db'
 
 export default function AdminMessages() {
-  const { messages, setMessages } = useApp()
+  const { messages, setMessages, dataLoading } = useApp()
   const [expanded, setExpanded] = useState(null)
 
-  const toggleRead = (id) => {
-    setMessages((prev) => prev.map((m) => m.id === id ? { ...m, read: !m.read } : m))
+  const toggleRead = async (id, currentRead) => {
+    const newRead = !currentRead
+    setMessages((prev) => prev.map((m) => m.id === id ? { ...m, read: newRead } : m))
+    try {
+      await updateMessage(id, { read: newRead })
+    } catch (err) {
+      console.error('Failed to update message:', err)
+    }
+  }
+
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -23,7 +38,6 @@ export default function AdminMessages() {
         {messages.map((m) => (
           <div
             key={m.id}
-            onClick={() => !m.read && toggleRead(m.id)}
             className={`p-5 rounded-2xl border transition cursor-pointer hover:shadow-sm ${
               m.read ? 'bg-white border-gray-100' : 'bg-primary/5 border-primary/20'
             }`}
@@ -31,7 +45,7 @@ export default function AdminMessages() {
             <div className="flex items-start justify-between mb-2 gap-3">
               <div className="min-w-0">
                 <h3 className="font-semibold text-dark">{m.name}</h3>
-                <p className="text-xs text-gray-400 truncate">{m.email} — {m.date}</p>
+                <p className="text-xs text-gray-400 truncate">{m.email} — {m.created_at ? new Date(m.created_at).toLocaleDateString() : '-'}</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {!m.read && (
@@ -40,17 +54,22 @@ export default function AdminMessages() {
                   </span>
                 )}
                 <button
-                  onClick={(e) => { e.stopPropagation(); toggleRead(m.id) }}
+                  onClick={() => toggleRead(m.id, m.read)}
                   className="text-xs text-gray-400 hover:text-primary"
                 >
                   {m.read ? 'Mark unread' : 'Mark read'}
                 </button>
               </div>
             </div>
-            <p className="text-sm font-medium text-gray-700 mb-1">{m.subject}</p>
+            {m.service && (
+              <p className="text-sm font-medium text-gray-700 mb-1">{m.service}</p>
+            )}
             <p className="text-sm text-gray-500 line-clamp-2">{m.message}</p>
           </div>
         ))}
+        {messages.length === 0 && (
+          <div className="p-10 text-center text-gray-400">No messages yet.</div>
+        )}
       </div>
     </div>
   )

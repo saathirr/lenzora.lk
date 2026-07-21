@@ -3,26 +3,49 @@ import { HiPlus, HiTrash } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminPortfolio() {
-  const { portfolio, setPortfolio } = useApp()
+  const { portfolio, setPortfolio, createPortfolioItem, deletePortfolioItem, dataLoading } = useApp()
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [saving, setSaving] = useState(false)
 
-  const addItem = () => {
+  const addItem = async () => {
     if (!title || !category) return
-    setPortfolio((prev) => [...prev, {
-      id: Date.now(),
-      title,
-      category,
-      src: imageUrl || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=600&fit=crop',
-    }])
-    setTitle('')
-    setCategory('')
-    setImageUrl('')
+    setSaving(true)
+    try {
+      const created = await createPortfolioItem({
+        title,
+        category,
+        image: imageUrl || 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&h=600&fit=crop',
+      })
+      setPortfolio((prev) => [...prev, created])
+      setTitle('')
+      setCategory('')
+      setImageUrl('')
+    } catch (err) {
+      console.error('Failed to add portfolio item:', err)
+      alert('Failed to add item.')
+    }
+    setSaving(false)
   }
 
-  const deleteItem = (id) => {
-    setPortfolio((prev) => prev.filter((i) => i.id !== id))
+  const deleteItem = async (id) => {
+    if (!confirm('Delete this portfolio item?')) return
+    try {
+      await deletePortfolioItem(id)
+      setPortfolio((prev) => prev.filter((i) => i.id !== id))
+    } catch (err) {
+      console.error('Failed to delete item:', err)
+      alert('Failed to delete item.')
+    }
+  }
+
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
@@ -55,10 +78,11 @@ export default function AdminPortfolio() {
           />
           <button
             onClick={addItem}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark transition shrink-0"
+            disabled={saving}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark transition shrink-0 disabled:opacity-50"
           >
             <HiPlus />
-            Add Item
+            {saving ? 'Adding...' : 'Add Item'}
           </button>
         </div>
       </div>

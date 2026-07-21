@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { HiCash, HiCheck, HiX, HiArrowLeft, HiCloudUpload } from 'react-icons/hi'
+import { HiCash, HiCheck, HiArrowLeft, HiCloudUpload } from 'react-icons/hi'
 import { useApp } from '../lib/AppContext'
+import { createOrder, createPaymentSlip, uploadFile } from '../lib/db'
 
 const BANK_DETAILS = {
   bank: 'Amana Bank',
@@ -13,7 +14,6 @@ const BANK_DETAILS = {
 export default function Checkout() {
   const { cart, setCart, user, addOrder } = useApp()
   const navigate = useNavigate()
-  const [step, setStep] = useState('review')
   const [slipFile, setSlipFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -29,24 +29,53 @@ export default function Checkout() {
     if (!slipFile || !user) return
     setUploading(true)
 
-    const orderId = '#' + Date.now().toString(36).toUpperCase()
-    const order = {
-      id: orderId,
-      customer: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Customer',
-      email: user.email,
-      items: cart.map((c) => ({ name: c.name, qty: c.qty, price: c.price })),
-      amount: total,
-      status: 'Pending',
-      paymentStatus: 'paid',
-      slipUrl: URL.createObjectURL(slipFile),
-      slipName: slipFile.name,
-      date: new Date().toISOString().split('T')[0],
-    }
+    try {
+      const fileExt = slipFile.name.split('.').pop()
+      const filePath = `slips/${user.id}/${Date.now()}.${fileExt}`
+      const slipUrl = await uploadFile('payment-slips', filePath, slipFile)
 
-    addOrder(order)
-    setCart([])
+      const slip = await createPaymentSlip({
+        user_id: user.id,
+        slip_url: slipUrl,
+        bank_name: BANK_DETAILS.bank,
+        account_no: BANK_DETAILS.accountNo,
+        account_holder: BANK_DETAILS.holder,
+      })
+
+      const orderId = '#' + Date.now().toString(36).toUpperCase()
+      const items = cart.map((c) => ({ name: c.name, qty: c.qty, price: c.price }))
+
+      const order = await createOrder({
+        customer_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Customer',
+        customer_email: user.email,
+        user_id: user.id,
+        items: items,
+        amount: total,
+        status: 'Pending',
+        payment_status: 'paid',
+        payment_slip_id: slip.id,
+      })
+
+      addOrder({
+        id: '#' + order.id,
+        customer: order.customer_name,
+        email: order.customer_email,
+        items,
+        amount: order.amount,
+        status: order.status,
+        paymentStatus: order.payment_status,
+        slipUrl,
+        slipName: slipFile.name,
+        date: new Date().toISOString().split('T')[0],
+      })
+
+      setCart([])
+      setSubmitted(true)
+    } catch (err) {
+      console.error('Checkout error:', err)
+      alert('Failed to process payment. Please try again.')
+    }
     setUploading(false)
-    setSubmitted(true)
   }
 
   if (submitted) {
@@ -188,7 +217,7 @@ export default function Checkout() {
                       disabled={!slipFile || uploading}
                       className="w-full py-3 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark transition disabled:opacity-50 shadow-lg"
                     >
-                      {uploading ? 'Submitting...' : 'Submit Payment Slip'}
+                      {uploading ? 'Uploading...' : 'Submit Payment Slip'}
                     </button>
                   </div>
                 )}
