@@ -162,32 +162,49 @@ CREATE POLICY "Users can read own profile" ON profiles FOR SELECT USING (auth.ui
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
 
 -- Admin access (via admin role check)
-CREATE POLICY "Admin full access services" ON services FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admin full access portfolio" ON portfolio FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admin full access products" ON products FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admin full access orders" ON orders FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admin full access messages" ON contact_messages FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admin full access profiles" ON profiles FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Users can manage own cart" ON cart_items FOR ALL USING (auth.uid() = user_id);
+-- Note: FOR ALL USING handles SELECT/UPDATE/DELETE, WITH CHECK handles INSERT
+DROP POLICY IF EXISTS "Admin full access services" ON services;
+CREATE POLICY "Admin full access services" ON services FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin full access portfolio" ON portfolio;
+CREATE POLICY "Admin full access portfolio" ON portfolio FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin full access products" ON products;
+CREATE POLICY "Admin full access products" ON products FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin full access orders" ON orders;
+CREATE POLICY "Admin full access orders" ON orders FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin full access messages" ON contact_messages;
+CREATE POLICY "Admin full access messages" ON contact_messages FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin full access profiles" ON profiles;
+CREATE POLICY "Admin full access profiles" ON profiles FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Users can manage own cart" ON cart_items;
+CREATE POLICY "Users can manage own cart" ON cart_items FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- Payment slip policies
 CREATE POLICY "Users can insert own payment slips" ON payment_slips FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can read own payment slips" ON payment_slips FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Admin full access payment_slips" ON payment_slips FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-);
+DROP POLICY IF EXISTS "Admin full access payment_slips" ON payment_slips;
+CREATE POLICY "Admin full access payment_slips" ON payment_slips FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- Customer order policies
 CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
