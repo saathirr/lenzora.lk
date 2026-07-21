@@ -4,7 +4,7 @@
 -- Services table
 CREATE TABLE IF NOT EXISTS services (
   id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
+  name TEXT NOT NULL UNIQUE,
   description TEXT,
   price NUMERIC(10,2) NOT NULL DEFAULT 0,
   category TEXT,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS services (
 -- Portfolio table
 CREATE TABLE IF NOT EXISTS portfolio (
   id BIGSERIAL PRIMARY KEY,
-  title TEXT NOT NULL,
+  title TEXT NOT NULL UNIQUE,
   image TEXT,
   category TEXT,
   description TEXT,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS portfolio (
 -- Products (Shop) table
 CREATE TABLE IF NOT EXISTS products (
   id BIGSERIAL PRIMARY KEY,
-  name TEXT NOT NULL,
+  name TEXT NOT NULL UNIQUE,
   description TEXT,
   price NUMERIC(10,2) NOT NULL DEFAULT 0,
   image TEXT,
@@ -143,6 +143,19 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(i
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid','paid','confirmed'));
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_slip_id BIGINT REFERENCES payment_slips(id);
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
+
+-- Add unique constraints if missing (for idempotent seed data)
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'services_name_key') THEN
+    ALTER TABLE services ADD CONSTRAINT services_name_key UNIQUE (name);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'portfolio_title_key') THEN
+    ALTER TABLE portfolio ADD CONSTRAINT portfolio_title_key UNIQUE (title);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'products_name_key') THEN
+    ALTER TABLE products ADD CONSTRAINT products_name_key UNIQUE (name);
+  END IF;
+END $$;
 
 -- Enable Row Level Security
 ALTER TABLE IF EXISTS profiles ENABLE ROW LEVEL SECURITY;
