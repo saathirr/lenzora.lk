@@ -73,7 +73,14 @@ export default function Checkout() {
       setSubmitted(true)
     } catch (err) {
       console.error('Checkout error:', err)
-      alert('Failed to process payment. Please try again.')
+      const msg = err?.message || ''
+      if (msg.includes('Bucket not found') || msg.includes('bucket')) {
+        alert('Storage bucket not configured. Please run the database setup SQL in your Supabase dashboard (supabase-schema.sql).')
+      } else if (msg.includes('relation') || msg.includes('does not exist')) {
+        alert('Database tables not found. Please run the setup SQL in your Supabase dashboard (supabase-schema.sql).')
+      } else {
+        alert('Failed to process payment: ' + (msg || 'Unknown error'))
+      }
     }
     setUploading(false)
   }

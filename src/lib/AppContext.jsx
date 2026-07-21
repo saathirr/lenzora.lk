@@ -39,7 +39,7 @@ export function AppProvider({ children }) {
       setOrders(o)
       setMessages(m)
     } catch (err) {
-      console.error('Failed to load data:', err)
+      console.error('Failed to load data:', err?.message || err)
     }
     setDataLoading(false)
   }
