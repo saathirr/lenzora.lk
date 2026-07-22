@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
+import lenzoraLogo from '../assets/Lenzora.jpg'
 
 export default function About() {
   return (
@@ -36,7 +37,7 @@ export default function About() {
               <a href="https://facebook.com/lenzora.lk" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaFacebook size={20} />
               </a>
-              <a href="lenzora Logo.jpg" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
+              <a href="https://wa.me/94761736756" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaWhatsapp size={20} />
               </a>
             </div>
@@ -49,9 +50,9 @@ export default function About() {
           >
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="lenzora.jpg"
-                alt="Design studio"
-                className="w-full h-full object-cover"
+                src={lenzoraLogo}
+                alt="Lenzora Logo"
+                className="w-full h-full object-contain bg-black p-8"
               />
             </div>
             <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl p-4 hidden sm:block">
