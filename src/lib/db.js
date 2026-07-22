@@ -66,7 +66,7 @@ export async function deleteProduct(id) {
 export async function fetchOrders() {
   const { data, error } = await supabase
     .from('orders')
-    .select('*, payment_slips(*)')
+   .select('*, payment_slips!orders_payment_slip_id_fkey(*)')
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
