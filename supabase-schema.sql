@@ -61,8 +61,10 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Storage bucket for payment slips
+-- Storage buckets
 INSERT INTO storage.buckets (id, name, public) VALUES ('payment-slips', 'payment-slips', true)
+ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('portfolio-images', 'portfolio-images', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for payment-slips bucket
@@ -81,6 +83,25 @@ CREATE POLICY "Admin can delete slips"
   ON storage.objects FOR DELETE
   USING (
     bucket_id = 'payment-slips' AND
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- Portfolio images storage policies
+DROP POLICY IF EXISTS "Admin can upload portfolio images" ON storage.objects;
+CREATE POLICY "Admin can upload portfolio images"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'portfolio-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Public can view portfolio images" ON storage.objects;
+CREATE POLICY "Public can view portfolio images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'portfolio-images');
+
+DROP POLICY IF EXISTS "Admin can delete portfolio images" ON storage.objects;
+CREATE POLICY "Admin can delete portfolio images"
+  ON storage.objects FOR DELETE
+  USING (
+    bucket_id = 'portfolio-images' AND
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
