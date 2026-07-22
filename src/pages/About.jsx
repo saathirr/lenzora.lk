@@ -49,7 +49,7 @@ export default function About() {
           >
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1522542550221-31fd19575a2d?w=800&h=600&fit=crop"
+                src="lenzora Logo.jpg"
                 alt="Design studio"
                 className="w-full h-full object-cover"
               />
