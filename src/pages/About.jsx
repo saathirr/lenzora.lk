@@ -36,7 +36,7 @@ export default function About() {
               <a href="https://facebook.com/lenzora.lk" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaFacebook size={20} />
               </a>
-              <a href="https://wa.me/94761736756" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
+              <a href="lenzora Logo.jpg" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaWhatsapp size={20} />
               </a>
             </div>
