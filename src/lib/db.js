@@ -208,7 +208,9 @@ export async function addMessageToConversation(message) {
     .single()
   if (error) throw error
   return data
-  export function subscribeToMessages(conversationId, callback) {
+}
+
+export function subscribeToMessages(conversationId, callback) {
   const channel = supabase
     .channel(`messages-${conversationId}`)
     .on(
@@ -219,5 +221,4 @@ export async function addMessageToConversation(message) {
     .subscribe()
 
   return () => supabase.removeChannel(channel)
-}
 }
