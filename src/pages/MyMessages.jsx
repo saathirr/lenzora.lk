@@ -1,6 +1,8 @@
+import { subscribeToMessages } from '../../lib/db'
 import { useState, useEffect } from 'react'
 import { useApp } from '../lib/AppContext'
 import { fetchMyConversations, createConversation, fetchMessagesByConversation, addMessageToConversation } from '../lib/db'
+import { fetchMyConversations, createConversation, fetchMessagesByConversation, addMessageToConversation, subscribeToMessages } from '../lib/db'
 
 export default function MyMessages() {
   const { user, profile } = useApp()
@@ -201,4 +203,24 @@ export default function MyMessages() {
       </div>
     </div>
   )
+  useEffect(() => {
+  if (!activeConv) return
+  const unsubscribe = subscribeToMessages(activeConv.id, (newMsg) => {
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === newMsg.id)) return prev
+      return [...prev, newMsg]
+    })
+  })
+  return unsubscribe
+}, [activeConv])
+useEffect(() => {
+  if (!selected) return
+  const unsubscribe = subscribeToMessages(selected.id, (newMsg) => {
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === newMsg.id)) return prev
+      return [...prev, newMsg]
+    })
+  })
+  return unsubscribe
+}, [selected])
 }

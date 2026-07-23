@@ -208,4 +208,16 @@ export async function addMessageToConversation(message) {
     .single()
   if (error) throw error
   return data
+  export function subscribeToMessages(conversationId, callback) {
+  const channel = supabase
+    .channel(`messages-${conversationId}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
+      (payload) => callback(payload.new)
+    )
+    .subscribe()
+
+  return () => supabase.removeChannel(channel)
+}
 }
