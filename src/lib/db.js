@@ -126,3 +126,16 @@ export async function fetchAnalytics() {
   if (error) throw error
   return orders
 }
+
+export function subscribeToOrders(callback) {
+  const channel = supabase
+    .channel('orders-changes')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'orders' },
+      (payload) => callback(payload)
+    )
+    .subscribe()
+
+  return () => supabase.removeChannel(channel)
+}

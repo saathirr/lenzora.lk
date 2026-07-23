@@ -6,6 +6,7 @@ import {
   fetchProducts, createProduct, updateProduct, deleteProduct,
   fetchOrders, createOrder, updateOrder,
   fetchMessages, createMessage, updateMessage,
+  subscribeToOrders,
 } from './db'
 
 const AppContext = createContext()
@@ -76,6 +77,19 @@ export function AppProvider({ children }) {
     })
 
     return () => subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = subscribeToOrders((payload) => {
+      if (payload.eventType === 'INSERT') {
+        setOrders((prev) => [payload.new, ...prev])
+      } else if (payload.eventType === 'UPDATE') {
+        setOrders((prev) => prev.map((o) => (o.id === payload.new.id ? { ...o, ...payload.new } : o)))
+      } else if (payload.eventType === 'DELETE') {
+        setOrders((prev) => prev.filter((o) => o.id !== payload.old.id))
+      }
+    })
+    return unsubscribe
   }, [])
 
   const signOut = async () => {
