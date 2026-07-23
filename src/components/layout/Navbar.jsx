@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { HiMenu, HiX, HiUser, HiLogout } from 'react-icons/hi'
+import { HiMenu, HiX, HiUser, HiLogout, HiShoppingCart, HiMail } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 const links = [
@@ -71,6 +71,20 @@ export default function Navbar() {
                         <p className="text-sm font-medium text-dark truncate">{profile?.full_name || 'User'}</p>
                         <p className="text-xs text-gray-400 truncate">{user.email}</p>
                       </div>
+                      <button
+                        onClick={() => { setDropdownOpen(false); navigate('/my-orders') }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <HiShoppingCart size={16} />
+                        My Orders
+                      </button>
+                      <button
+                        onClick={() => { setDropdownOpen(false); navigate('/my-messages') }}
+                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <HiMail size={16} />
+                        My Messages
+                      </button>
                       {profile?.role === 'admin' && (
                         <button
                           onClick={() => { setDropdownOpen(false); navigate('/admin') }}
@@ -141,6 +155,20 @@ export default function Navbar() {
               <div className="border-t border-gray-100 pt-3 mt-2">
                 <p className="text-sm font-medium text-dark">{profile?.full_name || 'User'}</p>
                 <p className="text-xs text-gray-400 mb-3">{user.email}</p>
+                <Link
+                  to="/my-orders"
+                  onClick={() => setOpen(false)}
+                  className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 bg-gray-100 rounded-full mb-2"
+                >
+                  My Orders
+                </Link>
+                <Link
+                  to="/my-messages"
+                  onClick={() => setOpen(false)}
+                  className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 bg-gray-100 rounded-full mb-2"
+                >
+                  My Messages
+                </Link>
                 {profile?.role === 'admin' && (
                   <Link
                     to="/admin"

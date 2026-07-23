@@ -6,6 +6,9 @@ import {
   fetchProducts, createProduct, updateProduct, deleteProduct,
   fetchOrders, createOrder, updateOrder,
   fetchMessages, createMessage, updateMessage,
+  createConversation, addMessageToConversation,
+  fetchMyConversations, fetchMessagesByConversation,
+  fetchCustomerOrders,
   subscribeToOrders,
 } from './db'
 
@@ -120,6 +123,9 @@ export function AppProvider({ children }) {
       createProduct, updateProduct, deleteProduct,
       createOrder, updateOrder,
       createMessage, updateMessage,
+      createConversation, addMessageToConversation,
+      fetchMyConversations, fetchMessagesByConversation,
+      fetchCustomerOrders,
     }}>
       {children}
     </AppContext.Provider>

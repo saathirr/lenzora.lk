@@ -165,6 +165,30 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'unpaid'
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_slip_id BIGINT REFERENCES payment_slips(id);
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
 
+-- Conversations table (for customer messaging)
+CREATE TABLE IF NOT EXISTS conversations (
+  id BIGSERIAL PRIMARY KEY,
+  customer_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  customer_email TEXT NOT NULL,
+  customer_name TEXT NOT NULL,
+  subject TEXT,
+  status TEXT DEFAULT 'open' CHECK (status IN ('open', 'closed')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Messages table (for replies within conversations)
+CREATE TABLE IF NOT EXISTS messages (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id BIGINT REFERENCES conversations(id) ON DELETE CASCADE,
+  sender_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  sender_email TEXT NOT NULL,
+  sender_name TEXT NOT NULL,
+  body TEXT NOT NULL,
+  is_admin BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Add unique constraints if missing (for idempotent seed data)
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'services_name_key') THEN
@@ -259,6 +283,35 @@ DROP POLICY IF EXISTS "Admin full access payment_slips" ON payment_slips;
 CREATE POLICY "Admin full access payment_slips" ON payment_slips FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Conversation & message policies
+ALTER TABLE IF EXISTS conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS messages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can read own conversations" ON conversations;
+CREATE POLICY "Users can read own conversations" ON conversations
+  FOR SELECT USING (auth.uid() = customer_id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Users can insert own conversations" ON conversations;
+CREATE POLICY "Users can insert own conversations" ON conversations
+  FOR INSERT WITH CHECK (auth.uid() = customer_id);
+
+DROP POLICY IF EXISTS "Admin full access conversations" ON conversations;
+CREATE POLICY "Admin full access conversations" ON conversations FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Users can read own messages" ON messages;
+CREATE POLICY "Users can read own messages" ON messages
+  FOR SELECT USING (
+    EXISTS (SELECT 1 FROM conversations WHERE id = messages.conversation_id AND (customer_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')))
+  );
+
+DROP POLICY IF EXISTS "Users can insert messages" ON messages;
+CREATE POLICY "Users can insert own messages" ON messages
+  FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM conversations WHERE id = conversation_id AND (customer_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')))
+  );
 
 -- Customer order policies
 DROP POLICY IF EXISTS "Users can read own orders" ON orders;

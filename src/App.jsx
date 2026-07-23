@@ -10,6 +10,8 @@ import Contact from './pages/Contact'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Checkout from './pages/Checkout'
+import MyOrders from './pages/MyOrders'
+import MyMessages from './pages/MyMessages'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminServices from './pages/admin/Services'
 import AdminOrders from './pages/admin/Orders'
@@ -33,6 +35,8 @@ export default function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="my-orders" element={<MyOrders />} />
+          <Route path="my-messages" element={<MyMessages />} />
         </Route>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />

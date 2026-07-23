@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { HiMail, HiPhone, HiLocationMarker, HiCheck } from 'react-icons/hi'
 import { FaInstagram, FaWhatsapp } from 'react-icons/fa'
-import { createMessage } from '../lib/db'
+import { useApp } from '../lib/AppContext'
+import { supabase } from '../lib/supabase'
 
 export default function Contact() {
+  const { user, profile, createConversation, addMessageToConversation } = useApp()
   const [submitted, setSubmitted] = useState(false)
   const [sending, setSending] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', phone: '', service: '', message: '' })
@@ -13,12 +15,19 @@ export default function Contact() {
     e.preventDefault()
     setSending(true)
     try {
-      await createMessage({
-        name: form.name,
-        email: form.email,
-        phone: form.phone || null,
-        service: form.service || null,
-        message: form.message,
+      const conversation = await createConversation({
+        customer_id: user?.id || null,
+        customer_email: form.email,
+        customer_name: form.name,
+        subject: form.service || 'General Inquiry',
+      })
+      await addMessageToConversation({
+        conversation_id: conversation.id,
+        sender_id: user?.id || null,
+        sender_email: form.email,
+        sender_name: form.name,
+        body: form.message,
+        is_admin: false,
       })
       setSubmitted(true)
       setForm({ name: '', email: '', phone: '', service: '', message: '' })
