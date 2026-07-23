@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { HiShoppingCart, HiEye } from 'react-icons/hi'
 import { useApp } from '../lib/AppContext'
+import { fetchCustomerOrders } from '../lib/db'
 
 const statusColors = {
   Pending: 'bg-amber-100 text-amber-600',
@@ -18,7 +19,7 @@ const paymentColors = {
 }
 
 export default function MyOrders() {
-  const { user, fetchCustomerOrders } = useApp()
+  const { user } = useApp()
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [viewingSlip, setViewingSlip] = useState(null)
