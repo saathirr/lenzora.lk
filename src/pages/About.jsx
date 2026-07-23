@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
-import lenzoraLogo from '../assets/Lenzora.jpg'
+import lenzoraLogo from '../assets/Lenzora.png'
 
 export default function About() {
   return (

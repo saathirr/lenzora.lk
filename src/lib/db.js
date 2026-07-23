@@ -66,7 +66,7 @@ export async function deleteProduct(id) {
 export async function fetchOrders() {
   const { data, error } = await supabase
     .from('orders')
-   .select('*, payment_slips!orders_payment_slip_id_fkey(*)')
+    .select('*, payment_slips!orders_payment_slip_id_fkey(*)')
     .order('created_at', { ascending: false })
   if (error) throw error
   return data
@@ -80,6 +80,16 @@ export async function createOrder(order) {
 
 export async function updateOrder(id, updates) {
   const { data, error } = await supabase.from('orders').update(updates).eq('id', id).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function fetchCustomerOrders(userId) {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*, payment_slips(slip_url)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
   if (error) throw error
   return data
 }
@@ -127,52 +137,6 @@ export async function fetchAnalytics() {
   return orders
 }
 
-export async function fetchConversations() {
-  const { data, error } = await supabase.from('conversations').select('*').order('created_at', { ascending: false })
-  if (error) throw error
-  return data
-}
-
-export async function fetchMyConversations(userId) {
-  const { data, error } = await supabase.from('conversations').select('*').eq('customer_id', userId).order('created_at', { ascending: false })
-  if (error) throw error
-  return data
-}
-
-export async function createConversation(conversation) {
-  const { data, error } = await supabase.from('conversations').insert(conversation).select().single()
-  if (error) throw error
-  return data
-}
-
-export async function updateConversation(id, updates) {
-  const { data, error } = await supabase.from('conversations').update(updates).eq('id', id).select().single()
-  if (error) throw error
-  return data
-}
-
-export async function fetchMessagesByConversation(conversationId) {
-  const { data, error } = await supabase.from('messages').select('*').eq('conversation_id', conversationId).order('created_at', { ascending: true })
-  if (error) throw error
-  return data
-}
-
-export async function addMessageToConversation(msg) {
-  const { data, error } = await supabase.from('messages').insert(msg).select().single()
-  if (error) throw error
-  return data
-}
-
-export async function fetchCustomerOrders(userId) {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*, payment_slips(slip_url)')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data
-}
-
 export function subscribeToOrders(callback) {
   const channel = supabase
     .channel('orders-changes')
@@ -184,4 +148,64 @@ export function subscribeToOrders(callback) {
     .subscribe()
 
   return () => supabase.removeChannel(channel)
+}
+
+export async function fetchConversations() {
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function fetchMyConversations(userId) {
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .eq('customer_id', userId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createConversation(conversation) {
+  const { data, error } = await supabase
+    .from('conversations')
+    .insert(conversation)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function updateConversation(id, updates) {
+  const { data, error } = await supabase
+    .from('conversations')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function fetchMessagesByConversation(conversationId) {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data
+}
+
+export async function addMessageToConversation(message) {
+  const { data, error } = await supabase
+    .from('messages')
+    .insert(message)
+    .select()
+    .single()
+  if (error) throw error
+  return data
 }
