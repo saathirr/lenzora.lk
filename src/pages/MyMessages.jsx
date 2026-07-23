@@ -3,8 +3,7 @@ import { useApp } from '../lib/AppContext'
 import { fetchMyConversations, createConversation, fetchMessagesByConversation, addMessageToConversation, subscribeToMessages, uploadFile } from '../lib/db'
 import { HiReply, HiPaperClip } from 'react-icons/hi'
 import { BsEmojiSmile } from 'react-icons/bs'
-
-const EMOJIS = ['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','🥰','😘','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','☹️','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','😡','😠','🤬','👍','👎','👊','✊','🤛','🤜','🤞','✌️','🤟','🤘','👌','❤️','💔','💖','💙','💚','💛','🧡','💜','🤎','🖤','🔥','⭐','✅','❌','‼️','❓','💯','🎉']
+import EmojiPicker from 'emoji-picker-react'
 
 export default function MyMessages() {
   const { user, profile } = useApp()
@@ -413,18 +412,17 @@ export default function MyMessages() {
                             <BsEmojiSmile size={18} />
                           </button>
                           {showEmojiPicker && (
-                            <div className="absolute bottom-full right-0 mb-2 bg-white border border-gray-200 rounded-xl shadow-xl p-3 w-[280px] z-50">
-                              <div className="grid grid-cols-7 gap-1 max-h-[180px] overflow-y-auto">
-                                {EMOJIS.map((emoji, i) => (
-                                  <button
-                                    key={i}
-                                    onClick={() => { insertEmoji(emoji); setShowEmojiPicker(false) }}
-                                    className="text-lg p-1 hover:bg-gray-100 rounded transition"
-                                  >
-                                    {emoji}
-                                  </button>
-                                ))}
-                              </div>
+                            <div className="absolute bottom-full right-0 mb-2 z-50">
+                              <EmojiPicker
+                                onEmojiClick={(emojiData) => {
+                                  insertEmoji(emojiData.emoji)
+                                  setShowEmojiPicker(false)
+                                }}
+                                skinTonesDisabled
+                                searchDisabled
+                                width={280}
+                                height={320}
+                              />
                             </div>
                           )}
                         </div>
