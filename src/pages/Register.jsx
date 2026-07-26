@@ -31,19 +31,24 @@ export default function Register() {
       return
     }
     setLoading(true)
-    const { error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName, phone },
-      },
-    })
-    setLoading(false)
-    if (authError) {
-      setError(authError.message)
-      return
+    try {
+      const { error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName, phone },
+        },
+      })
+      if (authError) {
+        setError(authError.message || 'Registration failed. Please try again.')
+        return
+      }
+      navigate('/login?registered=true')
+    } catch (err) {
+      setError(err?.message || 'An unexpected error occurred.')
+    } finally {
+      setLoading(false)
     }
-    navigate('/login?registered=true')
   }
 
   return (

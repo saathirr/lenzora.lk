@@ -22,12 +22,18 @@ export default function Login() {
       return
     }
     setLoading(true)
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
-    setLoading(false)
-    if (authError) {
-      setError(authError.message)
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      if (authError) {
+        setError(authError.message || 'Login failed. Please try again.')
+        return
+      }
+    } catch (err) {
+      setError(err?.message || 'An unexpected error occurred.')
+      setLoading(false)
       return
     }
+    setLoading(false)
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -47,15 +53,20 @@ export default function Login() {
     }
     setResetting(true)
     setError('')
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
-    })
-    setResetting(false)
-    if (resetError) {
-      setError(resetError.message)
-      return
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login`,
+      })
+      if (resetError) {
+        setError(resetError.message || 'Failed to send reset email.')
+        return
+      }
+      setResetSent(true)
+    } catch (err) {
+      setError(err?.message || 'An unexpected error occurred.')
+    } finally {
+      setResetting(false)
     }
-    setResetSent(true)
   }
 
   return (

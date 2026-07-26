@@ -94,6 +94,19 @@ export async function fetchCustomerOrders(userId) {
   return data
 }
 
+export function subscribeToCustomerOrders(userId, callback) {
+  const channel = supabase
+    .channel(`customer-orders-${userId}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'orders', filter: `user_id=eq.${userId}` },
+      (payload) => callback(payload)
+    )
+    .subscribe()
+
+  return () => supabase.removeChannel(channel)
+}
+
 export async function fetchMessages() {
   const { data, error } = await supabase.from('contact_messages').select('*').order('created_at', { ascending: false })
   if (error) throw error
