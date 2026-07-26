@@ -87,7 +87,7 @@ export async function updateOrder(id, updates) {
 export async function fetchCustomerOrders(userId) {
   const { data, error } = await supabase
     .from('orders')
-    .select('*, payment_slips(slip_url)')
+    .select('*, payment_slips!orders_payment_slip_id_fkey(slip_url)')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
   if (error) throw error
