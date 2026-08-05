@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { HiSave, HiSun, HiMoon, HiSpeakerphone, HiGlobe, HiPhone, HiMail } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
@@ -7,6 +7,10 @@ export default function AdminSettings() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [form, setForm] = useState(settings)
+
+  useEffect(() => {
+    setForm(settings)
+  }, [settings])
 
   const handleSave = async () => {
     setSaving(true)
