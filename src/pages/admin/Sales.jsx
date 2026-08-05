@@ -3,20 +3,23 @@ import { HiPlus, HiTrash } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminSales() {
-  const { sales, setSales, createSale, deleteSale, dataLoading } = useApp()
+  const { sales, setSales, frames, createSale, deleteSale, dataLoading } = useApp()
   const [form, setForm] = useState({ item_name: '', amount: '', notes: '' })
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
 
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
-  const todaySales = sales.filter((s) => {
-    const d = new Date(s.created_at)
-    const now = new Date()
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()
-  })
+  const isToday = (d) => { const n = new Date(); return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate() }
 
-  const totalToday = todaySales.reduce((sum, s) => sum + Number(s.amount), 0)
+  const todaySales = sales.filter((s) => isToday(new Date(s.created_at)))
+  const todayFrames = frames.filter((f) => isToday(new Date(f.created_at)))
+
+  const sumAmount = (list) => list.reduce((sum, s) => sum + Number(s.amount), 0)
+  const sumPrice = (list) => list.reduce((sum, f) => sum + Number(f.price), 0)
+
+  const totalToday = sumAmount(todaySales) + sumPrice(todayFrames)
+  const allTimeSales = sumAmount(sales) + sumPrice(frames)
 
   const handleAdd = async () => {
     if (!form.item_name.trim() || !form.amount) return
@@ -79,13 +82,13 @@ export default function AdminSales() {
         </div>
         <div className="p-5 rounded-2xl bg-white border border-gray-100 shadow-sm">
           <p className="text-sm text-gray-500">{todayLabel}</p>
-          <p className="text-3xl font-bold text-dark mt-1">{todaySales.length}</p>
+          <p className="text-3xl font-bold text-dark mt-1">{todaySales.length + todayFrames.length}</p>
           <p className="text-sm text-gray-500">items sold</p>
         </div>
         <div className="p-5 rounded-2xl bg-white border border-gray-100 shadow-sm">
           <p className="text-sm text-gray-500">All Time Sales</p>
-          <p className="text-3xl font-bold text-dark mt-1">LKR {sales.reduce((sum, s) => sum + Number(s.amount), 0).toLocaleString()}</p>
-          <p className="text-sm text-gray-500">{sales.length} entries</p>
+          <p className="text-3xl font-bold text-dark mt-1">LKR {allTimeSales.toLocaleString()}</p>
+          <p className="text-sm text-gray-500">{sales.length + frames.length} entries</p>
         </div>
       </div>
 
