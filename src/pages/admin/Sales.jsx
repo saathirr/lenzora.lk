@@ -3,7 +3,7 @@ import { HiPlus, HiTrash } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminSales() {
-  const { sales, setSales, frames, createSale, deleteSale, dataLoading } = useApp()
+  const { sales, setSales, frames, setFrames, createSale, deleteSale, deleteFrame, dataLoading } = useApp()
   const [form, setForm] = useState({ item_name: '', amount: '', notes: '' })
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -20,6 +20,27 @@ export default function AdminSales() {
 
   const totalToday = sumAmount(todaySales) + sumPrice(todayFrames)
   const allTimeSales = sumAmount(sales) + sumPrice(frames)
+
+  const combined = [
+    ...frames.map((f) => ({
+      key: `frame-${f.id}`,
+      id: f.id,
+      type: 'frame',
+      item: f.frame_size,
+      amount: Number(f.price),
+      notes: `Price LKR ${Number(f.price).toLocaleString()} · Cost LKR ${Number(f.cost).toLocaleString()} · Profit LKR ${Number(f.profit).toLocaleString()}`,
+      created_at: f.created_at,
+    })),
+    ...sales.map((s) => ({
+      key: `sale-${s.id}`,
+      id: s.id,
+      type: 'sale',
+      item: s.item_name,
+      amount: Number(s.amount),
+      notes: s.notes || '',
+      created_at: s.created_at,
+    })),
+  ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
   const handleAdd = async () => {
     if (!form.item_name.trim() || !form.amount) return
@@ -40,14 +61,19 @@ export default function AdminSales() {
     setSaving(false)
   }
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this sale entry?')) return
+  const handleDelete = async (type, id) => {
+    if (!confirm('Delete this entry?')) return
     try {
-      await deleteSale(id)
-      setSales((prev) => prev.filter((s) => s.id !== id))
+      if (type === 'frame') {
+        await deleteFrame(id)
+        setFrames((prev) => prev.filter((f) => f.id !== id))
+      } else {
+        await deleteSale(id)
+        setSales((prev) => prev.filter((s) => s.id !== id))
+      }
     } catch (err) {
-      console.error('Failed to delete sale:', err)
-      alert('Failed to delete sale.')
+      console.error('Failed to delete:', err)
+      alert('Failed to delete.')
     }
   }
 
@@ -133,26 +159,33 @@ export default function AdminSales() {
               <tr className="border-b border-gray-100 text-left text-gray-500 bg-gray-50">
                 <th className="p-4 font-medium">Item</th>
                 <th className="p-4 font-medium">Amount</th>
-                <th className="p-4 font-medium hidden sm:table-cell">Notes</th>
+                <th className="p-4 font-medium hidden sm:table-cell">Details</th>
                 <th className="p-4 font-medium">Date</th>
                 <th className="p-4 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {sales.map((s) => (
-                <tr key={s.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="p-4 font-medium text-dark">{s.item_name}</td>
-                  <td className="p-4 font-medium text-green-600">LKR {Number(s.amount).toLocaleString()}</td>
-                  <td className="p-4 text-gray-600 hidden sm:table-cell">{s.notes || '-'}</td>
-                  <td className="p-4 text-gray-500">{s.created_at ? new Date(s.created_at).toLocaleDateString() : '-'}</td>
+              {combined.map((e) => (
+                <tr key={e.key} className="border-b border-gray-50 hover:bg-gray-50/50">
                   <td className="p-4">
-                    <button onClick={() => handleDelete(s.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${e.type === 'frame' ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-500'}`}>
+                        {e.type}
+                      </span>
+                      <span className="font-medium text-dark">{e.item}</span>
+                    </div>
+                  </td>
+                  <td className="p-4 font-medium text-green-600">LKR {e.amount.toLocaleString()}</td>
+                  <td className="p-4 text-gray-600 hidden sm:table-cell">{e.notes || '-'}</td>
+                  <td className="p-4 text-gray-500">{e.created_at ? new Date(e.created_at).toLocaleDateString() : '-'}</td>
+                  <td className="p-4">
+                    <button onClick={() => handleDelete(e.type, e.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
                       <HiTrash size={16} />
                     </button>
                   </td>
                 </tr>
               ))}
-              {sales.length === 0 && (
+              {combined.length === 0 && (
                 <tr>
                   <td colSpan={5} className="p-10 text-center text-gray-400">No sales recorded yet.</td>
                 </tr>
