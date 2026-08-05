@@ -16,10 +16,10 @@ export default function AdminSales() {
   const todayFrames = frames.filter((f) => isToday(new Date(f.created_at)))
 
   const sumAmount = (list) => list.reduce((sum, s) => sum + Number(s.amount), 0)
-  const sumPrice = (list) => list.reduce((sum, f) => sum + Number(f.price), 0)
+  const sumProfit = (list) => list.reduce((sum, f) => sum + Number(f.profit), 0)
 
-  const totalToday = sumAmount(todaySales) + sumPrice(todayFrames)
-  const allTimeSales = sumAmount(sales) + sumPrice(frames)
+  const totalToday = sumAmount(todaySales) + sumProfit(todayFrames)
+  const allTimeSales = sumAmount(sales) + sumProfit(frames)
 
   const combined = [
     ...frames.map((f) => ({
@@ -27,7 +27,7 @@ export default function AdminSales() {
       id: f.id,
       type: 'frame',
       item: f.frame_size,
-      amount: Number(f.price),
+      amount: Number(f.profit),
       notes: `Price LKR ${Number(f.price).toLocaleString()} · Cost LKR ${Number(f.cost).toLocaleString()} · Profit LKR ${Number(f.profit).toLocaleString()}`,
       created_at: f.created_at,
     })),
