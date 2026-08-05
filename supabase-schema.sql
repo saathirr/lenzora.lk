@@ -138,6 +138,15 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- Manual Sales table (admin-added daily sales)
+CREATE TABLE IF NOT EXISTS sales (
+  id BIGSERIAL PRIMARY KEY,
+  item_name TEXT NOT NULL,
+  amount NUMERIC(10,2) NOT NULL DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Cart Items table
 CREATE TABLE IF NOT EXISTS cart_items (
   id BIGSERIAL PRIMARY KEY,
@@ -211,6 +220,7 @@ ALTER TABLE IF EXISTS orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS cart_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS payment_slips ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS sales ENABLE ROW LEVEL SECURITY;
 
 -- Public read policies
 DROP POLICY IF EXISTS "Public can read services" ON services;
@@ -281,6 +291,15 @@ CREATE POLICY "Users can read own payment slips" ON payment_slips FOR SELECT USI
 
 DROP POLICY IF EXISTS "Admin full access payment_slips" ON payment_slips;
 CREATE POLICY "Admin full access payment_slips" ON payment_slips FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Sales policies (admin manage; public read for dashboard/reporting)
+DROP POLICY IF EXISTS "Public can read sales" ON sales;
+CREATE POLICY "Public can read sales" ON sales FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin full access sales" ON sales;
+CREATE POLICY "Admin full access sales" ON sales FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 

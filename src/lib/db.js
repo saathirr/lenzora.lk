@@ -63,6 +63,23 @@ export async function deleteProduct(id) {
   if (error) throw error
 }
 
+export async function fetchSales() {
+  const { data, error } = await supabase.from('sales').select('*').order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createSale(sale) {
+  const { data, error } = await supabase.from('sales').insert(sale).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteSale(id) {
+  const { error } = await supabase.from('sales').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchOrders() {
   const { data, error } = await supabase
     .from('orders')

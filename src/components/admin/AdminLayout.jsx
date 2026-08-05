@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph, HiCube, HiMail, HiLogout } from 'react-icons/hi'
+import { HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph, HiCube, HiMail, HiLogout, HiBadgeCheck } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 const sidebarLinks = [
@@ -9,6 +9,7 @@ const sidebarLinks = [
   { to: '/admin/services', icon: HiCollection, label: 'Services' },
   { to: '/admin/portfolio', icon: HiPhotograph, label: 'Portfolio' },
   { to: '/admin/products', icon: HiCube, label: 'Products' },
+  { to: '/admin/sales', icon: HiBadgeCheck, label: 'Sales' },
   { to: '/admin/messages', icon: HiMail, label: 'Messages' },
 ]
 

@@ -5,6 +5,7 @@ import {
   fetchPortfolio, createPortfolioItem, deletePortfolioItem,
   fetchProducts, createProduct, updateProduct, deleteProduct,
   fetchOrders, createOrder, updateOrder,
+  fetchSales, createSale, deleteSale,
   fetchMessages, createMessage, updateMessage,
   createConversation, addMessageToConversation,
   fetchMyConversations, fetchMessagesByConversation,
@@ -19,6 +20,7 @@ export function AppProvider({ children }) {
   const [portfolio, setPortfolio] = useState([])
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
+  const [sales, setSales] = useState([])
   const [messages, setMessages] = useState([])
   const [cart, setCart] = useState([])
   const [customerOrders, setCustomerOrders] = useState([])
@@ -30,18 +32,20 @@ export function AppProvider({ children }) {
 
   const loadAllData = async () => {
     try {
-      const [s, p, pr, o, m] = await Promise.all([
+      const [s, p, pr, o, m, sal] = await Promise.all([
         fetchServices(),
         fetchPortfolio(),
         fetchProducts(),
         fetchOrders(),
         fetchMessages(),
+        fetchSales(),
       ])
       setServices(s)
       setPortfolio(p)
       setProducts(pr)
       setOrders(o)
       setMessages(m)
+      setSales(sal)
     } catch (err) {
       console.error('Failed to load data:', err?.message || err)
     }
@@ -112,6 +116,7 @@ export function AppProvider({ children }) {
       portfolio, setPortfolio,
       products, setProducts,
       orders, setOrders,
+      sales, setSales,
       messages, setMessages,
       cart, setCart,
       customerOrders, setCustomerOrders,
@@ -122,6 +127,7 @@ export function AppProvider({ children }) {
       createPortfolioItem, deletePortfolioItem,
       createProduct, updateProduct, deleteProduct,
       createOrder, updateOrder,
+      createSale, deleteSale,
       createMessage, updateMessage,
       createConversation, addMessageToConversation,
       fetchMyConversations, fetchMessagesByConversation,
