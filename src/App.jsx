@@ -19,6 +19,7 @@ import AdminPortfolio from './pages/admin/Portfolio'
 import AdminProducts from './pages/admin/Products'
 import AdminMessages from './pages/admin/Messages'
 import AdminSales from './pages/admin/Sales'
+import AdminFrames from './pages/admin/Frames'
 import AdminSettings from './pages/admin/Settings'
 import ScrollToTop from './components/ui/ScrollToTop'
 
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="portfolio" element={<AdminPortfolio />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="sales" element={<AdminSales />} />
+          <Route path="frames" element={<AdminFrames />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="messages" element={<AdminMessages />} />
         </Route>

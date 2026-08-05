@@ -6,7 +6,7 @@ import { useApp } from '../../lib/AppContext'
 const periodLabels = { daily: 'Today', weekly: 'This Week', monthly: 'This Month' }
 
 export default function AdminDashboard() {
-  const { orders, services, portfolio, messages, sales, dataLoading } = useApp()
+  const { orders, services, portfolio, messages, sales, frames, dataLoading } = useApp()
   const [period, setPeriod] = useState('monthly')
 
   const analytics = useMemo(() => {
@@ -33,12 +33,20 @@ export default function AdminDashboard() {
       return inPeriod(s.created_at, startOfMonth)
     })
 
-    const totalIncome = periodOrders.reduce((s, o) => s + Number(o.amount), 0) + periodSales.reduce((s, sale) => s + Number(sale.amount), 0)
+    const periodFrames = frames.filter((f) => {
+      if (period === 'daily') return inPeriod(f.created_at, startOfDay)
+      if (period === 'weekly') return inPeriod(f.created_at, startOfWeek)
+      return inPeriod(f.created_at, startOfMonth)
+    })
+
+    const totalIncome = periodOrders.reduce((s, o) => s + Number(o.amount), 0)
+      + periodSales.reduce((s, sale) => s + Number(sale.amount), 0)
+      + periodFrames.reduce((s, f) => s + Number(f.profit), 0)
     const completedIncome = periodOrders.filter((o) => o.status === 'Completed').reduce((s, o) => s + Number(o.amount), 0)
     const pendingIncome = periodOrders.filter((o) => o.status === 'Pending').reduce((s, o) => s + Number(o.amount), 0)
 
-    return { total: totalIncome, completed: completedIncome, pending: pendingIncome, count: periodOrders.length + periodSales.length }
-  }, [orders, sales, period])
+    return { total: totalIncome, completed: completedIncome, pending: pendingIncome, count: periodOrders.length + periodSales.length + periodFrames.length }
+  }, [orders, sales, frames, period])
 
   const completedOrders = orders.filter((o) => o.status === 'Completed').length
   const unreadMessages = messages.filter((m) => !m.read).length

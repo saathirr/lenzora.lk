@@ -173,6 +173,17 @@ CREATE TABLE IF NOT EXISTS cart_items (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Frames table (admin-tracked frame income/sales; profit feeds daily income)
+CREATE TABLE IF NOT EXISTS frames (
+  id BIGSERIAL PRIMARY KEY,
+  frame_size TEXT NOT NULL,
+  price NUMERIC(10,2) NOT NULL DEFAULT 0,
+  cost NUMERIC(10,2) NOT NULL DEFAULT 0,
+  profit NUMERIC(10,2) NOT NULL DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Payment Slips table
 CREATE TABLE IF NOT EXISTS payment_slips (
   id BIGSERIAL PRIMARY KEY,
@@ -239,6 +250,7 @@ ALTER TABLE IF EXISTS cart_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS payment_slips ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS sales ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS site_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS frames ENABLE ROW LEVEL SECURITY;
 
 -- Public read policies
 DROP POLICY IF EXISTS "Public can read services" ON services;
@@ -327,6 +339,15 @@ CREATE POLICY "Public can read site settings" ON site_settings FOR SELECT USING 
 
 DROP POLICY IF EXISTS "Admin full access site settings" ON site_settings;
 CREATE POLICY "Admin full access site settings" ON site_settings FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Frames policies (public read for dashboard/reporting; admin manage)
+DROP POLICY IF EXISTS "Public can read frames" ON frames;
+CREATE POLICY "Public can read frames" ON frames FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin full access frames" ON frames;
+CREATE POLICY "Admin full access frames" ON frames FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 

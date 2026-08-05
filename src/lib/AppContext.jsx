@@ -6,6 +6,7 @@ import {
   fetchProducts, createProduct, updateProduct, deleteProduct,
   fetchOrders, createOrder, updateOrder,
   fetchSales, createSale, deleteSale,
+  fetchFrames, createFrame, updateFrame, deleteFrame,
   fetchMessages, createMessage, updateMessage,
   createConversation, addMessageToConversation,
   fetchMyConversations, fetchMessagesByConversation,
@@ -22,6 +23,7 @@ export function AppProvider({ children }) {
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
   const [sales, setSales] = useState([])
+  const [frames, setFrames] = useState([])
   const [messages, setMessages] = useState([])
   const [settings, setSettings] = useState({
     id: 1,
@@ -42,7 +44,7 @@ export function AppProvider({ children }) {
 
   const loadAllData = async () => {
     try {
-      const [s, p, pr, o, m, sal, st] = await Promise.all([
+      const [s, p, pr, o, m, sal, st, fr] = await Promise.all([
         fetchServices(),
         fetchPortfolio(),
         fetchProducts(),
@@ -50,6 +52,7 @@ export function AppProvider({ children }) {
         fetchMessages(),
         fetchSales(),
         fetchSiteSettings(),
+        fetchFrames(),
       ])
       setServices(s)
       setPortfolio(p)
@@ -57,6 +60,7 @@ export function AppProvider({ children }) {
       setOrders(o)
       setMessages(m)
       setSales(sal)
+      setFrames(fr)
       if (st) setSettings((prev) => ({ ...prev, ...st }))
     } catch (err) {
       console.error('Failed to load data:', err?.message || err)
@@ -138,6 +142,7 @@ export function AppProvider({ children }) {
       products, setProducts,
       orders, setOrders,
       sales, setSales,
+      frames, setFrames,
       messages, setMessages,
       settings, setSettings, updateSiteSettings,
       cart, setCart,
@@ -150,6 +155,7 @@ export function AppProvider({ children }) {
       createProduct, updateProduct, deleteProduct,
       createOrder, updateOrder,
       createSale, deleteSale,
+      createFrame, updateFrame, deleteFrame,
       createMessage, updateMessage,
       createConversation, addMessageToConversation,
       fetchMyConversations, fetchMessagesByConversation,

@@ -92,6 +92,29 @@ export async function updateSiteSettings(id, updates) {
   return data
 }
 
+export async function fetchFrames() {
+  const { data, error } = await supabase.from('frames').select('*').order('created_at', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createFrame(frame) {
+  const { data, error } = await supabase.from('frames').insert(frame).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function updateFrame(id, updates) {
+  const { data, error } = await supabase.from('frames').update(updates).eq('id', id).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteFrame(id) {
+  const { error } = await supabase.from('frames').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchOrders() {
   const { data, error } = await supabase
     .from('orders')
