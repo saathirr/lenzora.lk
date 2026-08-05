@@ -10,6 +10,7 @@ import {
   createConversation, addMessageToConversation,
   fetchMyConversations, fetchMessagesByConversation,
   fetchCustomerOrders,
+  fetchSiteSettings, updateSiteSettings,
   subscribeToOrders,
 } from './db'
 
@@ -22,6 +23,15 @@ export function AppProvider({ children }) {
   const [orders, setOrders] = useState([])
   const [sales, setSales] = useState([])
   const [messages, setMessages] = useState([])
+  const [settings, setSettings] = useState({
+    id: 1,
+    theme: 'light',
+    site_name: 'Lenzora',
+    whatsapp: '94717336756',
+    contact_email: 'hello@lenzora.lk',
+    announcement_enabled: false,
+    announcement_text: '',
+  })
   const [cart, setCart] = useState([])
   const [customerOrders, setCustomerOrders] = useState([])
   const [loading, setLoading] = useState(true)
@@ -32,13 +42,14 @@ export function AppProvider({ children }) {
 
   const loadAllData = async () => {
     try {
-      const [s, p, pr, o, m, sal] = await Promise.all([
+      const [s, p, pr, o, m, sal, st] = await Promise.all([
         fetchServices(),
         fetchPortfolio(),
         fetchProducts(),
         fetchOrders(),
         fetchMessages(),
         fetchSales(),
+        fetchSiteSettings(),
       ])
       setServices(s)
       setPortfolio(p)
@@ -46,6 +57,7 @@ export function AppProvider({ children }) {
       setOrders(o)
       setMessages(m)
       setSales(sal)
+      if (st) setSettings((prev) => ({ ...prev, ...st }))
     } catch (err) {
       console.error('Failed to load data:', err?.message || err)
     }
@@ -99,6 +111,15 @@ export function AppProvider({ children }) {
     return unsubscribe
   }, [])
 
+  useEffect(() => {
+    const root = document.documentElement
+    if (settings.theme === 'dark') {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+  }, [settings.theme])
+
   const signOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
@@ -118,6 +139,7 @@ export function AppProvider({ children }) {
       orders, setOrders,
       sales, setSales,
       messages, setMessages,
+      settings, setSettings, updateSiteSettings,
       cart, setCart,
       customerOrders, setCustomerOrders,
       addOrder,

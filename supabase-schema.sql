@@ -147,6 +147,23 @@ CREATE TABLE IF NOT EXISTS sales (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Site Settings table (single-row website configuration)
+CREATE TABLE IF NOT EXISTS site_settings (
+  id INT PRIMARY KEY DEFAULT 1,
+  theme TEXT DEFAULT 'light' CHECK (theme IN ('light', 'dark')),
+  site_name TEXT DEFAULT 'Lenzora',
+  whatsapp TEXT DEFAULT '94717336756',
+  contact_email TEXT DEFAULT 'hello@lenzora.lk',
+  announcement_enabled BOOLEAN DEFAULT false,
+  announcement_text TEXT DEFAULT '',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Seed default site settings (only if none exist)
+INSERT INTO site_settings (id, theme, site_name, whatsapp, contact_email, announcement_enabled, announcement_text)
+VALUES (1, 'light', 'Lenzora', '94717336756', 'hello@lenzora.lk', false, '')
+ON CONFLICT (id) DO NOTHING;
+
 -- Cart Items table
 CREATE TABLE IF NOT EXISTS cart_items (
   id BIGSERIAL PRIMARY KEY,
@@ -221,6 +238,7 @@ ALTER TABLE IF EXISTS contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS cart_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS payment_slips ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS sales ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS site_settings ENABLE ROW LEVEL SECURITY;
 
 -- Public read policies
 DROP POLICY IF EXISTS "Public can read services" ON services;
@@ -300,6 +318,15 @@ CREATE POLICY "Public can read sales" ON sales FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admin full access sales" ON sales;
 CREATE POLICY "Admin full access sales" ON sales FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Site settings policies (public read, admin update)
+DROP POLICY IF EXISTS "Public can read site settings" ON site_settings;
+CREATE POLICY "Public can read site settings" ON site_settings FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin full access site settings" ON site_settings;
+CREATE POLICY "Admin full access site settings" ON site_settings FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 

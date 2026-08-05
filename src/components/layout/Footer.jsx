@@ -1,13 +1,19 @@
 import { Link } from 'react-router-dom'
 import { FaInstagram, FaFacebook, FaWhatsapp, FaEnvelope } from 'react-icons/fa'
+import { useApp } from '../../lib/AppContext'
 
 export default function Footer() {
+  const { settings } = useApp()
+  const siteName = settings.site_name || 'Lenzora'
+  const whatsapp = settings.whatsapp || '94717336756'
+  const email = settings.contact_email || 'hello@lenzora.lk'
+
   return (
     <footer className="bg-dark text-gray-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <span className="text-2xl font-bold text-primary">Lenzora</span>
+            <span className="text-2xl font-bold text-primary">{siteName}</span>
             <span className="text-xs text-gray-500">.lk</span>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               Premium digital graphics services. We bring your vision to life with cutting-edge design.
@@ -45,20 +51,20 @@ export default function Footer() {
               <a href="https://facebook.com/lenzora.lk" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
                 <FaFacebook size={18} />
               </a>
-              <a href="https://wa.me/94761736756" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
+              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
                 <FaWhatsapp size={18} />
               </a>
-              <a href="mailto:hello@lenzora.lk" className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
+              <a href={`mailto:${email}`} className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
                 <FaEnvelope size={18} />
               </a>
             </div>
-            <p className="text-sm text-gray-400">hello@lenzora.lk</p>
-            <p className="text-sm text-gray-400">076 173 6756</p>
+            <p className="text-sm text-gray-400">{email}</p>
+            <p className="text-sm text-gray-400">{whatsapp}</p>
           </div>
         </div>
 
         <div className="mt-10 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} Lenzora.lk — All rights reserved.
+          &copy; {new Date().getFullYear()} {siteName}.lk — All rights reserved.
         </div>
       </div>
     </footer>

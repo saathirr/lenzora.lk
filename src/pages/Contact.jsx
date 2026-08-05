@@ -6,7 +6,9 @@ import { useApp } from '../lib/AppContext'
 import { supabase } from '../lib/supabase'
 
 export default function Contact() {
-  const { user, profile, createConversation, addMessageToConversation } = useApp()
+  const { user, profile, createConversation, addMessageToConversation, settings } = useApp()
+  const whatsapp = settings.whatsapp || '94717336756'
+  const contactEmail = settings.contact_email || 'hello@lenzora.lk'
   const [submitted, setSubmitted] = useState(false)
   const [sending, setSending] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', phone: '', service: '', message: '' })
@@ -158,7 +160,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium text-dark">hello@lenzora.lk</p>
+                    <p className="font-medium text-dark">{contactEmail}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -186,7 +188,7 @@ export default function Contact() {
               <h3 className="font-bold text-dark text-lg mb-4">Quick Connect</h3>
               <p className="text-sm text-gray-500 mb-4">Prefer instant messaging? Reach us on:</p>
               <div className="flex gap-3">
-                <a href="https://wa.me/94761736756" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition">
+                <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition">
                   <FaWhatsapp size={18} />
                   WhatsApp
                 </a>

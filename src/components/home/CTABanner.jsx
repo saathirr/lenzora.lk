@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { HiArrowRight } from 'react-icons/hi'
+import { useApp } from '../../lib/AppContext'
 
 export default function CTABanner() {
+  const { settings } = useApp()
+  const whatsapp = settings.whatsapp || '94717336756'
   return (
     <section className="py-20 sm:py-28 bg-gradient-to-br from-primary via-primary-dark to-dark">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -38,7 +41,7 @@ export default function CTABanner() {
             <HiArrowRight />
           </Link>
           <a
-            href="https://wa.me/94761736756"
+            href={`https://wa.me/${whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/30 text-white font-semibold rounded-full hover:bg-white/10 transition"

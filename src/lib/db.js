@@ -80,6 +80,18 @@ export async function deleteSale(id) {
   if (error) throw error
 }
 
+export async function fetchSiteSettings() {
+  const { data, error } = await supabase.from('site_settings').select('*').limit(1).maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function updateSiteSettings(id, updates) {
+  const { data, error } = await supabase.from('site_settings').update(updates).eq('id', id).select().single()
+  if (error) throw error
+  return data
+}
+
 export async function fetchOrders() {
   const { data, error } = await supabase
     .from('orders')

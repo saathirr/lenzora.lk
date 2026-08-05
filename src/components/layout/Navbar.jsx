@@ -15,7 +15,7 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const { user, profile, signOut } = useApp()
+  const { user, profile, signOut, settings } = useApp()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
@@ -31,10 +31,15 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+      {settings.announcement_enabled && settings.announcement_text && (
+        <div className="bg-gradient-to-r from-primary via-primary-dark to-dark text-white text-center text-sm font-medium px-4 py-1.5">
+          {settings.announcement_text}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-2xl font-bold text-primary">Lenzora</span>
+            <span className="text-2xl font-bold text-primary">{settings.site_name || 'Lenzora'}</span>
             <span className="text-xs text-gray-400 mt-2">.lk</span>
           </Link>
 

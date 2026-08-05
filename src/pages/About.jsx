@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion'
 import { FaInstagram, FaFacebook, FaWhatsapp } from 'react-icons/fa'
 import lenzoraLogo from '../assets/Lenzora.jpg'
+import { useApp } from '../lib/AppContext'
 
 export default function About() {
+  const { settings } = useApp()
+  const whatsapp = settings.whatsapp || '94717336756'
   return (
     <div className="py-20 sm:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +40,7 @@ export default function About() {
               <a href="https://facebook.com/lenzora.lk" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaFacebook size={20} />
               </a>
-              <a href="https://wa.me/94761736756" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
+              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaWhatsapp size={20} />
               </a>
             </div>

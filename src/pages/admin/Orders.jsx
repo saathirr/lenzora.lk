@@ -17,7 +17,8 @@ const paymentColors = {
 }
 
 export default function AdminOrders() {
-  const { orders, setOrders, dataLoading } = useApp()
+  const { orders, setOrders, dataLoading, settings } = useApp()
+  const whatsapp = settings.whatsapp || '94717336756'
   const [filter, setFilter] = useState('All')
   const [viewingSlip, setViewingSlip] = useState(null)
 
@@ -207,7 +208,7 @@ export default function AdminOrders() {
             <div className="flex flex-col gap-2 mt-4">
               {viewingSlip.slipUrl && (
                 <a
-                  href={`https://wa.me/94761736756?text=${encodeURIComponent(`Payment Slip - Order #${viewingSlip.id}%0ACustomer: ${viewingSlip.customer_name}%0AAmount: LKR ${Number(viewingSlip.amount).toLocaleString()}%0ASlip: ${viewingSlip.slipUrl}`)}`}
+                  href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Payment Slip - Order #${viewingSlip.id}%0ACustomer: ${viewingSlip.customer_name}%0AAmount: LKR ${Number(viewingSlip.amount).toLocaleString()}%0ASlip: ${viewingSlip.slipUrl}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2.5 bg-green-500 text-white font-semibold rounded-full hover:bg-green-600 transition text-sm"
