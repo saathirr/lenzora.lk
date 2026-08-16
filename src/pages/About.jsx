@@ -27,7 +27,7 @@ export default function About() {
               </span>
             </h1>
             <p className="mt-6 text-gray-600 leading-relaxed">
-              At {siteName}.lk, we are a team of passionate digital artists dedicated to delivering
+              At {siteName}{!siteName.toLowerCase().endsWith('.lk') ? '.lk' : ''}, we are a team of passionate digital artists dedicated to delivering
               premium graphics services. From photo editing and branding to social media creatives
               and video production, we help businesses and individuals stand out in the digital space.
             </p>

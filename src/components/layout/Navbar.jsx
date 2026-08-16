@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { HiMenu, HiX, HiUser, HiLogout, HiShoppingCart, HiMail } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
+import defaultLogo from '../../assets/lenzora-logo.png'
 
 const links = [
   { to: '/', label: 'Home' },
   { to: '/services', label: 'Services' },
   { to: '/gallery', label: 'Gallery' },
   { to: '/shop', label: 'Shop' },
+  { to: '/frames', label: 'Frames' },
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
 ]
@@ -43,8 +45,10 @@ export default function Navbar() {
               <img src={settings.logo_url} alt={settings.site_name || 'Lenzora'} className="h-10 max-w-[170px] object-contain" />
             ) : (
               <>
-                <span className="text-2xl font-bold text-primary">{settings.site_name || 'Lenzora'}</span>
-                <span className="text-xs text-gray-400 mt-2">.lk</span>
+                <img src={defaultLogo} alt={settings.site_name || 'Lenzora'} className="h-9 sm:h-10 max-w-[170px] object-contain" />
+                {!settings.site_name?.toLowerCase().endsWith('.lk') && (
+                  <span className="text-xs text-gray-400 mt-2">.lk</span>
+                )}
               </>
             )}
           </Link>

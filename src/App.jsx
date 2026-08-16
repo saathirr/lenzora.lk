@@ -6,6 +6,7 @@ import About from './pages/About'
 import Services from './pages/Services'
 import Gallery from './pages/Gallery'
 import Shop from './pages/Shop'
+import Frames from './pages/Frames'
 import Contact from './pages/Contact'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="services" element={<Services />} />
           <Route path="gallery" element={<Gallery />} />
           <Route path="shop" element={<Shop />} />
+          <Route path="frames" element={<Frames />} />
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />

@@ -7,6 +7,7 @@ import {
   HiSun, HiMoon, HiSparkles,
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
+import defaultLogo from '../../assets/lenzora-logo.png'
 
 const sidebarLinks = [
   { to: '/admin', icon: HiHome, label: 'Dashboard', end: true },
@@ -99,12 +100,15 @@ export default function AdminLayout() {
         <div className="relative z-10 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent2 flex items-center justify-center shadow-lg shadow-primary/30">
-                <HiSparkles size={20} className="text-white" />
+              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 overflow-hidden shadow-lg shadow-black/20">
+                <img src={settings.logo_url || defaultLogo} alt="Logo" className="w-full h-full object-contain" />
               </div>
               <div>
                 <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-accent2 bg-clip-text text-transparent">
-                  {settings.site_name || 'Lenzora'}<span className="text-secondary">.lk</span>
+                  {settings.site_name || 'Lenzora'}
+                  {!settings.site_name?.toLowerCase().endsWith('.lk') && (
+                    <span className="text-secondary">.lk</span>
+                  )}
                 </span>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-medium">Admin Panel</p>
               </div>

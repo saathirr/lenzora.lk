@@ -68,6 +68,8 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('portfolio-images', 'port
 ON CONFLICT (id) DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) VALUES ('site-assets', 'site-assets', true)
 ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('frame-images', 'frame-images', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for payment-slips bucket
 DROP POLICY IF EXISTS "Authenticated users can upload slips" ON storage.objects;
@@ -127,6 +129,27 @@ DROP POLICY IF EXISTS "Admin can delete site assets" ON storage.objects;
 CREATE POLICY "Admin can delete site assets"
   ON storage.objects FOR DELETE
   USING (bucket_id = 'site-assets' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Frame images storage policies
+DROP POLICY IF EXISTS "Admin can upload frame images" ON storage.objects;
+CREATE POLICY "Admin can upload frame images"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'frame-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can update frame images" ON storage.objects;
+CREATE POLICY "Admin can update frame images"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'frame-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Public can view frame images" ON storage.objects;
+CREATE POLICY "Public can view frame images"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'frame-images');
+
+DROP POLICY IF EXISTS "Admin can delete frame images" ON storage.objects;
+CREATE POLICY "Admin can delete frame images"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'frame-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- ============================================
 -- PROFILES TABLE (extends Supabase auth.users)
@@ -213,9 +236,19 @@ CREATE TABLE IF NOT EXISTS frames (
   price NUMERIC(10,2) NOT NULL DEFAULT 0,
   cost NUMERIC(10,2) NOT NULL DEFAULT 0,
   profit NUMERIC(10,2) NOT NULL DEFAULT 0,
+  image_url TEXT DEFAULT '',
+  description TEXT DEFAULT '',
+  category TEXT DEFAULT '',
+  active BOOLEAN DEFAULT true,
   notes TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Backfill columns for existing databases
+ALTER TABLE IF EXISTS frames ADD COLUMN IF NOT EXISTS image_url TEXT DEFAULT '';
+ALTER TABLE IF EXISTS frames ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '';
+ALTER TABLE IF EXISTS frames ADD COLUMN IF NOT EXISTS category TEXT DEFAULT '';
+ALTER TABLE IF EXISTS frames ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
 
 -- Payment Slips table
 CREATE TABLE IF NOT EXISTS payment_slips (

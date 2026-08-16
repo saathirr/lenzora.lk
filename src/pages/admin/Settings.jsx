@@ -365,7 +365,7 @@ export default function AdminSettings() {
                           {logoSource ? (
                             <img src={logoSource} alt="logo" className="h-9 max-w-[140px] object-contain" />
                           ) : (
-                            <span className="text-2xl font-bold text-primary">{form.site_name}<span className="text-[10px] text-gray-400 align-top">.lk</span></span>
+                            <span className="text-2xl font-bold text-primary">{form.site_name}{!form.site_name?.toLowerCase().endsWith('.lk') ? <span className="text-[10px] text-gray-400 align-top">.lk</span> : null}</span>
                           )}
                         </div>
                         <div className="flex items-center gap-3">

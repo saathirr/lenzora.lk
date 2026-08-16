@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import { FaInstagram, FaFacebook, FaWhatsapp, FaEnvelope } from 'react-icons/fa'
 import { useApp } from '../../lib/AppContext'
+import defaultLogo from '../../assets/lenzora-logo.png'
 
 export default function Footer() {
   const { settings } = useApp()
   const siteName = settings.site_name || 'Lenzora'
+  const brandSuffix = siteName.toLowerCase().endsWith('.lk') ? '' : '.lk'
   const tagline = settings.tagline || 'Premium digital graphics services.'
   const whatsapp = settings.whatsapp || '94717336756'
   const email = settings.contact_email || 'hello@lenzora.lk'
@@ -19,9 +21,8 @@ export default function Footer() {
             {settings.logo_url ? (
               <img src={settings.logo_url} alt={siteName} className="h-11 max-w-[180px] object-contain mb-2" />
             ) : (
-              <span className="text-2xl font-bold text-primary">{siteName}</span>
+              <img src={defaultLogo} alt={siteName} className="h-11 max-w-[180px] object-contain mb-2" />
             )}
-            {!settings.logo_url && <span className="text-xs text-gray-500 mr-1">.lk</span>}
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               {tagline}
             </p>
@@ -33,6 +34,7 @@ export default function Footer() {
               <Link to="/services" className="block hover:text-primary transition">Services</Link>
               <Link to="/gallery" className="block hover:text-primary transition">Gallery</Link>
               <Link to="/shop" className="block hover:text-primary transition">Shop</Link>
+              <Link to="/frames" className="block hover:text-primary transition">Frames</Link>
               <Link to="/about" className="block hover:text-primary transition">About Us</Link>
               <Link to="/contact" className="block hover:text-primary transition">Contact</Link>
             </div>
@@ -71,7 +73,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-8 border-t border-gray-800 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} {siteName}.lk — All rights reserved.
+          &copy; {new Date().getFullYear()} {siteName}{brandSuffix} — All rights reserved.
         </div>
       </div>
     </footer>
