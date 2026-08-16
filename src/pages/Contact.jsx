@@ -192,7 +192,7 @@ export default function Contact() {
                   <FaWhatsapp size={18} />
                   WhatsApp
                 </a>
-                <a href="https://instagram.com/lenzora.lk" target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition">
+                <a href={settings.instagram_url || 'https://instagram.com/lenzora.lk'} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition">
                   <FaInstagram size={18} />
                   DM Us
                 </a>

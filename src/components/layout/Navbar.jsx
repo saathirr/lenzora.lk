@@ -39,8 +39,14 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-2xl font-bold text-primary">{settings.site_name || 'Lenzora'}</span>
-            <span className="text-xs text-gray-400 mt-2">.lk</span>
+            {settings.logo_url ? (
+              <img src={settings.logo_url} alt={settings.site_name || 'Lenzora'} className="h-10 max-w-[170px] object-contain" />
+            ) : (
+              <>
+                <span className="text-2xl font-bold text-primary">{settings.site_name || 'Lenzora'}</span>
+                <span className="text-xs text-gray-400 mt-2">.lk</span>
+              </>
+            )}
           </Link>
 
           <div className="hidden md:flex items-center gap-6 lg:gap-8">

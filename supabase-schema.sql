@@ -66,6 +66,8 @@ INSERT INTO storage.buckets (id, name, public) VALUES ('payment-slips', 'payment
 ON CONFLICT (id) DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) VALUES ('portfolio-images', 'portfolio-images', true)
 ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('site-assets', 'site-assets', true)
+ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for payment-slips bucket
 DROP POLICY IF EXISTS "Authenticated users can upload slips" ON storage.objects;
@@ -104,6 +106,27 @@ CREATE POLICY "Admin can delete portfolio images"
     bucket_id = 'portfolio-images' AND
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
   );
+
+-- Site assets storage policies (logos, favicons, shared assets)
+DROP POLICY IF EXISTS "Admin can upload site assets" ON storage.objects;
+CREATE POLICY "Admin can upload site assets"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'site-assets' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Admin can update site assets" ON storage.objects;
+CREATE POLICY "Admin can update site assets"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'site-assets' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS "Public can view site assets" ON storage.objects;
+CREATE POLICY "Public can view site assets"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'site-assets');
+
+DROP POLICY IF EXISTS "Admin can delete site assets" ON storage.objects;
+CREATE POLICY "Admin can delete site assets"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'site-assets' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 
 -- ============================================
 -- PROFILES TABLE (extends Supabase auth.users)
@@ -152,12 +175,22 @@ CREATE TABLE IF NOT EXISTS site_settings (
   id INT PRIMARY KEY DEFAULT 1,
   theme TEXT DEFAULT 'light' CHECK (theme IN ('light', 'dark')),
   site_name TEXT DEFAULT 'Lenzora',
+  tagline TEXT DEFAULT 'Premium digital graphics services.',
+  logo_url TEXT DEFAULT '',
   whatsapp TEXT DEFAULT '94717336756',
   contact_email TEXT DEFAULT 'hello@lenzora.lk',
+  facebook_url TEXT DEFAULT 'https://facebook.com/lenzora.lk',
+  instagram_url TEXT DEFAULT 'https://instagram.com/lenzora.lk',
   announcement_enabled BOOLEAN DEFAULT false,
   announcement_text TEXT DEFAULT '',
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Backfill columns for existing databases
+ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS tagline TEXT DEFAULT 'Premium digital graphics services.';
+ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS logo_url TEXT DEFAULT '';
+ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS facebook_url TEXT DEFAULT 'https://facebook.com/lenzora.lk';
+ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS instagram_url TEXT DEFAULT 'https://instagram.com/lenzora.lk';
 
 -- Seed default site settings (only if none exist)
 INSERT INTO site_settings (id, theme, site_name, whatsapp, contact_email, announcement_enabled, announcement_text)

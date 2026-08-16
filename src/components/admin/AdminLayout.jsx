@@ -104,7 +104,7 @@ export default function AdminLayout() {
               </div>
               <div>
                 <span className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-accent2 bg-clip-text text-transparent">
-                  Lenzora<span className="text-secondary">.lk</span>
+                  {settings.site_name || 'Lenzora'}<span className="text-secondary">.lk</span>
                 </span>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-medium">Admin Panel</p>
               </div>

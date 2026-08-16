@@ -5,7 +5,10 @@ import { useApp } from '../lib/AppContext'
 
 export default function About() {
   const { settings } = useApp()
+  const siteName = settings.site_name || 'Lenzora'
   const whatsapp = settings.whatsapp || '94717336756'
+  const instagramUrl = settings.instagram_url || 'https://instagram.com/lenzora.lk'
+  const facebookUrl = settings.facebook_url || 'https://facebook.com/lenzora.lk'
   return (
     <div className="py-20 sm:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,7 +27,7 @@ export default function About() {
               </span>
             </h1>
             <p className="mt-6 text-gray-600 leading-relaxed">
-              At Lenzora.lk, we are a team of passionate digital artists dedicated to delivering
+              At {siteName}.lk, we are a team of passionate digital artists dedicated to delivering
               premium graphics services. From photo editing and branding to social media creatives
               and video production, we help businesses and individuals stand out in the digital space.
             </p>
@@ -34,10 +37,10 @@ export default function About() {
               our blueprint.
             </p>
             <div className="mt-8 flex gap-3">
-              <a href="https://instagram.com/lenzora.lk" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaInstagram size={20} />
               </a>
-              <a href="https://facebook.com/lenzora.lk" target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
                 <FaFacebook size={20} />
               </a>
               <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="p-3 bg-primary/10 text-primary rounded-xl hover:bg-primary hover:text-white transition">
@@ -53,8 +56,8 @@ export default function About() {
           >
             <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src={lenzoraLogo}
-                alt="Lenzora Logo"
+                src={settings.logo_url || lenzoraLogo}
+                alt={`${siteName} Logo`}
                 className="w-full h-full object-contain bg-black p-8"
               />
             </div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { HiUserAdd, HiEye, HiEyeOff } from 'react-icons/hi'
 import { supabase } from '../lib/supabase'
+import { useApp } from '../lib/AppContext'
 
 export default function Register() {
   const [form, setForm] = useState({ fullName: '', email: '', phone: '', password: '', confirmPassword: '' })
@@ -11,6 +12,7 @@ export default function Register() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const { settings } = useApp()
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -63,7 +65,7 @@ export default function Register() {
             <HiUserAdd className="text-primary" size={28} />
           </div>
           <h1 className="text-3xl font-bold text-dark">Create Account</h1>
-          <p className="text-gray-500 mt-2">Join Lenzora and get started</p>
+          <p className="text-gray-500 mt-2">Join {settings.site_name || 'Lenzora'} and get started</p>
         </div>
 
         <form onSubmit={handleRegister} className="bg-white border border-gray-100 rounded-2xl p-8 shadow-xl space-y-4">

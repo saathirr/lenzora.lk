@@ -29,8 +29,12 @@ export function AppProvider({ children }) {
     id: 1,
     theme: 'light',
     site_name: 'Lenzora',
+    tagline: 'Premium digital graphics services.',
+    logo_url: '',
     whatsapp: '94717336756',
     contact_email: 'hello@lenzora.lk',
+    facebook_url: 'https://facebook.com/lenzora.lk',
+    instagram_url: 'https://instagram.com/lenzora.lk',
     announcement_enabled: false,
     announcement_text: '',
   })
