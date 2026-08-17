@@ -44,9 +44,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             {settings.logo_url ? (
-              <img src={settings.logo_url} alt={siteName} className="h-11 max-w-[180px] object-contain mb-2" />
+              <img src={settings.logo_url} alt={siteName} className="h-14 max-w-[200px] object-contain mb-2" />
             ) : (
-              <img src={defaultLogo} alt={siteName} className="h-11 max-w-[180px] object-contain mb-2" />
+              <img src={defaultLogo} alt={siteName} className="h-14 max-w-[200px] object-contain mb-2" />
             )}
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               {tagline}

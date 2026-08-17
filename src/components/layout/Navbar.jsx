@@ -44,10 +44,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2 shrink-0 group">
             {settings.logo_url ? (
-              <img src={settings.logo_url} alt={settings.site_name || 'Lenzora'} className="h-10 max-w-[170px] object-contain transition-transform duration-300 group-hover:scale-105" />
+              <img src={settings.logo_url} alt={settings.site_name || 'Lenzora'} className="h-12 sm:h-14 max-w-[220px] object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_4px_14px_rgba(249,115,22,0.25)]" />
             ) : (
               <>
-                <img src={defaultLogo} alt={settings.site_name || 'Lenzora'} className="h-9 sm:h-10 max-w-[170px] object-contain transition-transform duration-300 group-hover:scale-105" />
+                <img src={defaultLogo} alt={settings.site_name || 'Lenzora'} className="h-12 sm:h-14 max-w-[220px] object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-[0_4px_14px_rgba(249,115,22,0.25)]" />
                 {!settings.site_name?.toLowerCase().endsWith('.lk') && (
                   <span className="text-xs text-gray-400 mt-2">.lk</span>
                 )}
