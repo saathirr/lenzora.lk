@@ -30,7 +30,7 @@ export default function Hero() {
   const pmy = useSpring(useMotionValue(0), { stiffness: 55, damping: 18 })
   const cardX = useTransform(pmx, (v) => v)
   const cardY = useTransform(pmy, (v) => v)
-  const glow = useMotionTemplate`radial-gradient(600px circle at ${cardX}px 0px, rgba(139,92,246,0.14), transparent)`
+  const glow = useMotionTemplate`radial-gradient(600px circle at ${cardX}px 0px, rgba(249,115,22,0.12), transparent)`
 
   const handleMove = (e) => {
     pmx.set((e.clientX / window.innerWidth - 0.5) * 46)
@@ -44,7 +44,7 @@ export default function Hero() {
       className="relative min-h-[92vh] flex items-center bg-grid overflow-hidden"
     >
       {/* Animated aurora background (no WebGL — pure CSS) */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-[#150f22]/60 to-accent2/15" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-[#0a0a0a]/80 to-[#241a08]" />
       <motion.div
         className="pointer-events-none absolute -top-40 -left-32 w-[520px] h-[520px] rounded-full bg-primary/25 blur-[120px] animate-blob"
         aria-hidden
@@ -86,7 +86,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-6 text-lg sm:text-xl text-slate-300 max-w-xl leading-relaxed"
+              className="mt-6 text-lg sm:text-xl text-white/80 max-w-xl leading-relaxed"
             >
               From brand identity to social media graphics — we craft visuals that captivate, convert, and leave a lasting impression.
             </motion.p>
@@ -100,7 +100,7 @@ export default function Hero() {
               <MagneticButton>
                 <Link
                   to="/services"
-                  className="group inline-flex items-center gap-2 px-7 py-3.5 bg-gradient-to-r from-primary to-accent2 text-white font-semibold rounded-full hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 shine-holder"
+                  className="group inline-flex items-center gap-2 px-7 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/40 hover:-translate-y-0.5 transition-all duration-300 shine-holder"
                 >
                   Explore Services
                   <HiArrowRight className="group-hover:translate-x-1 transition-transform" />
@@ -127,10 +127,8 @@ export default function Hero() {
             >
               {[{ n: '50+', l: 'Projects' }, { n: '30+', l: 'Clients' }, { n: '24h', l: 'Turnaround' }].map((s, i) => (
                 <motion.div key={s.l} whileHover={{ y: -4 }} className="flex items-center gap-3">
-                  <span className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent2 to-accent3">
-                    {s.n}
-                  </span>
-                  <span className="text-sm text-slate-400">{s.l}</span>
+                  <span className="text-2xl font-extrabold text-primary">{s.n}</span>
+                  <span className="text-sm text-white/60">{s.l}</span>
                 </motion.div>
               ))}
             </motion.div>
@@ -185,7 +183,7 @@ export default function Hero() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6 }}
                 style={{ x: cardX, y: cardY, transformPerspective: 900, rotateY: -14 }}
-                className="absolute top-1/2 left-1/2 -ml-32 -mt-32 w-64 h-64 rounded-3xl bg-gradient-to-br from-primary via-accent2 to-accent3 flex items-center justify-center shadow-2xl shadow-black/50"
+                className="absolute top-1/2 left-1/2 -ml-32 -mt-32 w-64 h-64 rounded-3xl bg-primary flex items-center justify-center shadow-2xl shadow-black/50"
               >
                 <span className="text-6xl">🎨</span>
               </motion.div>
@@ -198,7 +196,7 @@ export default function Hero() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.3 }}
           style={{ opacity: fade }}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-1 text-slate-400"
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-1 text-white/60"
         >
           <span className="text-[11px] uppercase tracking-[0.25em]">Scroll</span>
           <motion.span animate={{ y: [0, 8, 0] }} transition={{ duration: 1.6, repeat: Infinity }} className="flex">

@@ -13,11 +13,11 @@ const iconMap = {
 
 const gradients = [
   'from-orange-500/15 to-amber-500/15 text-orange-500',
-  'from-purple-500/15 to-fuchsia-500/15 text-purple-500',
-  'from-cyan-500/15 to-sky-500/15 text-cyan-500',
-  'from-pink-500/15 to-rose-500/15 text-pink-500',
-  'from-emerald-500/15 to-teal-500/15 text-emerald-500',
-  'from-blue-500/15 to-indigo-500/15 text-blue-500',
+  'from-orange-700/15 to-orange-500/15 text-orange-700',
+  'from-amber-500/15 to-orange-500/15 text-amber-600',
+  'from-orange-600/20 to-amber-400/10 text-orange-600',
+  'from-amber-600/15 to-amber-400/15 text-amber-700',
+  'from-orange-400/20 to-amber-500/15 text-orange-500',
 ]
 
 export default function ServicesSection() {

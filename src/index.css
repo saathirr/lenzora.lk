@@ -103,18 +103,10 @@
     background-size: 60px 60px;
   }
   .text-gradient {
-    background: linear-gradient(120deg, var(--color-primary), var(--color-accent2), var(--color-accent3));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--color-primary);
   }
   .text-gradient-animated {
-    background: linear-gradient(90deg, var(--color-primary), var(--color-accent2), var(--color-accent3), var(--color-primary));
-    background-size: 300% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: gradient-x 7s linear infinite;
+    color: var(--color-primary);
   }
   /* === 3D helpers === */
   .perspective-1000 { perspective: 1000px; }
