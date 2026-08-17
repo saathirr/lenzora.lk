@@ -102,7 +102,7 @@ export default function About() {
                 className="relative"
               >
                 <TiltCard max={7} className="rounded-3xl">
-                  <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl shadow-primary/10 border border-gray-100 dark:border-[#2b2b35]">
+                  <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl shadow-primary/10 border border-gray-100 dark:border-[#262626]">
                     <img
                       src={settings.logo_url || lenzoraLogo}
                       alt={`${siteName} Logo`}
@@ -119,7 +119,7 @@ export default function About() {
                 transition={{ delay: 0.4, type: 'spring', stiffness: 180, damping: 16 }}
                 animate={{ y: [0, -8, 0] }}
                 style={{ animationDuration: '6s' }}
-                className="absolute -top-6 -right-4 sm:-right-8 bg-white dark:bg-[#17171d] rounded-2xl shadow-2xl p-5 border border-gray-100 dark:border-[#2b2b35]"
+                className="absolute -top-6 -right-4 sm:-right-8 bg-white dark:bg-[#141414] rounded-2xl shadow-2xl p-5 border border-gray-100 dark:border-[#262626]"
               >
                 <div className="text-3xl font-extrabold text-primary">
                   <CountUp to={50} suffix="+" />
@@ -134,7 +134,7 @@ export default function About() {
                 transition={{ delay: 0.55, type: 'spring', stiffness: 180, damping: 16 }}
                 animate={{ y: [0, 8, 0] }}
                 style={{ animationDuration: '7s' }}
-                className="absolute -bottom-6 -left-4 sm:-left-8 bg-white dark:bg-[#17171d] rounded-2xl shadow-2xl p-5 border border-gray-100 dark:border-[#2b2b35]"
+                className="absolute -bottom-6 -left-4 sm:-left-8 bg-white dark:bg-[#141414] rounded-2xl shadow-2xl p-5 border border-gray-100 dark:border-[#262626]"
               >
                 <div className="text-3xl font-extrabold text-accent2">
                   <CountUp to={30} suffix="+" />
@@ -157,7 +157,7 @@ export default function About() {
               whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="text-center p-9 rounded-3xl bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] shadow-sm hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 group"
+              className="text-center p-9 rounded-3xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 group"
             >
               <div className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent2 group-hover:scale-110 transition-transform">
                 <CountUp to={stat.n} suffix={stat.s} />
@@ -190,7 +190,7 @@ export default function About() {
                 className="h-full"
               >
                 <TiltCard max={12} className="h-full">
-                  <div className="relative h-full p-7 rounded-2xl bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] hover:border-primary/20 transition-colors text-center overflow-hidden group">
+                  <div className="relative h-full p-7 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] hover:border-primary/20 transition-colors text-center overflow-hidden group">
                     <motion.div
                       animate={{ y: [0, -5, 0] }}
                       transition={{ duration: 3, repeat: Infinity, delay: i * 0.35 }}

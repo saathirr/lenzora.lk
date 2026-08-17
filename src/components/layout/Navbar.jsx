@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { HiMenu, HiX, HiUser, HiLogout, HiShoppingCart, HiMail } from 'react-icons/hi'
+import { HiMenu, HiX, HiUser, HiLogout, HiShoppingCart, HiMail, HiSun, HiMoon } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
 
@@ -18,8 +18,9 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const { user, profile, signOut, settings } = useApp()
+  const { user, profile, signOut, settings, toggleTheme } = useApp()
   const navigate = useNavigate()
+  const isDark = settings.theme === 'dark'
 
   const handleSignOut = async () => {
     await signOut()
@@ -33,7 +34,7 @@ export default function Navbar() {
     : user?.email?.[0].toUpperCase() || 'U'
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 dark:border-[#2b2b35] transition-colors">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 dark:border-[#262626] transition-colors">
       {settings.announcement_enabled && settings.announcement_text && (
         <div className="bg-gradient-to-r from-primary via-primary-dark to-dark text-white text-center text-sm font-medium px-4 py-1.5">
           {settings.announcement_text}
@@ -82,6 +83,25 @@ export default function Navbar() {
                 )}
               </NavLink>
             ))}
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full border border-gray-200 dark:border-[#262626] text-gray-600 dark:text-gray-300 hover:text-primary hover:border-primary/40 transition-colors"
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={isDark ? 'moon' : 'sun'}
+                  initial={{ rotate: -90, scale: 0.4, opacity: 0 }}
+                  animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                  exit={{ rotate: 90, scale: 0.4, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex"
+                >
+                  {isDark ? <HiMoon size={17} /> : <HiSun size={17} />}
+                </motion.span>
+              </AnimatePresence>
+            </motion.button>
             {user ? (
               <div className="relative">
                 <motion.button
@@ -100,22 +120,22 @@ export default function Navbar() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.96 }}
                         transition={{ duration: 0.16 }}
-                        className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl z-20 py-2"
+                        className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-xl z-20 py-2"
                       >
-                        <div className="px-4 py-3 border-b border-gray-100">
+                        <div className="px-4 py-3 border-b border-gray-100 dark:border-[#262626]">
                           <p className="text-sm font-medium text-dark truncate">{profile?.full_name || 'User'}</p>
                           <p className="text-xs text-gray-400 truncate">{user.email}</p>
                         </div>
                         <button
                           onClick={() => { setDropdownOpen(false); navigate('/my-orders') }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:pl-5 transition-all flex items-center gap-2"
+                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:pl-5 transition-all flex items-center gap-2"
                         >
                           <HiShoppingCart size={16} />
                           My Orders
                         </button>
                         <button
                           onClick={() => { setDropdownOpen(false); navigate('/my-messages') }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:pl-5 transition-all flex items-center gap-2"
+                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:pl-5 transition-all flex items-center gap-2"
                         >
                           <HiMail size={16} />
                           My Messages
@@ -123,15 +143,15 @@ export default function Navbar() {
                         {profile?.role === 'admin' && (
                           <button
                             onClick={() => { setDropdownOpen(false); navigate('/admin') }}
-                            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:pl-5 transition-all flex items-center gap-2"
-                          >
-                            <HiUser size={16} />
-                            Admin Panel
-                          </button>
+className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:pl-5 transition-all flex items-center gap-2"
+                        >
+                          <HiUser size={16} />
+                          Admin Panel
+                        </button>
                         )}
                         <button
                           onClick={handleSignOut}
-                          className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 hover:pl-5 transition-all flex items-center gap-2"
+                          className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 hover:pl-5 transition-all flex items-center gap-2"
                         >
                           <HiLogout size={16} />
                           Sign Out
@@ -160,7 +180,7 @@ export default function Navbar() {
           </div>
 
           <button
-            className="md:hidden p-2 text-gray-700"
+            className="md:hidden p-2 text-gray-700 dark:text-gray-300"
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
@@ -187,9 +207,21 @@ export default function Navbar() {
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="md:hidden bg-white border-t border-gray-100 px-4 shadow-xl overflow-hidden"
+            className="md:hidden bg-white dark:bg-[#121212] border-t border-gray-100 dark:border-[#262626] px-4 shadow-xl overflow-hidden"
           >
             <div className="py-2">
+              <div className="flex items-center justify-between py-2 mb-1">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                  {isDark ? 'Dark mode' : 'Light mode'}
+                </span>
+                <button
+                  onClick={toggleTheme}
+                  aria-label="Toggle theme"
+                  className="p-2 rounded-full border border-gray-200 dark:border-[#262626] text-gray-600 dark:text-gray-300 hover:text-primary hover:border-primary/40 transition-colors"
+                >
+                  {isDark ? <HiMoon size={18} /> : <HiSun size={18} />}
+                </button>
+              </div>
               {links.map((l, i) => (
                 <motion.div
                   key={l.to}
@@ -203,7 +235,7 @@ export default function Navbar() {
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
                       `block py-2.5 text-sm font-medium ${
-                        isActive ? 'text-primary' : 'text-gray-600'
+                        isActive ? 'text-primary' : 'text-gray-600 dark:text-gray-300'
                       }`
                     }
                   >
@@ -213,20 +245,20 @@ export default function Navbar() {
               ))}
               {user ? (
                 <>
-                  <div className="border-t border-gray-100 pt-3 mt-2">
+                  <div className="border-t border-gray-100 dark:border-[#262626] pt-3 mt-2">
                     <p className="text-sm font-medium text-dark">{profile?.full_name || 'User'}</p>
                     <p className="text-xs text-gray-400 mb-3">{user.email}</p>
                     <Link
                       to="/my-orders"
                       onClick={() => setOpen(false)}
-                      className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 bg-gray-100 rounded-full mb-2"
+                      className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-full mb-2"
                     >
                       My Orders
                     </Link>
                     <Link
                       to="/my-messages"
                       onClick={() => setOpen(false)}
-                      className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 bg-gray-100 rounded-full mb-2"
+                      className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-full mb-2"
                     >
                       My Messages
                     </Link>
@@ -234,14 +266,14 @@ export default function Navbar() {
                       <Link
                         to="/admin"
                         onClick={() => setOpen(false)}
-                        className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 bg-gray-100 rounded-full mb-2"
+                        className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-full mb-2"
                       >
                         Admin Panel
                       </Link>
                     )}
                     <button
                       onClick={handleSignOut}
-                      className="block w-full px-5 py-2 text-sm font-semibold text-center text-red-600 bg-red-50 rounded-full"
+                      className="block w-full px-5 py-2 text-sm font-semibold text-center text-red-600 bg-red-50 dark:bg-red-500/10 rounded-full"
                     >
                       Sign Out
                     </button>
@@ -252,10 +284,10 @@ export default function Navbar() {
                   <Link
                     to="/login"
                     onClick={() => setOpen(false)}
-                    className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 bg-gray-100 rounded-full"
-                  >
-                    Sign In
-                  </Link>
+className="block px-5 py-2 text-sm font-semibold text-center text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 rounded-full"
+                    >
+                      Sign In
+                    </Link>
                   <Link
                     to="/register"
                     onClick={() => setOpen(false)}

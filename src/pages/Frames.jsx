@@ -88,9 +88,9 @@ export default function FramesPage() {
           <AnimatedHeading
             text="Pick Your Frame Size"
             gradient={['Frame']}
-            className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight"
+            className="text-4xl sm:text-5xl font-extrabold text-dark dark:text-white tracking-tight"
           />
-          <p className="mt-4 text-slate-400 max-w-xl mx-auto">
+          <p className="mt-4 text-gray-500 dark:text-slate-400 max-w-xl mx-auto">
             Choose a category to browse frames — sizes, designs &amp; prices.{' '}
             <span className="font-semibold text-primary">
               {visibleFrames.length} {visibleFrames.length === 1 ? 'frame' : 'frames'} available
@@ -99,7 +99,7 @@ export default function FramesPage() {
         </motion.div>
 
         {visibleFrames.length === 0 ? (
-          <div className="text-center py-16 bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm">
+          <div className="text-center py-16 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
             <HiTemplate size={40} className="mx-auto text-gray-300 dark:text-slate-600 mb-3" />
             <p className="text-gray-500 dark:text-slate-400">No frames available right now. Check back soon!</p>
           </div>
@@ -125,10 +125,10 @@ export default function FramesPage() {
                       All Frames
                     </span>
                     <div className="relative z-10 mt-5">
-                      <h3 className="text-2xl font-extrabold text-white">View Everything</h3>
-                      <p className="text-sm text-slate-400 mt-1">{allStats.count} frames · From LKR {allStats.min.toLocaleString()}</p>
+                      <h3 className="text-2xl font-extrabold text-dark dark:text-white">View Everything</h3>
+                      <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{allStats.count} frames · From LKR {allStats.min.toLocaleString()}</p>
                     </div>
-                    <span className="relative z-10 absolute bottom-5 right-5 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent2 group-hover:rotate-45 transition-all duration-300">
+                    <span className="relative z-10 absolute bottom-5 right-5 w-10 h-10 rounded-full bg-gray-900/5 dark:bg-white/10 text-gray-700 dark:text-white flex items-center justify-center group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent2 group-hover:rotate-45 group-hover:text-white transition-all duration-300">
                       <HiArrowRight size={18} />
                     </span>
                   </button>
@@ -185,7 +185,7 @@ export default function FramesPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: '-40px' }}
                   transition={{ delay: i * 0.1 }}
-                  className="relative p-6 rounded-2xl bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] text-center"
+                  className="relative p-6 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] text-center"
                 >
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-primary to-accent2 text-white text-xs font-bold">
                     Step {i + 1}
@@ -223,12 +223,12 @@ export default function FramesPage() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    className="mt-2 text-3xl sm:text-4xl font-extrabold text-white uppercase tracking-tight"
+                    className="mt-2 text-3xl sm:text-4xl font-extrabold text-dark dark:text-white uppercase tracking-tight"
                   >
                     {selectedCat.name}
                   </motion.h2>
                 </AnimatePresence>
-                <p className="text-sm text-slate-400 mt-1">
+                <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
                   {selectedCat.frames.length} {selectedCat.frames.length === 1 ? 'size' : 'sizes'} available
                 </p>
               </div>
@@ -238,13 +238,13 @@ export default function FramesPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search sizes or designs..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#33333e] focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition bg-white/70 dark:bg-white/5 text-sm dark:text-white"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition bg-white/70 dark:bg-white/5 text-sm text-dark dark:text-white"
                 />
               </div>
             </div>
 
             {detailFrames.length === 0 ? (
-              <div className="text-center py-16 bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm">
+              <div className="text-center py-16 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
                 <HiTemplate size={40} className="mx-auto text-gray-300 dark:text-slate-600 mb-3" />
                 <p className="text-gray-500 dark:text-slate-400">No frames match your search.</p>
               </div>
@@ -262,7 +262,7 @@ export default function FramesPage() {
                       className="h-full"
                     >
                       <TiltCard max={9} className="h-full">
-                        <div className="group relative h-full bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
+                        <div className="group relative h-full bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
                           <div className="aspect-[4/3] bg-gray-100 dark:bg-white/5 overflow-hidden relative">
                             {f.image_url ? (
                               <div className="w-full h-full animate-ken-burns">
@@ -325,8 +325,8 @@ export default function FramesPage() {
           className="mt-14 flex flex-col sm:flex-row items-center justify-between gap-5 p-8 bg-gradient-to-r from-primary/10 to-accent2/10 border border-primary/15 rounded-3xl"
         >
           <div>
-            <h2 className="text-xl font-extrabold text-white">Need a custom size?</h2>
-            <p className="text-sm text-slate-400 mt-1">Tell us your dimensions and we'll make it for you.</p>
+            <h2 className="text-xl font-extrabold text-dark dark:text-white">Need a custom size?</h2>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Tell us your dimensions and we'll make it for you.</p>
           </div>
           <MagneticButton>
             <a

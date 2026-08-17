@@ -11,7 +11,7 @@ import FloatingOrbs from '../components/ui/FloatingOrbs'
 import MagneticButton from '../components/ui/MagneticButton'
 
 const inputClass =
-  'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#33333e] focus:border-primary focus:ring-2 focus:ring-primary/25 outline-none transition bg-white dark:bg-[#17171d] text-dark dark:text-white'
+  'w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary focus:ring-2 focus:ring-primary/25 outline-none transition bg-white dark:bg-[#141414] text-dark dark:text-white'
 
 export default function Contact() {
   const { user, profile, createConversation, addMessageToConversation, settings } = useApp()
@@ -138,7 +138,7 @@ export default function Contact() {
                       <select
                         value={form.service}
                         onChange={(e) => setForm({ ...form, service: e.target.value })}
-                        className={`${inputClass} bg-white dark:bg-[#17171d]`}
+                        className={`${inputClass} bg-white dark:bg-[#141414]`}
                       >
                         <option value="">Select a service</option>
                         <option value="photo-editing">Photo Editing</option>
@@ -185,7 +185,7 @@ export default function Contact() {
 
           <Reveal delay={0.15} className="space-y-6">
             <TiltCard max={6} className="rounded-3xl">
-              <div className="p-7 rounded-3xl bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] shadow-sm hover:shadow-xl transition-shadow">
+              <div className="p-7 rounded-3xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm hover:shadow-xl transition-shadow">
                 <h3 className="font-bold text-dark text-lg mb-5">Contact Info</h3>
                 <div className="space-y-5">
                   {[
@@ -214,7 +214,7 @@ export default function Contact() {
               </div>
             </TiltCard>
 
-            <div className="p-7 rounded-3xl bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] shadow-sm">
+            <div className="p-7 rounded-3xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm">
               <h3 className="font-bold text-dark text-lg mb-4">Quick Connect</h3>
               <p className="text-sm text-gray-500 mb-4">Prefer instant messaging? Reach us on:</p>
               <div className="flex gap-3">

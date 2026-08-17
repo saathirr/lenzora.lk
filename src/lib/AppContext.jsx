@@ -120,12 +120,24 @@ export function AppProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    const root = document.documentElement
-    root.classList.add('dark')
-    if (settings.force_light) {
-      root.classList.remove('dark')
+    let saved = localStorage.getItem('lenzora-theme')
+    if (!saved) {
+      saved = 'dark'
+      localStorage.setItem('lenzora-theme', 'dark')
     }
-  }, [settings.theme, settings.force_light])
+    const root = document.documentElement
+    root.classList.toggle('dark', saved === 'dark')
+    if (saved !== settings.theme) {
+      setSettings((prev) => ({ ...prev, theme: saved }))
+    }
+  }, [settings.theme])
+
+  const toggleTheme = () => {
+    const next = settings.theme === 'dark' ? 'light' : 'dark'
+    setSettings((prev) => ({ ...prev, theme: next }))
+    localStorage.setItem('lenzora-theme', next)
+    updateSiteSettings(1, { theme: next }).catch(() => {})
+  }
 
   const signOut = async () => {
     await supabase.auth.signOut()
@@ -147,7 +159,7 @@ export function AppProvider({ children }) {
       sales, setSales,
       frames, setFrames,
       messages, setMessages,
-      settings, setSettings, updateSiteSettings,
+      settings, setSettings, updateSiteSettings, toggleTheme,
       cart, setCart,
       customerOrders, setCustomerOrders,
       addOrder,

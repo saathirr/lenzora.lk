@@ -56,7 +56,7 @@ export default function ServicesSection() {
                 className="h-full"
               >
                 <TiltCard max={10} className="h-full">
-                  <div className="group relative h-full p-7 rounded-3xl bg-white border border-gray-100 dark:border-[#2b2b35] shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden">
+                  <div className="group relative h-full p-7 rounded-3xl bg-white border border-gray-100 dark:border-[#262626] shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden">
                     <div className="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-gradient-to-br from-primary/10 to-accent2/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${grad} flex items-center justify-center mb-5 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300`}>
                       <Icon size={26} />

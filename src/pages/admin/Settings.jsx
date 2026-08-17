@@ -16,7 +16,7 @@ const sections = [
   { id: 'contact', label: 'Contact & Social', icon: HiMail, fields: ['whatsapp', 'contact_email', 'facebook_url', 'instagram_url'] },
 ]
 
-const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#33333e] bg-white dark:bg-[#17171d] text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500'
+const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#141414] text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500'
 
 export default function AdminSettings() {
   const { settings, setSettings, updateSiteSettings, dataLoading } = useApp()
@@ -199,7 +199,7 @@ export default function AdminSettings() {
                   onClick={() => setActive(s.id)}
                   className={`relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold whitespace-nowrap shrink-0 transition ${
                     active === s.id
-                      ? 'bg-white dark:bg-[#17171d] text-primary border border-primary/30 shadow-md shadow-primary/10'
+                      ? 'bg-white dark:bg-[#141414] text-primary border border-primary/30 shadow-md shadow-primary/10'
                       : 'text-gray-600 dark:text-slate-400 hover:bg-white dark:hover:bg-white/5 border border-transparent'
                   }`}
                 >
@@ -227,7 +227,7 @@ export default function AdminSettings() {
               transition={{ duration: 0.22 }}
             >
               {active === 'general' && (
-                <div className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6 sm:p-8">
+                <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6 sm:p-8">
                   <SectionHeader icon={HiGlobe} title="General Information" desc="Identify your brand across the entire site." />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">
                     <div>
@@ -257,7 +257,7 @@ export default function AdminSettings() {
 
               {active === 'appearance' && (
                 <div className="space-y-6">
-                  <div className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6 sm:p-8">
+                  <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6 sm:p-8">
                     <SectionHeader icon={HiSun} title="Theme" desc="Pick how the whole website looks. Applies instantly." />
                     <div className="grid grid-cols-2 gap-4 mt-6">
                       <button
@@ -265,7 +265,7 @@ export default function AdminSettings() {
                         className={`p-5 rounded-2xl border-2 transition text-left group ${
                           theme === 'light'
                             ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
-                            : 'border-gray-200 dark:border-[#33333e] hover:border-primary/50'
+                            : 'border-gray-200 dark:border-[#2f2f2f] hover:border-primary/50'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-4">
@@ -286,7 +286,7 @@ export default function AdminSettings() {
                         className={`p-5 rounded-2xl border-2 transition text-left group ${
                           theme === 'dark'
                             ? 'border-primary bg-primary/5 shadow-lg shadow-primary/10'
-                            : 'border-gray-200 dark:border-[#33333e] hover:border-primary/50'
+                            : 'border-gray-200 dark:border-[#2f2f2f] hover:border-primary/50'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-4">
@@ -305,11 +305,11 @@ export default function AdminSettings() {
                     </div>
                   </div>
 
-                  <div className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6 sm:p-8">
+                  <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6 sm:p-8">
                     <SectionHeader icon={HiPhotograph} title="Site Logo" desc="Upload your brand logo. It replaces the text logo in the navbar and footer." />
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mt-6">
                       <div className={`w-40 h-24 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden transition ${
-                        logoSource ? 'border-primary/40 bg-gray-50 dark:bg-white/5' : 'border-gray-300 dark:border-[#33333e] bg-gray-50 dark:bg-white/5'
+                        logoSource ? 'border-primary/40 bg-gray-50 dark:bg-white/5' : 'border-gray-300 dark:border-[#2f2f2f] bg-gray-50 dark:bg-white/5'
                       }`}>
                         {logoSource ? (
                           <img src={logoSource} alt="Logo preview" className="w-full h-full object-contain p-2" />
@@ -352,9 +352,9 @@ export default function AdminSettings() {
                     <SaveBar section="appearance" saving={savingSection === 'appearance'} onSave={() => saveSection('appearance')} />
                   </div>
 
-                  <div className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6 sm:p-8">
+                  <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6 sm:p-8">
                     <SectionHeader icon={HiMenu} title="Live Preview" desc="How your brand header looks with the current settings." />
-                    <div className={`mt-6 rounded-2xl overflow-hidden border transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0d0d12] border-[#2b2b35]' : 'bg-white border-gray-100'}`}>
+                    <div className={`mt-6 rounded-2xl overflow-hidden border transition-colors duration-500 ${theme === 'dark' ? 'bg-[#0a0a0a] border-[#262626]' : 'bg-white border-gray-100'}`}>
                       {form.announcement_enabled && form.announcement_text && (
                         <div className="bg-gradient-to-r from-primary via-primary-dark to-dark text-white text-center text-xs font-medium px-4 py-1.5">
                           {form.announcement_text}
@@ -380,7 +380,7 @@ export default function AdminSettings() {
               )}
 
               {active === 'announcement' && (
-                <div className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6 sm:p-8">
+                <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6 sm:p-8">
                   <SectionHeader icon={HiSpeakerphone} title="Announcement Bar" desc="Broadcast a short message at the top of every page." />
                   <div className="mt-6 space-y-5">
                     <label className="flex items-center justify-between cursor-pointer">
@@ -414,7 +414,7 @@ export default function AdminSettings() {
               )}
 
               {active === 'contact' && (
-                <div className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6 sm:p-8">
+                <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6 sm:p-8">
                   <SectionHeader icon={HiMail} title="Contact & Social" desc="Used for WhatsApp buttons, contact page and site social links." />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-6">
                     <div>
@@ -518,7 +518,7 @@ function SectionHeader({ icon: Icon, title, desc }) {
 
 function SaveBar({ section, saving, onSave }) {
   return (
-    <div className="mt-6 pt-5 border-t border-gray-100 dark:border-[#2b2b35] flex items-center justify-end gap-3">
+    <div className="mt-6 pt-5 border-t border-gray-100 dark:border-[#262626] flex items-center justify-end gap-3">
       <span className="text-xs text-gray-400 dark:text-slate-500">
         <HiLink className="inline mr-1 -mt-0.5" size={12} />
         Applies site-wide instantly

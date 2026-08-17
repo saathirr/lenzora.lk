@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph,
   HiCube, HiMail, HiLogout, HiBadgeCheck, HiCog, HiTemplate,
-  HiSparkles,
+  HiSparkles, HiSun, HiMoon,
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
@@ -28,11 +28,11 @@ const navItem = {
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { user, profile, loading, signOut, settings } = useApp()
+  const { user, profile, loading, signOut, settings, toggleTheme } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const dark = true
+  const dark = settings?.theme === 'dark'
 
   useEffect(() => {
     if (!loading && (!user || profile?.role !== 'admin')) {
@@ -53,7 +53,7 @@ export default function AdminLayout() {
     : 'A'
 
   return (
-    <div className={`relative min-h-screen flex overflow-hidden transition-colors duration-500 ${dark ? 'bg-[#0d0d12]' : 'bg-[#f4f5fa]'}`}>
+    <div className={`relative min-h-screen flex overflow-hidden transition-colors duration-500 ${dark ? 'bg-[#0a0a0a]' : 'bg-[#f4f5fa]'}`}>
       {/* Decorative ambient background */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
         <div className={`absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full blur-3xl opacity-25 animate-float-slow ${dark ? 'bg-accent2/20' : 'bg-primary/20'}`} />
@@ -185,8 +185,8 @@ export default function AdminLayout() {
       {/* Main column */}
       <div className="relative z-10 flex-1 flex flex-col min-w-0">
         <header className={`sticky top-0 z-30 h-16 px-4 sm:px-6 flex items-center justify-between
-          bg-white/75 dark:bg-[#17171d]/70 backdrop-blur-xl
-          border-b border-gray-100 dark:border-[#2b2b35] transition-colors duration-500`}>
+          bg-white/75 dark:bg-[#141414]/70 backdrop-blur-xl
+          border-b border-gray-100 dark:border-[#262626] transition-colors duration-500`}>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
@@ -204,6 +204,13 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              className="flex items-center justify-center w-9 h-9 rounded-full border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:text-primary hover:border-primary/40 transition"
+            >
+              {dark ? <HiMoon size={18} /> : <HiSun size={18} />}
+            </button>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent2 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-primary/25">
                 {initials}

@@ -103,7 +103,7 @@ export default function Shop() {
                 className="h-full"
               >
                 <TiltCard max={9} className="h-full">
-                  <div className="group relative p-7 h-full rounded-3xl bg-white border border-gray-100 dark:border-[#2b2b35] hover:border-primary/25 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden">
+                  <div className="group relative p-7 h-full rounded-3xl bg-white border border-gray-100 dark:border-[#262626] hover:border-primary/25 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 overflow-hidden">
                     <div className="absolute -top-20 -right-20 w-44 h-44 rounded-full bg-gradient-to-br from-primary/12 to-accent2/12 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative flex items-start justify-between gap-3 mb-5">
                       <div>
@@ -120,7 +120,7 @@ export default function Shop() {
                     <p className="text-sm text-gray-500 leading-relaxed min-h-[40px]">
                       {p.description || p.desc || 'Professional digital service'}
                     </p>
-                    <div className="relative mt-6 pt-5 border-t border-gray-100 dark:border-[#2b2b35] flex items-center justify-between gap-3">
+                    <div className="relative mt-6 pt-5 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between gap-3">
                       <span className="text-2xl font-extrabold text-primary">
                         <CountUp to={Number(p.price)} prefix="LKR " />
                       </span>

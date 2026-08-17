@@ -116,7 +116,7 @@ export default function Services() {
                   const usesFeatures = features[s.name] || ['Fast delivery', 'Premium quality', 'Tailored to you']
                   return (
                     <TiltCard max={7} className="h-full">
-                      <div className="relative h-full p-7 sm:p-10 rounded-3xl bg-white border border-gray-100 dark:border-[#2b2b35] shadow-xl overflow-hidden">
+                      <div className="relative h-full p-7 sm:p-10 rounded-3xl bg-white border border-gray-100 dark:border-[#262626] shadow-xl overflow-hidden">
                         <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-gradient-to-br from-primary/15 to-accent2/15 blur-3xl animate-blob" aria-hidden />
                         <div className="flex items-start gap-5 mb-6">
                           <motion.div

@@ -115,7 +115,7 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, type: 'spring', stiffness: 240, damping: 24 }}
               whileHover={{ y: -6, scale: 1.02 }}
-              className={`group relative p-5 rounded-2xl bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] shadow-sm hover:shadow-xl ${s.glow} transition-all duration-300`}
+              className={`group relative p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm hover:shadow-xl ${s.glow} transition-all duration-300`}
             >
               <div className="pointer-events-none absolute -top-8 -right-8 w-28 h-28 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative flex items-center justify-between mb-3">
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, x: -22 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2, type: 'spring', stiffness: 180, damping: 26 }}
-          className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6"
+          className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6"
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-dark flex items-center gap-2">
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, x: 22 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.26, type: 'spring', stiffness: 180, damping: 26 }}
-          className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm p-6"
+          className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6"
         >
           <h2 className="text-lg font-bold text-dark mb-5">Quick Stats</h2>
           <div className="grid grid-cols-2 gap-4">
@@ -241,7 +241,7 @@ export default function AdminDashboard() {
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.32, type: 'spring', stiffness: 180, damping: 26 }}
-        className="bg-white dark:bg-[#17171d] border border-gray-100 dark:border-[#2b2b35] rounded-2xl shadow-sm overflow-hidden"
+        className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden"
       >
         <div className="flex items-center justify-between p-4 sm:p-6">
           <h2 className="text-lg font-bold text-dark flex items-center gap-2">
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
         <div className="overflow-x-auto -mx-4 sm:-mx-6">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-[#2b2b35] text-left text-gray-500 dark:text-slate-400">
+              <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
                 <th className="pb-3 font-medium px-4 sm:px-6">Order</th>
                 <th className="pb-3 font-medium px-4 sm:px-6">Customer</th>
                 <th className="pb-3 font-medium px-4 sm:px-6">Amount</th>
