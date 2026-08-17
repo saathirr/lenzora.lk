@@ -252,7 +252,7 @@ export default function AdminDashboard() {
           </h2>
           <span className="text-sm text-gray-500 dark:text-slate-400">{orders.length} total</span>
         </div>
-        <div className="overflow-x-auto -mx-4 sm:-mx-6">
+        <div className="overflow-x-auto admin-scroll -mx-4 sm:-mx-6">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">

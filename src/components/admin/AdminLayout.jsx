@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph,
   HiCube, HiMail, HiLogout, HiBadgeCheck, HiCog, HiTemplate,
-  HiSparkles, HiSun, HiMoon,
+  HiSparkles, HiSun, HiMoon, HiArrowUp,
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
@@ -28,6 +28,8 @@ const navItem = {
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showTop, setShowTop] = useState(false)
+  const scrollRef = useRef(null)
   const { user, profile, loading, signOut, settings, toggleTheme } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
@@ -39,6 +41,19 @@ export default function AdminLayout() {
       navigate('/login')
     }
   }, [user, profile, loading, navigate])
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [location.pathname])
+
+  const handleScroll = () => {
+    const top = scrollRef.current?.scrollTop || 0
+    setShowTop(top > 420)
+  }
+
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const handleSignOut = async () => {
     await signOut()
@@ -53,7 +68,7 @@ export default function AdminLayout() {
     : 'A'
 
   return (
-    <div className={`relative min-h-screen flex overflow-hidden transition-colors duration-500 ${dark ? 'bg-[#0a0a0a]' : 'bg-[#f4f5fa]'}`}>
+    <div className={`relative h-screen flex overflow-hidden transition-colors duration-500 ${dark ? 'bg-[#0a0a0a]' : 'bg-[#f4f5fa]'}`}>
       {/* Decorative ambient background */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
         <div className={`absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full blur-3xl opacity-25 animate-float-slow ${dark ? 'bg-accent2/20' : 'bg-primary/20'}`} />
@@ -112,7 +127,7 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="relative z-10 p-4 space-y-1.5 flex-1 overflow-y-auto">
+        <nav className="relative z-10 p-4 space-y-1.5 flex-1 overflow-y-auto admin-scroll">
           {sidebarLinks.map((l, i) => (
             <motion.div key={l.to} variants={navItem} initial="hidden" animate="show" custom={i}>
               <NavLink
@@ -222,7 +237,11 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="admin-scroll relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8"
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -233,6 +252,23 @@ export default function AdminLayout() {
             >
               <Outlet />
             </motion.div>
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {showTop && (
+              <motion.button
+                initial={{ opacity: 0, y: 16, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 16, scale: 0.8 }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.92 }}
+                onClick={scrollToTop}
+                aria-label="Back to top"
+                className="fixed bottom-6 right-6 z-40 w-11 h-11 rounded-full bg-gradient-to-br from-primary to-accent2 text-white shadow-lg shadow-primary/30 flex items-center justify-center hover:shadow-xl hover:shadow-primary/40 transition-shadow"
+              >
+                <HiArrowUp size={18} />
+              </motion.button>
+            )}
           </AnimatePresence>
         </main>
       </div>

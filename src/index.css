@@ -155,6 +155,22 @@
   html.dark .tilt-glare {
     background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255,255,255,0.14), transparent 45%);
   }
+  /* === Slim themed scrollbars (admin shell + panels) === */
+  .admin-scroll { scrollbar-width: thin; scrollbar-color: rgba(249, 115, 22, 0.45) transparent; }
+  .admin-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .admin-scroll::-webkit-scrollbar-track { background: transparent; }
+  .admin-scroll::-webkit-scrollbar-thumb {
+    background: rgba(249, 115, 22, 0.4);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    transition: background 0.2s ease;
+  }
+  .admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.7); background-clip: content-box; }
+  .admin-scroll::-webkit-scrollbar-corner { background: transparent; }
+  html.dark .admin-scroll { scrollbar-color: rgba(249, 115, 22, 0.5) rgba(255, 255, 255, 0.04); }
+  html.dark .admin-scroll::-webkit-scrollbar-thumb { background: rgba(249, 115, 22, 0.45); background-clip: content-box; }
+  html.dark .admin-scroll::-webkit-scrollbar-thumb:hover { background: rgba(249, 115, 22, 0.8); background-clip: content-box; }
   /* === Reduced motion === */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
