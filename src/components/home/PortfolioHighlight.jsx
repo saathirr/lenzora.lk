@@ -12,7 +12,7 @@ export default function PortfolioHighlight() {
   const items = portfolio.slice(0, 4)
 
   return (
-    <section className="relative py-20 sm:py-28 bg-gray-50/60 overflow-hidden">
+    <section className="relative py-20 sm:py-28 bg-gray-50/60 dark:bg-[#15151b]/60 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <Reveal className="mb-14">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary text-sm font-semibold rounded-full mb-4">

@@ -27,7 +27,7 @@ export function AppProvider({ children }) {
   const [messages, setMessages] = useState([])
   const [settings, setSettings] = useState({
     id: 1,
-    theme: 'light',
+    theme: 'dark',
     site_name: 'Lenzora',
     tagline: 'Premium digital graphics services.',
     logo_url: '',
@@ -121,12 +121,11 @@ export function AppProvider({ children }) {
 
   useEffect(() => {
     const root = document.documentElement
-    if (settings.theme === 'dark') {
-      root.classList.add('dark')
-    } else {
+    root.classList.add('dark')
+    if (settings.force_light) {
       root.classList.remove('dark')
     }
-  }, [settings.theme])
+  }, [settings.theme, settings.force_light])
 
   const signOut = async () => {
     await supabase.auth.signOut()

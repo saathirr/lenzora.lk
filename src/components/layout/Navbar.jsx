@@ -33,7 +33,7 @@ export default function Navbar() {
     : user?.email?.[0].toUpperCase() || 'U'
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-100 dark:border-[#2b2b35] transition-colors">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 dark:border-[#2b2b35] transition-colors">
       {settings.announcement_enabled && settings.announcement_text && (
         <div className="bg-gradient-to-r from-primary via-primary-dark to-dark text-white text-center text-sm font-medium px-4 py-1.5">
           {settings.announcement_text}

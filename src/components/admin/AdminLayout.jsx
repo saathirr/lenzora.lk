@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph,
   HiCube, HiMail, HiLogout, HiBadgeCheck, HiCog, HiTemplate,
-  HiSun, HiMoon, HiSparkles,
+  HiSparkles,
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
@@ -28,11 +28,11 @@ const navItem = {
 
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { user, profile, loading, signOut, settings, setSettings, updateSiteSettings } = useApp()
+  const { user, profile, loading, signOut, settings } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const dark = settings?.theme === 'dark'
+  const dark = true
 
   useEffect(() => {
     if (!loading && (!user || profile?.role !== 'admin')) {
@@ -43,16 +43,6 @@ export default function AdminLayout() {
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
-  }
-
-  const toggleTheme = async () => {
-    const next = dark ? 'light' : 'dark'
-    setSettings((prev) => ({ ...prev, theme: next }))
-    try {
-      await updateSiteSettings(1, { theme: next })
-    } catch (err) {
-      console.error('Failed to save theme:', err)
-    }
   }
 
   if (loading) return null
@@ -214,28 +204,6 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            <motion.button
-              onClick={toggleTheme}
-              whileTap={{ scale: 0.82 }}
-              aria-label="Toggle theme"
-              className={`w-10 h-10 rounded-xl flex items-center justify-center transition
-                ${dark
-                  ? 'bg-white/10 text-amber-300 hover:bg-white/20'
-                  : 'bg-gray-100 text-slate-500 hover:bg-gray-200'}`}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.span
-                  key={dark ? 'moon' : 'sun'}
-                  initial={{ rotate: -120, opacity: 0, scale: 0.5 }}
-                  animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ rotate: 120, opacity: 0, scale: 0.5 }}
-                  transition={{ duration: 0.25 }}
-                  className="flex"
-                >
-                  {dark ? <HiMoon size={18} /> : <HiSun size={18} className="text-amber-500" />}
-                </motion.span>
-              </AnimatePresence>
-            </motion.button>
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent2 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-primary/25">
                 {initials}
