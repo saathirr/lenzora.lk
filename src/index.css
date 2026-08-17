@@ -20,6 +20,12 @@
   --animate-pop: pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-spin-slow: spin 4s linear infinite;
   --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+  --animate-marquee: marquee 32s linear infinite;
+  --animate-ken-burns: ken-burns 14s ease-in-out infinite alternate;
+  --animate-blob: blob-drift 16s ease-in-out infinite;
+  --animate-orbit: orbit-spin 24s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.2s ease-out infinite;
+  --animate-bounce-soft: bounce-soft 2.4s ease-in-out infinite;
 }
 
 @keyframes float {
@@ -46,6 +52,36 @@
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
 }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes ken-burns {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.18) translate(1.5%, -1.5%); }
+}
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(34px, -46px) scale(1.12); }
+  66% { transform: translate(-28px, 28px) scale(0.94); }
+}
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.45); }
+  70% { box-shadow: 0 0 0 18px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+@keyframes shine-sweep {
+  0% { transform: translateX(-140%) skewX(-20deg); }
+  60%, 100% { transform: translateX(340%) skewX(-20deg); }
+}
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
 
 @layer base {
   html {
@@ -71,6 +107,70 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+  .text-gradient-animated {
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent2), var(--color-accent3), var(--color-primary));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-x 7s linear infinite;
+  }
+  /* === 3D helpers === */
+  .perspective-1000 { perspective: 1000px; }
+  .perspective-1600 { perspective: 1600px; }
+  .preserve-3d { transform-style: preserve-3d; }
+  .backface-hidden { backface-visibility: hidden; }
+  .translate-z-0 { transform: translateZ(0); }
+  /* === Glass === */
+  .glass {
+    background: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+  }
+  html.dark .glass {
+    background: rgba(23, 23, 29, 0.58);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+  }
+  /* === Animated aurora background === */
+  .bg-aurora {
+    background: linear-gradient(120deg, var(--color-primary), var(--color-accent), var(--color-accent2), var(--color-accent3), var(--color-primary));
+    background-size: 320% 320%;
+    animation: gradient-x 11s ease infinite;
+  }
+  /* === Shine sweep (shimmer across cards/buttons) === */
+  .shine-holder { position: relative; overflow: hidden; }
+  .shine-holder::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0;
+    width: 38%;
+    background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, 0.32) 50%, transparent 85%);
+    animation: shine-sweep 4.2s ease-in-out infinite;
+    pointer-events: none;
+  }
+  html.dark .shine-holder::after {
+    background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, 0.08) 50%, transparent 85%);
+  }
+  /* === Scroll progress === */
+  .scroll-progress-bar { transform-origin: 0 50%; }
+  /* === Card glare (used by TiltCard) === */
+  .tilt-glare {
+    background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255,255,255,0.55), transparent 45%);
+  }
+  html.dark .tilt-glare {
+    background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255,255,255,0.14), transparent 45%);
+  }
+  /* === Reduced motion === */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

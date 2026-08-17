@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { FaInstagram, FaFacebook, FaWhatsapp, FaEnvelope } from 'react-icons/fa'
 import { useApp } from '../../lib/AppContext'
+import Marquee from '../ui/Marquee'
 import defaultLogo from '../../assets/lenzora-logo.png'
+
+const socials = [
+  { key: 'instagram', icon: FaInstagram },
+  { key: 'facebook', icon: FaFacebook },
+  { key: 'whatsapp', icon: FaWhatsapp },
+  { key: 'email', icon: FaEnvelope },
+]
 
 export default function Footer() {
   const { settings } = useApp()
@@ -13,8 +22,24 @@ export default function Footer() {
   const instagramUrl = settings.instagram_url || 'https://instagram.com/lenzora.lk'
   const facebookUrl = settings.facebook_url || 'https://facebook.com/lenzora.lk'
 
+  const socialHrefs = {
+    instagram: instagramUrl,
+    facebook: facebookUrl,
+    whatsapp: `https://wa.me/${whatsapp}`,
+    email: `mailto:${email}`,
+  }
+
+  const brandWords = ['Graphic Design', 'Photo Editing', 'Brand Identity', 'Social Media', 'Video Editing', 'Frames & Prints']
+
   return (
-    <footer className="bg-dark text-gray-300">
+    <footer className="relative bg-dark text-gray-300 overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+      <Marquee
+        items={brandWords}
+        className="bg-gradient-to-r from-primary/15 via-accent2/15 to-primary/15 border-y border-white/5"
+        itemClassName="text-sm font-semibold uppercase tracking-[0.2em] text-white/60"
+        speed="animate-marquee"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
@@ -31,12 +56,20 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">Quick Links</h4>
             <div className="space-y-2 text-sm">
-              <Link to="/services" className="block hover:text-primary transition">Services</Link>
-              <Link to="/gallery" className="block hover:text-primary transition">Gallery</Link>
-              <Link to="/shop" className="block hover:text-primary transition">Shop</Link>
-              <Link to="/frames" className="block hover:text-primary transition">Frames</Link>
-              <Link to="/about" className="block hover:text-primary transition">About Us</Link>
-              <Link to="/contact" className="block hover:text-primary transition">Contact</Link>
+              {[
+                { to: '/services', label: 'Services' },
+                { to: '/gallery', label: 'Gallery' },
+                { to: '/shop', label: 'Shop' },
+                { to: '/frames', label: 'Frames' },
+                { to: '/about', label: 'About Us' },
+                { to: '/contact', label: 'Contact' },
+              ].map((l) => (
+                <motion.div key={l.to} whileHover={{ x: 5 }}>
+                  <Link to={l.to} className="block hover:text-primary transition-colors">
+                    {l.label}
+                  </Link>
+                </motion.div>
+              ))}
             </div>
           </div>
 
@@ -54,18 +87,19 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">Connect</h4>
             <div className="flex gap-3 mb-4 flex-wrap">
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
-                <FaInstagram size={18} />
-              </a>
-              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
-                <FaFacebook size={18} />
-              </a>
-              <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
-                <FaWhatsapp size={18} />
-              </a>
-              <a href={`mailto:${email}`} className="p-2 bg-white/10 rounded-full hover:bg-primary transition">
-                <FaEnvelope size={18} />
-              </a>
+              {socials.map(({ key, icon: Icon }) => (
+                <motion.a
+                  key={key}
+                  href={socialHrefs[key]}
+                  target={key === 'email' ? undefined : '_blank'}
+                  rel="noopener noreferrer"
+                  whileHover={{ y: -4, scale: 1.1 }}
+                  whileTap={{ scale: 0.92 }}
+                  className={`p-2 bg-white/10 rounded-full hover:bg-primary transition-colors inline-flex ${key === 'whatsapp' ? 'animate-pulse-soft' : ''}`}
+                >
+                  <Icon size={18} />
+                </motion.a>
+              ))}
             </div>
             <p className="text-sm text-gray-400">{email}</p>
             <p className="text-sm text-gray-400">{whatsapp}</p>
