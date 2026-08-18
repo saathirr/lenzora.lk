@@ -1,6 +1,12 @@
 -- Supabase SQL Schema for Lenzora.lk
 -- Safe to run multiple times (idempotent)
 
+-- Admin role check helper (SECURITY DEFINER bypasses RLS -> avoids infinite-recursion policies)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin');
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
+
 -- Services table
 CREATE TABLE IF NOT EXISTS services (
   id BIGSERIAL PRIMARY KEY,
@@ -87,14 +93,14 @@ CREATE POLICY "Admin can delete slips"
   ON storage.objects FOR DELETE
   USING (
     bucket_id = 'payment-slips' AND
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- Portfolio images storage policies
 DROP POLICY IF EXISTS "Admin can upload portfolio images" ON storage.objects;
 CREATE POLICY "Admin can upload portfolio images"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'portfolio-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  WITH CHECK (bucket_id = 'portfolio-images' AND public.is_admin());
 
 DROP POLICY IF EXISTS "Public can view portfolio images" ON storage.objects;
 CREATE POLICY "Public can view portfolio images"
@@ -106,19 +112,19 @@ CREATE POLICY "Admin can delete portfolio images"
   ON storage.objects FOR DELETE
   USING (
     bucket_id = 'portfolio-images' AND
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+    public.is_admin()
   );
 
 -- Site assets storage policies (logos, favicons, shared assets)
 DROP POLICY IF EXISTS "Admin can upload site assets" ON storage.objects;
 CREATE POLICY "Admin can upload site assets"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'site-assets' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  WITH CHECK (bucket_id = 'site-assets' AND public.is_admin());
 
 DROP POLICY IF EXISTS "Admin can update site assets" ON storage.objects;
 CREATE POLICY "Admin can update site assets"
   ON storage.objects FOR UPDATE
-  USING (bucket_id = 'site-assets' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (bucket_id = 'site-assets' AND public.is_admin());
 
 DROP POLICY IF EXISTS "Public can view site assets" ON storage.objects;
 CREATE POLICY "Public can view site assets"
@@ -128,18 +134,18 @@ CREATE POLICY "Public can view site assets"
 DROP POLICY IF EXISTS "Admin can delete site assets" ON storage.objects;
 CREATE POLICY "Admin can delete site assets"
   ON storage.objects FOR DELETE
-  USING (bucket_id = 'site-assets' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (bucket_id = 'site-assets' AND public.is_admin());
 
 -- Frame images storage policies
 DROP POLICY IF EXISTS "Admin can upload frame images" ON storage.objects;
 CREATE POLICY "Admin can upload frame images"
   ON storage.objects FOR INSERT
-  WITH CHECK (bucket_id = 'frame-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  WITH CHECK (bucket_id = 'frame-images' AND public.is_admin());
 
 DROP POLICY IF EXISTS "Admin can update frame images" ON storage.objects;
 CREATE POLICY "Admin can update frame images"
   ON storage.objects FOR UPDATE
-  USING (bucket_id = 'frame-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (bucket_id = 'frame-images' AND public.is_admin());
 
 DROP POLICY IF EXISTS "Public can view frame images" ON storage.objects;
 CREATE POLICY "Public can view frame images"
@@ -149,7 +155,7 @@ CREATE POLICY "Public can view frame images"
 DROP POLICY IF EXISTS "Admin can delete frame images" ON storage.objects;
 CREATE POLICY "Admin can delete frame images"
   ON storage.objects FOR DELETE
-  USING (bucket_id = 'frame-images' AND EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (bucket_id = 'frame-images' AND public.is_admin());
 
 -- ============================================
 -- PROFILES TABLE (extends Supabase auth.users)
@@ -165,16 +171,21 @@ CREATE TABLE IF NOT EXISTS profiles (
 );
 
 -- Auto-create profile on signup
+-- Resilient: never blocks signup even if profile insert fails (e.g. schema mismatch)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, phone, role)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'phone', ''),
-    'customer'
-  );
+  BEGIN
+    INSERT INTO public.profiles (id, full_name, phone, role)
+    VALUES (
+      NEW.id,
+      COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+      COALESCE(NEW.raw_user_meta_data->>'phone', ''),
+      'customer'
+    );
+  EXCEPTION WHEN OTHERS THEN
+    RAISE NOTICE 'handle_new_user skipped (could not auto-create profile): %', SQLERRM;
+  END;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -183,6 +194,14 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Backfill profile columns for existing databases
+ALTER TABLE IF EXISTS profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
+ALTER TABLE IF EXISTS profiles ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE IF EXISTS profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+ALTER TABLE IF EXISTS profiles ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'customer' CHECK (role IN ('customer', 'admin'));
+ALTER TABLE IF EXISTS profiles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE IF EXISTS profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- Manual Sales table (admin-added daily sales)
 CREATE TABLE IF NOT EXISTS sales (
@@ -389,33 +408,33 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 -- Note: FOR ALL USING handles SELECT/UPDATE/DELETE, WITH CHECK handles INSERT
 DROP POLICY IF EXISTS "Admin full access services" ON services;
 CREATE POLICY "Admin full access services" ON services FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin full access portfolio" ON portfolio;
 CREATE POLICY "Admin full access portfolio" ON portfolio FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin full access products" ON products;
 CREATE POLICY "Admin full access products" ON products FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin full access orders" ON orders;
 CREATE POLICY "Admin full access orders" ON orders FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin full access messages" ON contact_messages;
 CREATE POLICY "Admin full access messages" ON contact_messages FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Admin full access profiles" ON profiles;
 CREATE POLICY "Admin full access profiles" ON profiles FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Users can manage own cart" ON cart_items;
 CREATE POLICY "Users can manage own cart" ON cart_items FOR ALL
@@ -431,8 +450,8 @@ CREATE POLICY "Users can read own payment slips" ON payment_slips FOR SELECT USI
 
 DROP POLICY IF EXISTS "Admin full access payment_slips" ON payment_slips;
 CREATE POLICY "Admin full access payment_slips" ON payment_slips FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 -- Sales policies (admin manage; public read for dashboard/reporting)
 DROP POLICY IF EXISTS "Public can read sales" ON sales;
@@ -440,8 +459,8 @@ CREATE POLICY "Public can read sales" ON sales FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admin full access sales" ON sales;
 CREATE POLICY "Admin full access sales" ON sales FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 -- Site settings policies (public read, admin update)
 DROP POLICY IF EXISTS "Public can read site settings" ON site_settings;
@@ -449,8 +468,8 @@ CREATE POLICY "Public can read site settings" ON site_settings FOR SELECT USING 
 
 DROP POLICY IF EXISTS "Admin full access site settings" ON site_settings;
 CREATE POLICY "Admin full access site settings" ON site_settings FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 -- Frames policies (public read for dashboard/reporting; admin manage)
 DROP POLICY IF EXISTS "Public can read frames" ON frames;
@@ -458,8 +477,8 @@ CREATE POLICY "Public can read frames" ON frames FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admin full access frames" ON frames;
 CREATE POLICY "Admin full access frames" ON frames FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 -- Frame categories policies (public read; admin manage)
 ALTER TABLE IF EXISTS frame_categories ENABLE ROW LEVEL SECURITY;
@@ -469,8 +488,8 @@ CREATE POLICY "Public can read frame categories" ON frame_categories FOR SELECT 
 
 DROP POLICY IF EXISTS "Admin full access frame categories" ON frame_categories;
 CREATE POLICY "Admin full access frame categories" ON frame_categories FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 -- Conversation & message policies
 ALTER TABLE IF EXISTS conversations ENABLE ROW LEVEL SECURITY;
@@ -478,7 +497,7 @@ ALTER TABLE IF EXISTS messages ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Users can read own conversations" ON conversations;
 CREATE POLICY "Users can read own conversations" ON conversations
-  FOR SELECT USING (auth.uid() = customer_id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  FOR SELECT USING (auth.uid() = customer_id OR public.is_admin());
 
 DROP POLICY IF EXISTS "Users can insert own conversations" ON conversations;
 CREATE POLICY "Users can insert own conversations" ON conversations
@@ -486,24 +505,25 @@ CREATE POLICY "Users can insert own conversations" ON conversations
 
 DROP POLICY IF EXISTS "Admin full access conversations" ON conversations;
 CREATE POLICY "Admin full access conversations" ON conversations FOR ALL
-  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
-  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
 DROP POLICY IF EXISTS "Users can read own messages" ON messages;
 CREATE POLICY "Users can read own messages" ON messages
   FOR SELECT USING (
-    EXISTS (SELECT 1 FROM conversations WHERE id = messages.conversation_id AND (customer_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')))
+    EXISTS (SELECT 1 FROM conversations WHERE id = messages.conversation_id AND (customer_id = auth.uid() OR public.is_admin()))
   );
 
 DROP POLICY IF EXISTS "Users can insert messages" ON messages;
+DROP POLICY IF EXISTS "Users can insert own messages" ON messages;
 CREATE POLICY "Users can insert own messages" ON messages
   FOR INSERT WITH CHECK (
-    EXISTS (SELECT 1 FROM conversations WHERE id = conversation_id AND (customer_id = auth.uid() OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')))
+    EXISTS (SELECT 1 FROM conversations WHERE id = conversation_id AND (customer_id = auth.uid() OR public.is_admin()))
   );
 
 -- Customer order policies
 DROP POLICY IF EXISTS "Users can read own orders" ON orders;
-CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id OR EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
 
 DROP POLICY IF EXISTS "Users can insert own orders" ON orders;
 CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
