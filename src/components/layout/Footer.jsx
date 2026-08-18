@@ -43,11 +43,13 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            {settings.logo_url ? (
-              <img src={settings.logo_url} alt={siteName} className="h-14 max-w-[200px] object-contain mb-2" />
-            ) : (
-              <img src={defaultLogo} alt={siteName} className="h-14 max-w-[200px] object-contain mb-2" />
-            )}
+            <span className="inline-flex h-16 px-3 bg-white rounded-xl ring-1 ring-white/20 items-center justify-center overflow-hidden mb-3">
+              {settings.logo_url ? (
+                <img src={settings.logo_url} alt={siteName} className="h-11 max-w-[180px] object-contain" />
+              ) : (
+                <img src={defaultLogo} alt={siteName} className="h-11 max-w-[180px] object-contain" />
+              )}
+            </span>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               {tagline}
             </p>
