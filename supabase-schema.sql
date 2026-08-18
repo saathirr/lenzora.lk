@@ -274,6 +274,7 @@ CREATE TABLE IF NOT EXISTS frame_categories (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
   image_url TEXT DEFAULT '',
+  price NUMERIC(10,2),
   active BOOLEAN DEFAULT true,
   sort_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -281,19 +282,27 @@ CREATE TABLE IF NOT EXISTS frame_categories (
 
 -- Backfill columns for existing databases
 ALTER TABLE IF EXISTS frame_categories ADD COLUMN IF NOT EXISTS image_url TEXT DEFAULT '';
+ALTER TABLE IF EXISTS frame_categories ADD COLUMN IF NOT EXISTS price NUMERIC(10,2);
 ALTER TABLE IF EXISTS frame_categories ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
 ALTER TABLE IF EXISTS frame_categories ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 
--- Seed default frame categories (only if none exist)
-INSERT INTO frame_categories (name, sort_order) VALUES
-('A3 Frames', 1),
-('A4 Frames', 2),
-('6x6 Frames', 3),
-('5x5 Frames', 4),
-('4x4 Frames', 5),
-('Graduation Frames', 6),
-('Customize Size Frame', 7)
-ON CONFLICT (name) DO NOTHING;
+-- Migrate legacy category names to the current folder set
+UPDATE frame_categories SET name = '4x4 (Mini Frames)', price = 550 WHERE name = '4x4 Frames';
+UPDATE frame_categories SET name = 'Customized Frames' WHERE name = 'Customize Size Frame';
+DELETE FROM frame_categories WHERE name IN ('5x5 Frames', 'Graduation Frames');
+
+-- Seed default frame folders (name, folder price). NULL price = custom quote.
+INSERT INTO frame_categories (name, price, sort_order) VALUES
+('A3 Frames', 2600, 1),
+('A4 Frames', 1400, 2),
+('A5 Frames', 1300, 3),
+('6x6 Frames', 750, 4),
+('4x4 (Mini Frames)', 550, 5),
+('Customized Frames', NULL, 6)
+ON CONFLICT (name) DO UPDATE SET
+  price = EXCLUDED.price,
+  sort_order = EXCLUDED.sort_order,
+  active = true;
 
 -- Payment Slips table
 CREATE TABLE IF NOT EXISTS payment_slips (

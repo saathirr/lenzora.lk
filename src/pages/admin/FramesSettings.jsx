@@ -8,11 +8,34 @@ export default function AdminFramesSettings() {
   const [savingId, setSavingId] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
   const [newName, setNewName] = useState('')
+  const [newPrice, setNewPrice] = useState('')
   const [newImage, setNewImage] = useState(null)
+  const [priceDrafts, setPriceDrafts] = useState({})
   const fileRefs = useRef({})
 
   const categoryCount = (name) =>
     frames.filter((f) => (f.category || '').trim().toUpperCase() === (name || '').trim().toUpperCase()).length
+
+  const handlePriceSave = async (cat) => {
+    const draft = priceDrafts[cat.id]
+    if (draft === undefined) return
+    const price = draft === '' ? null : Number(draft)
+    if (draft !== '' && Number.isNaN(price)) {
+      alert('Enter a valid price or leave it empty for a custom quote.')
+      setPriceDrafts((prev) => ({ ...prev, [cat.id]: undefined }))
+      return
+    }
+    setSavingId(cat.id)
+    try {
+      const updated = await updateFrameCategory(cat.id, { price })
+      setFrameCategories((prev) => prev.map((c) => (c.id === cat.id ? updated : c)))
+      setPriceDrafts((prev) => ({ ...prev, [cat.id]: undefined }))
+    } catch (err) {
+      console.error('Failed to update price:', err)
+      alert('Failed to update price.')
+    }
+    setSavingId(null)
+  }
 
   const handleImage = (cat, e) => {
     const file = e.target.files?.[0]
@@ -91,10 +114,12 @@ export default function AdminFramesSettings() {
         imageUrl = await uploadFile('frame-images', `frame-category-${Date.now()}.${newImage.name.split('.').pop().toLowerCase()}`, newImage)
       }
       const nextOrder = frameCategories.length ? Math.max(...frameCategories.map((c) => c.sort_order)) + 1 : 1
-      const created = await createFrameCategory({ name: newName.trim(), image_url: imageUrl, active: true, sort_order: nextOrder })
+      const price = newPrice === '' ? null : Number(newPrice)
+      const created = await createFrameCategory({ name: newName.trim(), image_url: imageUrl, price, active: true, sort_order: nextOrder })
       setFrameCategories((prev) => [...prev, created])
       setShowAdd(false)
       setNewName('')
+      setNewPrice('')
       setNewImage(null)
     } catch (err) {
       console.error('Failed to add category:', err)
@@ -118,7 +143,7 @@ export default function AdminFramesSettings() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
         <div>
           <h1 className="text-2xl font-bold text-dark">Frames Settings</h1>
-          <p className="text-gray-500">Control the categories &amp; photos shown on the customer Frames page. Add a photo to each category to display it on the site.</p>
+          <p className="text-gray-500">Control the folders, prices &amp; photos shown on the customer Frames page. Assign frames to a folder from the Frames page using the same folder name.</p>
         </div>
         <button
           onClick={() => setShowAdd((v) => !v)}
@@ -136,8 +161,16 @@ export default function AdminFramesSettings() {
             <input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="Category name (e.g. 8x10 Frames)"
+              placeholder="Folder name (e.g. 8x10 Frames)"
               className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white"
+            />
+            <input
+              type="number"
+              min="0"
+              value={newPrice}
+              onChange={(e) => setNewPrice(e.target.value)}
+              placeholder="Folder price (LKR)"
+              className="w-full sm:w-44 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white"
             />
             <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary/10 text-primary text-sm font-semibold rounded-xl hover:bg-primary/20 transition cursor-pointer">
               <HiUpload size={16} />
@@ -194,6 +227,31 @@ export default function AdminFramesSettings() {
                   <span className="text-xs font-semibold text-gray-500 bg-gray-100 dark:bg-white/10 px-2 py-1 rounded-full shrink-0">
                     {categoryCount(cat.name)} frames
                   </span>
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex-1">
+                    <label className="block text-[10px] uppercase tracking-wide text-gray-400 mb-1">Folder Price (LKR)</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min="0"
+                        value={priceDrafts[cat.id] !== undefined ? priceDrafts[cat.id] : (cat.price ?? '')}
+                        onChange={(e) => setPriceDrafts((prev) => ({ ...prev, [cat.id]: e.target.value }))}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handlePriceSave(cat) }}
+                        placeholder="Custom quote"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-sm text-dark dark:text-white"
+                      />
+                      {(priceDrafts[cat.id] !== undefined) && (
+                        <button
+                          onClick={() => handlePriceSave(cat)}
+                          disabled={savingId === cat.id}
+                          className="shrink-0 px-3 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary-dark disabled:opacity-50 transition"
+                        >
+                          Save
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <label className={`inline-flex items-center gap-1.5 px-3 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary-dark transition cursor-pointer flex-1 justify-center ${savingId === cat.id ? 'opacity-50 pointer-events-none' : ''}`}>

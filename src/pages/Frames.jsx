@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaWhatsapp } from 'react-icons/fa'
 import {
-  HiTemplate, HiSearch, HiViewGrid, HiArrowLeft, HiArrowRight,
-  HiPhotograph, HiCursorClick, HiCheckCircle, HiChevronDown,
+  HiTemplate, HiSearch, HiArrowLeft, HiArrowRight,
+  HiPhotograph, HiCursorClick, HiCheckCircle, HiFolderOpen,
 } from 'react-icons/hi'
 import { useApp } from '../lib/AppContext'
 import TiltCard from '../components/ui/TiltCard'
@@ -12,10 +12,12 @@ import AnimatedHeading from '../components/ui/AnimatedHeading'
 import MagneticButton from '../components/ui/MagneticButton'
 
 const steps = [
-  { icon: HiPhotograph, title: 'Pick a Category', desc: 'Choose your size — A4, A5, 6x6 and more.' },
+  { icon: HiFolderOpen, title: 'Pick a Folder', desc: 'Choose your size — A4, A3, 6x6 and more.' },
   { icon: HiCursorClick, title: 'Order on WhatsApp', desc: 'One tap opens chat with details pre-filled.' },
   { icon: HiCheckCircle, title: 'Confirmed & Delivered', desc: 'We confirm your order and get it to you.' },
 ]
+
+const formatPrice = (n) => (Number.isFinite(Number(n)) ? `LKR ${Number(n).toLocaleString()}/=` : 'Custom Size')
 
 export default function FramesPage() {
   const { frames, settings, frameCategories } = useApp()
@@ -26,7 +28,7 @@ export default function FramesPage() {
     [frames]
   )
 
-  const categories = useMemo(() => {
+  const folders = useMemo(() => {
     const configured = (frameCategories || [])
       .filter((c) => c.active !== false)
       .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
@@ -35,7 +37,7 @@ export default function FramesPage() {
       return configured.map((c) => {
         const key = (c.name || '').trim().toUpperCase()
         const list = visibleFrames.filter((f) => (f.category || '').trim().toUpperCase() === key)
-        return { key, name: c.name, frames: list, photo: c.image_url || '' }
+        return { key, name: c.name, price: c.price, photo: c.image_url || '', frames: list }
       })
     }
 
@@ -43,7 +45,7 @@ export default function FramesPage() {
     visibleFrames.forEach((f) => {
       const raw = (f.category || '').trim()
       const key = raw ? raw.toUpperCase() : 'OTHER'
-      if (!map.has(key)) map.set(key, { key, name: raw || 'Other Frames', frames: [], photo: '' })
+      if (!map.has(key)) map.set(key, { key, name: raw || 'Other Frames', price: null, photo: '', frames: [] })
       map.get(key).frames.push(f)
     })
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name))
@@ -52,21 +54,17 @@ export default function FramesPage() {
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState('')
 
-  const selectedCat = selected ? categories.find((c) => c.key === selected) : null
+  const selectedFolder = selected ? folders.find((f) => f.key === selected) : null
 
-  const catStats = (framesList) => {
-    const prices = framesList.map((f) => Number(f.price)).filter((n) => !Number.isNaN(n))
-    const min = prices.length ? Math.min(...prices) : 0
-    return {
-      count: framesList.length,
-      min,
-      sample: framesList.find((f) => f.image_url)?.image_url || framesList[0]?.image_url || '',
-    }
+  const folderCover = (folder) => {
+    if (folder.photo) return folder.photo
+    const sample = folder.frames.find((f) => f.image_url)?.image_url || folder.frames[0]?.image_url
+    return sample || ''
   }
 
   const detailFrames = useMemo(() => {
-    if (!selectedCat) return []
-    let list = selectedCat.frames
+    if (!selectedFolder) return []
+    let list = selectedFolder.frames
     if (query.trim()) {
       const q = query.trim().toLowerCase()
       list = list.filter((f) =>
@@ -74,14 +72,19 @@ export default function FramesPage() {
       )
     }
     return list
-  }, [selectedCat, query])
+  }, [selectedFolder, query])
 
   const orderLink = (f) =>
     `https://wa.me/${whatsapp}?text=${encodeURIComponent(
-      `Hello Lenzora! I would like to order a frame.\n\nSize: ${f.frame_size}\nPrice: LKR ${Number(f.price).toLocaleString()}${f.category ? `\nCategory: ${f.category}` : ''}${f.description ? `\nDesign: ${f.description}` : ''}`
+      `Hello Lenzora! I would like to order a frame.\n\nSize: ${f.frame_size}\nPrice: ${formatPrice(f.price)}${f.category ? `\nFolder: ${f.category}` : ''}${f.description ? `\nDesign: ${f.description}` : ''}`
     )}`
 
-  const allStats = catStats(visibleFrames)
+  const customLink = (folder) =>
+    `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+      `Hello Lenzora! I would like to order a ${folder.name}. Can you help me with a custom size?`
+    )}`
+
+  const allCount = visibleFrames.length
 
   return (
     <div className="relative py-20 sm:py-28 overflow-hidden">
@@ -91,94 +94,73 @@ export default function FramesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-14"
         >
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-white/10 text-primary text-sm font-semibold rounded-full mb-4 glass">
-            <HiTemplate size={14} />
+            <HiFolderOpen size={14} />
             Frames
           </span>
           <AnimatedHeading
-            text="Pick Your Frame Size"
+            text="Pick Your Frame Folder"
             gradient={['Frame']}
             className="text-4xl sm:text-5xl font-extrabold text-dark dark:text-white tracking-tight"
           />
           <p className="mt-4 text-gray-500 dark:text-slate-400 max-w-xl mx-auto">
-            Choose a category to browse frames — sizes, designs &amp; prices.{' '}
+            Browse our frame folders, choose a design you love and order instantly on WhatsApp.{' '}
             <span className="font-semibold text-primary">
-              {visibleFrames.length} {visibleFrames.length === 1 ? 'frame' : 'frames'} available
+              {allCount} {allCount === 1 ? 'frame' : 'frames'} available
             </span>
           </p>
         </motion.div>
 
-        {visibleFrames.length === 0 ? (
+        {folders.length === 0 ? (
           <div className="text-center py-16 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
             <HiTemplate size={40} className="mx-auto text-gray-300 dark:text-slate-600 mb-3" />
-            <p className="text-gray-500 dark:text-slate-400">No frames available right now. Check back soon!</p>
+            <p className="text-gray-500 dark:text-slate-400">No frame folders available right now. Check back soon!</p>
           </div>
-        ) : !selectedCat ? (
+        ) : !selectedFolder ? (
           <>
-            {/* Category grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 perspective-1600">
-              {/* All frames card */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="h-full"
-              >
-                <TiltCard max={10} className="h-full">
-                  <button
-                    onClick={() => setSelected('ALL')}
-                    className="group relative w-full h-full min-h-[220px] p-7 rounded-3xl border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary transition-colors text-left overflow-hidden"
-                  >
-                    <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/15 blur-2xl group-hover:opacity-100 opacity-0 transition-opacity duration-500" />
-                    <span className="relative z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary to-accent2 text-white text-xs font-bold">
-                      <HiViewGrid size={13} />
-                      All Frames
-                    </span>
-                    <div className="relative z-10 mt-5">
-                      <h3 className="text-2xl font-extrabold text-dark dark:text-white">View Everything</h3>
-                      <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{allStats.count} frames · From LKR {allStats.min.toLocaleString()}</p>
-                    </div>
-                    <span className="relative z-10 absolute bottom-5 right-5 w-10 h-10 rounded-full bg-gray-900/5 dark:bg-white/10 text-gray-700 dark:text-white flex items-center justify-center group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent2 group-hover:rotate-45 group-hover:text-white transition-all duration-300">
-                      <HiArrowRight size={18} />
-                    </span>
-                  </button>
-                </TiltCard>
-              </motion.div>
-
-              {categories.map((c, i) => {
-                const stats = catStats(c.frames)
+            {/* Folder grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 perspective-1600">
+              {folders.map((folder, i) => {
+                const cover = folderCover(folder)
                 return (
                   <motion.div
-                    key={c.key}
+                    key={folder.key}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15 + i * 0.08 }}
+                    transition={{ delay: 0.08 + i * 0.08 }}
                     className="h-full"
                   >
                     <TiltCard max={11} className="h-full">
                       <button
-                        onClick={() => setSelected(c.key)}
-                        className="group relative w-full h-full min-h-[220px] rounded-3xl overflow-hidden text-left"
+                        onClick={() => setSelected(folder.key)}
+                        className="group relative w-full h-full min-h-[300px] rounded-3xl overflow-hidden text-left"
                       >
-                        {(c.photo || stats.sample) ? (
+                        {cover ? (
                           <>
-                            <img src={c.photo || stats.sample} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+                            <img src={cover} alt={folder.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-black/20" />
                           </>
                         ) : (
-                          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-[#150f22] to-accent2/30" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-[#150f22] to-accent2/40" />
                         )}
-                        <span className="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-black/50 text-white text-xs font-bold backdrop-blur-sm">
-                          {stats.count} {stats.count === 1 ? 'size' : 'sizes'}
+
+                        <span className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-white/95 text-dark text-sm font-extrabold shadow-lg backdrop-blur-sm">
+                          {formatPrice(folder.price)}
                         </span>
-                        <div className="absolute inset-x-0 bottom-0 p-5">
-                          <h3 className="text-2xl font-extrabold text-white uppercase tracking-tight">{c.name}</h3>
-                          <p className="text-sm text-slate-300 mt-1">From LKR {stats.min.toLocaleString()}</p>
-                          <span className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-white bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-full backdrop-blur transition-all">
-                            View Frames
-                            <HiChevronDown className="group-hover:translate-y-0.5 transition-transform" size={14} />
+
+                        <div className="absolute inset-x-0 bottom-0 p-6">
+                          <div className="flex items-center gap-2 mb-2">
+                            <HiFolderOpen size={18} className="text-secondary" />
+                            <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
+                              {folder.frames.length} {folder.frames.length === 1 ? 'design' : 'designs'}
+                            </span>
+                          </div>
+                          <h3 className="text-2xl font-extrabold text-white tracking-tight">{folder.name}</h3>
+                          <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-white bg-white/15 hover:bg-white/25 px-4 py-2 rounded-full backdrop-blur transition-all">
+                            Open Folder
+                            <HiArrowRight className="group-hover:translate-x-1 transition-transform" size={15} />
                           </span>
                         </div>
                       </button>
@@ -217,7 +199,7 @@ export default function FramesPage() {
           </>
         ) : (
           <>
-            {/* Category detail view */}
+            {/* Folder detail view */}
             <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <motion.button
@@ -227,21 +209,27 @@ export default function FramesPage() {
                   className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark transition"
                 >
                   <HiArrowLeft size={16} />
-                  All Categories
+                  All Folders
                 </motion.button>
                 <AnimatePresence mode="wait">
                   <motion.h2
-                    key={selectedCat.key}
+                    key={selectedFolder.key}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    className="mt-2 text-3xl sm:text-4xl font-extrabold text-dark dark:text-white uppercase tracking-tight"
+                    className="mt-2 text-3xl sm:text-4xl font-extrabold text-dark dark:text-white tracking-tight"
                   >
-                    {selectedCat.name}
+                    {selectedFolder.name}
                   </motion.h2>
                 </AnimatePresence>
                 <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
-                  {selectedCat.frames.length} {selectedCat.frames.length === 1 ? 'size' : 'sizes'} available
+                  {selectedFolder.price ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="font-bold text-primary">{formatPrice(selectedFolder.price)}</span> · Starting price
+                    </span>
+                  ) : 'Custom sizes — tell us your dimensions'}
+                  <span className="mx-2">·</span>
+                  {selectedFolder.frames.length} {selectedFolder.frames.length === 1 ? 'design' : 'designs'}
                 </p>
               </div>
               <div className="relative w-full sm:w-72">
@@ -257,8 +245,12 @@ export default function FramesPage() {
 
             {detailFrames.length === 0 ? (
               <div className="text-center py-16 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
-                <HiTemplate size={40} className="mx-auto text-gray-300 dark:text-slate-600 mb-3" />
-                <p className="text-gray-500 dark:text-slate-400">No frames match your search.</p>
+                <HiPhotograph size={40} className="mx-auto text-gray-300 dark:text-slate-600 mb-3" />
+                <p className="text-gray-500 dark:text-slate-400">
+                  {query.trim()
+                    ? 'No frames match your search.'
+                    : 'No designs in this folder yet. Check back soon!'}
+                </p>
               </div>
             ) : (
               <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 perspective-1600">
@@ -285,24 +277,14 @@ export default function FramesPage() {
                                 <HiTemplate size={48} />
                               </div>
                             )}
-                            {f.category && (
-                              <span className="absolute top-3 left-3 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-semibold backdrop-blur-sm">
-                                {f.category}
-                              </span>
-                            )}
-                            {Number(f.profit) > 0 && (
-                              <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-green-500/90 text-white text-xs font-semibold backdrop-blur-sm">
-                                In Stock
-                              </span>
-                            )}
+                            <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-primary/95 text-white text-sm font-extrabold shadow-lg backdrop-blur-sm">
+                              {formatPrice(f.price)}
+                            </span>
                           </div>
 
                           <div className="p-5">
                             <div className="flex items-center justify-between gap-2 mb-3">
                               <h3 className="text-lg font-extrabold text-dark">{f.frame_size}</h3>
-                              <span className="text-xl font-extrabold text-primary">
-                                LKR {Number(f.price).toLocaleString()}
-                              </span>
                             </div>
                             {f.description && (
                               <p className="text-sm text-gray-500 dark:text-slate-400 line-clamp-2 mb-4">{f.description}</p>
@@ -326,32 +308,34 @@ export default function FramesPage() {
                 </AnimatePresence>
               </motion.div>
             )}
+
+            {/* Custom size request (shown for custom folders or always as an option) */}
+            {!selectedFolder.price && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mt-10 flex flex-col sm:flex-row items-center justify-between gap-5 p-8 bg-gradient-to-r from-primary/10 to-accent2/10 border border-primary/15 rounded-3xl"
+              >
+                <div>
+                  <h2 className="text-xl font-extrabold text-dark dark:text-white">Need a custom size?</h2>
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Tell us your dimensions and we'll make it for you.</p>
+                </div>
+                <MagneticButton>
+                  <a
+                    href={customLink(selectedFolder)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    <FaWhatsapp size={16} />
+                    Request Custom Size
+                  </a>
+                </MagneticButton>
+              </motion.div>
+            )}
           </>
         )}
-
-        {/* Custom size request */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-14 flex flex-col sm:flex-row items-center justify-between gap-5 p-8 bg-gradient-to-r from-primary/10 to-accent2/10 border border-primary/15 rounded-3xl"
-        >
-          <div>
-            <h2 className="text-xl font-extrabold text-dark dark:text-white">Need a custom size?</h2>
-            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Tell us your dimensions and we'll make it for you.</p>
-          </div>
-          <MagneticButton>
-            <a
-              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent('Hello! I would like to order a custom frame.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 transition-all duration-300"
-            >
-              <FaWhatsapp size={16} />
-              Request Custom Frame
-            </a>
-          </MagneticButton>
-        </motion.div>
       </div>
     </div>
   )
