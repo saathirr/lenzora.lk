@@ -138,6 +138,23 @@ export async function deleteFrameCategory(id) {
   if (error) throw error
 }
 
+export async function fetchFrameCategoryImages() {
+  const { data, error } = await supabase.from('frame_category_images').select('*').order('sort_order')
+  if (error) throw error
+  return data
+}
+
+export async function createFrameCategoryImage(image) {
+  const { data, error } = await supabase.from('frame_category_images').insert(image).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteFrameCategoryImage(id) {
+  const { error } = await supabase.from('frame_category_images').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchOrders() {
   const { data, error } = await supabase
     .from('orders')

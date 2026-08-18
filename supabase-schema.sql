@@ -304,6 +304,24 @@ ON CONFLICT (name) DO UPDATE SET
   sort_order = EXCLUDED.sort_order,
   active = true;
 
+-- Frame Category Images table (gallery of related designs inside each folder)
+CREATE TABLE IF NOT EXISTS frame_category_images (
+  id BIGSERIAL PRIMARY KEY,
+  category_id BIGINT REFERENCES frame_categories(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  label TEXT,
+  price NUMERIC(10,2),
+  sort_order INTEGER DEFAULT 0,
+  active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Backfill columns for existing databases
+ALTER TABLE IF EXISTS frame_category_images ADD COLUMN IF NOT EXISTS label TEXT;
+ALTER TABLE IF EXISTS frame_category_images ADD COLUMN IF NOT EXISTS price NUMERIC(10,2);
+ALTER TABLE IF EXISTS frame_category_images ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE IF EXISTS frame_category_images ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
+
 -- Payment Slips table
 CREATE TABLE IF NOT EXISTS payment_slips (
   id BIGSERIAL PRIMARY KEY,
@@ -497,6 +515,17 @@ CREATE POLICY "Public can read frame categories" ON frame_categories FOR SELECT 
 
 DROP POLICY IF EXISTS "Admin full access frame categories" ON frame_categories;
 CREATE POLICY "Admin full access frame categories" ON frame_categories FOR ALL
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- Frame category images policies (public read; admin manage)
+ALTER TABLE IF EXISTS frame_category_images ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can read frame category images" ON frame_category_images;
+CREATE POLICY "Public can read frame category images" ON frame_category_images FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin full access frame category images" ON frame_category_images;
+CREATE POLICY "Admin full access frame category images" ON frame_category_images FOR ALL
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 

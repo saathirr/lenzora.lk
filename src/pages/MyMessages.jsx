@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { useApp } from '../lib/AppContext'
 import { fetchMyConversations, createConversation, fetchMessagesByConversation, addMessageToConversation, subscribeToMessages, uploadFile } from '../lib/db'
 import { HiReply, HiPaperClip } from 'react-icons/hi'
@@ -221,8 +222,24 @@ export default function MyMessages() {
 
   if (!user) {
     return (
-      <div className="py-20 text-center text-gray-500">
-        Please sign in to view your messages.
+      <div className="min-h-[70vh] flex items-center justify-center px-4 py-20">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <HiReply size={28} />
+          </div>
+          <h1 className="text-2xl font-extrabold text-dark dark:text-white">Sign in Required</h1>
+          <p className="text-gray-500 dark:text-slate-400 text-sm mt-2">
+            Please login or create an account to view and send messages.
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            <Link to="/login" className="w-full py-3 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition">
+              Login
+            </Link>
+            <Link to="/register" className="w-full py-3 bg-primary/10 text-primary text-sm font-bold rounded-full hover:bg-primary/20 transition">
+              Create Account
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }

@@ -107,6 +107,36 @@ export default function Checkout() {
     )
   }
 
+  if (!user) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-20">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+            <HiCash size={28} />
+          </div>
+          <h2 className="text-2xl font-extrabold text-dark dark:text-white">Login to Checkout</h2>
+          <p className="text-gray-500 dark:text-slate-400 text-sm mt-2">
+            Please login or create an account to complete your shop order.
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              onClick={() => navigate('/login')}
+              className="w-full py-3 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition"
+            >
+              Login
+            </button>
+            <button
+              onClick={() => navigate('/register')}
+              className="w-full py-3 bg-primary/10 text-primary text-sm font-bold rounded-full hover:bg-primary/20 transition"
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (cart.length === 0 && !submitted) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-20">

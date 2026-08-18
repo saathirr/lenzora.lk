@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import { HiShoppingCart, HiX, HiPlus } from 'react-icons/hi'
+import { HiShoppingCart, HiX, HiPlus, HiLockClosed } from 'react-icons/hi'
 import { useApp } from '../lib/AppContext'
 import TiltCard from '../components/ui/TiltCard'
 import Reveal from '../components/ui/Reveal'
@@ -9,8 +9,9 @@ import AnimatedHeading from '../components/ui/AnimatedHeading'
 import CountUp from '../components/ui/CountUp'
 
 export default function Shop() {
-  const { products, cart, setCart } = useApp()
+  const { products, cart, setCart, user } = useApp()
   const [showCart, setShowCart] = useState(false)
+  const [showLoginModal, setShowLoginModal] = useState(false)
   const [bump, setBump] = useState(false)
   const navigate = useNavigate()
 
@@ -22,6 +23,10 @@ export default function Shop() {
   }, [cart.length])
 
   const addToCart = (product) => {
+    if (!user) {
+      setShowLoginModal(true)
+      return
+    }
     setCart((prev) => {
       const existing = prev.find((c) => c.id === product.id)
       if (existing) {
@@ -251,6 +256,62 @@ export default function Shop() {
                   </motion.button>
                 </div>
               )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLoginModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowLoginModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              className="fixed inset-0 z-[75] flex items-center justify-center p-4"
+              onClick={() => setShowLoginModal(false)}
+            >
+              <div
+                className="w-full max-w-md bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-3xl p-8 shadow-2xl text-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                  <HiLockClosed size={28} />
+                </div>
+                <h3 className="text-2xl font-extrabold text-dark dark:text-white">Login to Shop</h3>
+                <p className="text-gray-500 dark:text-slate-400 text-sm mt-2">
+                  You need an account to add items to your cart and place shop orders. You can still browse freely.
+                </p>
+                <div className="mt-6 flex flex-col gap-3">
+                  <Link
+                    to="/login"
+                    onClick={() => setShowLoginModal(false)}
+                    className="w-full py-3 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setShowLoginModal(false)}
+                    className="w-full py-3 bg-primary/10 text-primary text-sm font-bold rounded-full hover:bg-primary/20 transition"
+                  >
+                    Create Account
+                  </Link>
+                  <button
+                    onClick={() => setShowLoginModal(false)}
+                    className="w-full py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-slate-300 transition"
+                  >
+                    Keep Browsing
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </>
         )}

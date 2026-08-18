@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaWhatsapp } from 'react-icons/fa'
 import {
-  HiTemplate, HiSearch, HiArrowLeft, HiArrowRight,
+  HiTemplate, HiSearch, HiArrowLeft, HiArrowRight, HiX,
   HiPhotograph, HiCursorClick, HiCheckCircle, HiFolderOpen,
 } from 'react-icons/hi'
 import { useApp } from '../lib/AppContext'
@@ -20,7 +20,7 @@ const steps = [
 const formatPrice = (n) => (Number.isFinite(Number(n)) ? `LKR ${Number(n).toLocaleString()}/=` : 'Custom Size')
 
 export default function FramesPage() {
-  const { frames, settings, frameCategories } = useApp()
+  const { frames, settings, frameCategories, frameCategoryImages } = useApp()
   const whatsapp = settings.whatsapp || '94717336756'
 
   const visibleFrames = useMemo(
@@ -37,7 +37,7 @@ export default function FramesPage() {
       return configured.map((c) => {
         const key = (c.name || '').trim().toUpperCase()
         const list = visibleFrames.filter((f) => (f.category || '').trim().toUpperCase() === key)
-        return { key, name: c.name, price: c.price, photo: c.image_url || '', frames: list }
+        return { key, id: c.id, name: c.name, price: c.price, photo: c.image_url || '', frames: list }
       })
     }
 
@@ -45,14 +45,23 @@ export default function FramesPage() {
     visibleFrames.forEach((f) => {
       const raw = (f.category || '').trim()
       const key = raw ? raw.toUpperCase() : 'OTHER'
-      if (!map.has(key)) map.set(key, { key, name: raw || 'Other Frames', price: null, photo: '', frames: [] })
+      if (!map.has(key)) map.set(key, { key, id: null, name: raw || 'Other Frames', price: null, photo: '', frames: [] })
       map.get(key).frames.push(f)
     })
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name))
   }, [visibleFrames, frameCategories])
 
+  const imagesByFolder = useMemo(() => {
+    const map = {}
+    ;(frameCategoryImages || []).forEach((img) => {
+      ;(map[img.category_id] = map[img.category_id] || []).push(img)
+    })
+    return map
+  }, [frameCategoryImages])
+
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState('')
+  const [lightbox, setLightbox] = useState(null)
 
   const selectedFolder = selected ? folders.find((f) => f.key === selected) : null
 
@@ -74,9 +83,21 @@ export default function FramesPage() {
     return list
   }, [selectedFolder, query])
 
+  const folderGallery = useMemo(() => {
+    if (!selectedFolder?.id) return []
+    return (imagesByFolder[selectedFolder.id] || [])
+      .filter((g) => g.active !== false)
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+  }, [selectedFolder, imagesByFolder])
+
   const orderLink = (f) =>
     `https://wa.me/${whatsapp}?text=${encodeURIComponent(
       `Hello Lenzora! I would like to order a frame.\n\nSize: ${f.frame_size}\nPrice: ${formatPrice(f.price)}${f.category ? `\nFolder: ${f.category}` : ''}${f.description ? `\nDesign: ${f.description}` : ''}`
+    )}`
+
+  const galleryOrderLink = (folder, img) =>
+    `https://wa.me/${whatsapp}?text=${encodeURIComponent(
+      `Hello Lenzora! I would like to order this ${folder.name} design.\n\nPrice: ${formatPrice(img.price ?? folder.price)}\nPlease confirm availability.`
     )}`
 
   const customLink = (folder) =>
@@ -124,6 +145,8 @@ export default function FramesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 perspective-1600">
               {folders.map((folder, i) => {
                 const cover = folderCover(folder)
+                const galleryCount = (imagesByFolder[folder.id] || []).filter((g) => g.active !== false).length
+                const designCount = galleryCount || folder.frames.length
                 return (
                   <motion.div
                     key={folder.key}
@@ -154,7 +177,7 @@ export default function FramesPage() {
                           <div className="flex items-center gap-2 mb-2">
                             <HiFolderOpen size={18} className="text-secondary" />
                             <span className="text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
-                              {folder.frames.length} {folder.frames.length === 1 ? 'design' : 'designs'}
+                              {designCount} {designCount === 1 ? 'design' : 'designs'}
                             </span>
                           </div>
                           <h3 className="text-2xl font-extrabold text-white tracking-tight">{folder.name}</h3>
@@ -229,7 +252,7 @@ export default function FramesPage() {
                     </span>
                   ) : 'Custom sizes — tell us your dimensions'}
                   <span className="mx-2">·</span>
-                  {selectedFolder.frames.length} {selectedFolder.frames.length === 1 ? 'design' : 'designs'}
+                  {(folderGallery.length || selectedFolder.frames.length)} {(folderGallery.length || selectedFolder.frames.length) === 1 ? 'design' : 'designs'}
                 </p>
               </div>
               <div className="relative w-full sm:w-72">
@@ -243,7 +266,7 @@ export default function FramesPage() {
               </div>
             </div>
 
-            {detailFrames.length === 0 ? (
+            {folderGallery.length === 0 && detailFrames.length === 0 ? (
               <div className="text-center py-16 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
                 <HiPhotograph size={40} className="mx-auto text-gray-300 dark:text-slate-600 mb-3" />
                 <p className="text-gray-500 dark:text-slate-400">
@@ -255,7 +278,60 @@ export default function FramesPage() {
             ) : (
               <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 perspective-1600">
                 <AnimatePresence mode="popLayout">
-                  {detailFrames.map((f, i) => (
+                  {folderGallery.length > 0
+                    ? folderGallery.map((img, i) => (
+                        <motion.div
+                          layout
+                          key={img.id}
+                          initial={{ opacity: 0, y: 26, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.92 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 26, delay: i * 0.04 }}
+                          className="h-full"
+                        >
+                          <TiltCard max={9} className="h-full">
+                            <div className="group relative h-full bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
+                              <div className="aspect-[4/3] bg-gray-100 dark:bg-white/5 overflow-hidden relative cursor-zoom-in"
+                                onClick={() => setLightbox({
+                                  src: img.image_url,
+                                  name: img.label || `${selectedFolder.name} Design`,
+                                  price: img.price ?? selectedFolder.price,
+                                  link: galleryOrderLink(selectedFolder, img),
+                                })}
+                              >
+                                <div className="w-full h-full animate-ken-burns">
+                                  <img src={img.image_url} alt={img.label || selectedFolder.name} className="w-full h-full object-cover" />
+                                </div>
+                                <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-primary/95 text-white text-sm font-extrabold shadow-lg backdrop-blur-sm">
+                                  {formatPrice(img.price ?? selectedFolder.price)}
+                                </span>
+                                <span className="absolute inset-x-0 bottom-0 py-2 bg-black/50 text-white text-xs font-semibold text-center opacity-0 group-hover:opacity-100 backdrop-blur-sm transition-opacity">
+                                  Click to view full photo
+                                </span>
+                              </div>
+                              <div className="p-5">
+                                <div className="flex items-center justify-between gap-2 mb-3">
+                                  <h3 className="text-lg font-extrabold text-dark">
+                                    {img.label || `${selectedFolder.name} Design`}
+                                  </h3>
+                                </div>
+                                <motion.a
+                                  href={galleryOrderLink(selectedFolder, img)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  whileHover={{ scale: 1.03 }}
+                                  whileTap={{ scale: 0.97 }}
+                                  className="flex items-center justify-center gap-2 w-full py-2.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-green-500/30 transition-shadow"
+                                >
+                                  <FaWhatsapp size={16} className="animate-pulse-soft" />
+                                  Order this Design
+                                </motion.a>
+                              </div>
+                            </div>
+                          </TiltCard>
+                        </motion.div>
+                      ))
+                    : detailFrames.map((f, i) => (
                     <motion.div
                       layout
                       key={f.id}
@@ -267,7 +343,14 @@ export default function FramesPage() {
                     >
                       <TiltCard max={9} className="h-full">
                         <div className="group relative h-full bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300">
-                          <div className="aspect-[4/3] bg-gray-100 dark:bg-white/5 overflow-hidden relative">
+                          <div className="aspect-[4/3] bg-gray-100 dark:bg-white/5 overflow-hidden relative cursor-zoom-in"
+                            onClick={() => setLightbox({
+                              src: f.image_url,
+                              name: f.frame_size,
+                              price: f.price,
+                              link: orderLink(f),
+                            })}
+                          >
                             {f.image_url ? (
                               <div className="w-full h-full animate-ken-burns">
                                 <img src={f.image_url} alt={f.frame_size} className="w-full h-full object-cover" />
@@ -337,6 +420,62 @@ export default function FramesPage() {
           </>
         )}
       </div>
+
+      {/* Full photo lightbox */}
+      <AnimatePresence>
+        {lightbox && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[90] bg-black/90 backdrop-blur-sm"
+              onClick={() => setLightbox(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 20 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+              className="fixed inset-0 z-[95] flex items-center justify-center p-4 sm:p-8"
+              onClick={() => setLightbox(null)}
+            >
+              <div
+                className="relative w-full max-w-3xl bg-[#0f0f13] rounded-3xl overflow-hidden shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={() => setLightbox(null)}
+                  className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition"
+                  aria-label="Close"
+                >
+                  <HiX size={18} />
+                </button>
+                <div className="max-h-[68vh] overflow-hidden bg-black">
+                  <img src={lightbox.src} alt={lightbox.name} className="w-full h-full object-contain max-h-[68vh]" />
+                </div>
+                <div className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-xl font-extrabold text-white">{lightbox.name}</h3>
+                    <p className="text-sm text-slate-400 mt-1">{formatPrice(lightbox.price)}</p>
+                  </div>
+                  <motion.a
+                    href={lightbox.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-bold rounded-full hover:shadow-lg hover:shadow-green-500/30 transition-shadow whitespace-nowrap"
+                  >
+                    <FaWhatsapp size={17} />
+                    Order on WhatsApp
+                  </motion.a>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

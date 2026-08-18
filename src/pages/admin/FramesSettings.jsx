@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react'
-import { HiPlus, HiTrash, HiUpload, HiPhotograph, HiOutlineCheck, HiOutlineX } from 'react-icons/hi'
+import { useMemo, useRef, useState } from 'react'
+import { HiPlus, HiTrash, HiUpload, HiPhotograph, HiOutlineCheck, HiOutlineX, HiX } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import { uploadFile } from '../../lib/db'
 
 export default function AdminFramesSettings() {
-  const { frames, frameCategories, setFrameCategories, createFrameCategory, updateFrameCategory, deleteFrameCategory, dataLoading } = useApp()
+  const { frames, frameCategories, setFrameCategories, frameCategoryImages, setFrameCategoryImages, createFrameCategory, updateFrameCategory, deleteFrameCategory, createFrameCategoryImage, deleteFrameCategoryImage, dataLoading } = useApp()
   const [savingId, setSavingId] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
   const [newName, setNewName] = useState('')
@@ -13,8 +13,54 @@ export default function AdminFramesSettings() {
   const [priceDrafts, setPriceDrafts] = useState({})
   const fileRefs = useRef({})
 
+  const imagesByCat = useMemo(() => {
+    const map = {}
+    frameCategoryImages.forEach((img) => {
+      ;(map[img.category_id] = map[img.category_id] || []).push(img)
+    })
+    return map
+  }, [frameCategoryImages])
+
   const categoryCount = (name) =>
     frames.filter((f) => (f.category || '').trim().toUpperCase() === (name || '').trim().toUpperCase()).length
+
+  const handleAddImages = async (cat, e) => {
+    const files = Array.from(e.target.files || [])
+    e.target.value = ''
+    if (!files.length) return
+    if (files.some((f) => !f.type.startsWith('image/'))) {
+      alert('Please choose image files only.')
+      return
+    }
+    setSavingId(cat.id)
+    try {
+      const baseSort = (imagesByCat[cat.id]?.length || 0) + 1
+      const created = []
+      await Promise.all(files.map(async (file, idx) => {
+        const url = await uploadFile('frame-images', `frame-cat-${cat.id}-${Date.now()}-${idx}.${file.name.split('.').pop().toLowerCase()}`, file)
+        const row = await createFrameCategoryImage({ category_id: cat.id, image_url: url, sort_order: baseSort + created.length, active: true })
+        created.push(row)
+      }))
+      setFrameCategoryImages((prev) => [...prev, ...created])
+    } catch (err) {
+      console.error('Failed to upload folder photos:', err)
+      alert('Failed to upload folder photos.')
+    }
+    setSavingId(null)
+  }
+
+  const handleDeleteImage = async (img) => {
+    if (!confirm('Delete this photo from the folder?')) return
+    setSavingId(img.category_id)
+    try {
+      await deleteFrameCategoryImage(img.id)
+      setFrameCategoryImages((prev) => prev.filter((x) => x.id !== img.id))
+    } catch (err) {
+      console.error('Failed to delete photo:', err)
+      alert('Failed to delete photo.')
+    }
+    setSavingId(null)
+  }
 
   const handlePriceSave = async (cat) => {
     const draft = priceDrafts[cat.id]
@@ -280,6 +326,38 @@ export default function AdminFramesSettings() {
                   <button onClick={() => handleMove(cat, -1)} disabled={i === 0 || savingId === cat.id} className="text-xs font-semibold text-gray-500 hover:text-primary disabled:opacity-30 transition">↑ Move Up</button>
                   <span className="text-xs text-gray-400">{i + 1} of {sorted.length}</span>
                   <button onClick={() => handleMove(cat, 1)} disabled={i === sorted.length - 1 || savingId === cat.id} className="text-xs font-semibold text-gray-500 hover:text-primary disabled:opacity-30 transition">Move Down ↓</button>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#262626]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
+                      Frame Designs ({(imagesByCat[cat.id] || []).length})
+                    </span>
+                    <label className={`inline-flex items-center gap-1 px-2.5 py-1.5 bg-primary/10 text-primary text-xs font-semibold rounded-lg hover:bg-primary/20 transition cursor-pointer ${savingId === cat.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                      <HiPlus size={13} />
+                      Add Photos
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleAddImages(cat, e)} />
+                    </label>
+                  </div>
+                  {(imagesByCat[cat.id] || []).length === 0 ? (
+                    <p className="text-xs text-gray-400 dark:text-slate-500">No design photos yet. Add multiple photos customers can order from.</p>
+                  ) : (
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {(imagesByCat[cat.id] || []).map((img) => (
+                        <div key={img.id} className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-gray-100 dark:border-[#2f2f2f] group/item">
+                          <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => handleDeleteImage(img)}
+                            disabled={savingId === cat.id}
+                            className="absolute top-0.5 right-0.5 p-0.5 bg-red-600/90 text-white rounded-full hover:bg-red-700 transition disabled:opacity-50"
+                            title="Delete photo"
+                          >
+                            <HiX size={9} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

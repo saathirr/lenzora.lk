@@ -8,6 +8,7 @@ import {
   fetchSales, createSale, deleteSale,
   fetchFrames, createFrame, updateFrame, deleteFrame,
   fetchFrameCategories, createFrameCategory, updateFrameCategory, deleteFrameCategory,
+  fetchFrameCategoryImages, createFrameCategoryImage, deleteFrameCategoryImage,
   fetchMessages, createMessage, updateMessage,
   createConversation, addMessageToConversation,
   fetchMyConversations, fetchMessagesByConversation,
@@ -26,6 +27,7 @@ export function AppProvider({ children }) {
   const [sales, setSales] = useState([])
   const [frames, setFrames] = useState([])
   const [frameCategories, setFrameCategories] = useState([])
+  const [frameCategoryImages, setFrameCategoryImages] = useState([])
   const [messages, setMessages] = useState([])
   const [settings, setSettings] = useState({
     id: 1,
@@ -50,7 +52,7 @@ export function AppProvider({ children }) {
 
   const loadAllData = async () => {
     try {
-      const [s, p, pr, o, m, sal, st, fr, fc] = await Promise.all([
+      const [s, p, pr, o, m, sal, st, fr, fc, fci] = await Promise.all([
         fetchServices(),
         fetchPortfolio(),
         fetchProducts(),
@@ -60,6 +62,7 @@ export function AppProvider({ children }) {
         fetchSiteSettings(),
         fetchFrames(),
         fetchFrameCategories().catch(() => []),
+        fetchFrameCategoryImages().catch(() => []),
       ])
       setServices(s)
       setPortfolio(p)
@@ -69,6 +72,7 @@ export function AppProvider({ children }) {
       setSales(sal)
       setFrames(fr)
       setFrameCategories(fc || [])
+      setFrameCategoryImages(fci || [])
       if (st) setSettings((prev) => ({ ...prev, ...st }))
     } catch (err) {
       console.error('Failed to load data:', err?.message || err)
@@ -163,6 +167,7 @@ export function AppProvider({ children }) {
       sales, setSales,
       frames, setFrames,
       frameCategories, setFrameCategories,
+      frameCategoryImages, setFrameCategoryImages,
       messages, setMessages,
       settings, setSettings, updateSiteSettings, toggleTheme,
       cart, setCart,
@@ -177,6 +182,7 @@ export function AppProvider({ children }) {
       createSale, deleteSale,
       createFrame, updateFrame, deleteFrame,
       createFrameCategory, updateFrameCategory, deleteFrameCategory,
+      createFrameCategoryImage, deleteFrameCategoryImage,
       createMessage, updateMessage,
       createConversation, addMessageToConversation,
       fetchMyConversations, fetchMessagesByConversation,

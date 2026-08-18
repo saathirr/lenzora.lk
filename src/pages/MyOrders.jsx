@@ -199,6 +199,7 @@ export default function MyOrders() {
             <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-dark">Payment Slip — #{viewingSlip.id}</h3>
+                
                 <button onClick={() => setViewingSlip(null)} className="text-gray-400 hover:text-gray-600">✕</button>
               </div>
               {viewingSlip.slipUrl && (
