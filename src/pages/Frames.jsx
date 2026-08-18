@@ -18,7 +18,7 @@ const steps = [
 ]
 
 export default function FramesPage() {
-  const { frames, settings } = useApp()
+  const { frames, settings, frameCategories } = useApp()
   const whatsapp = settings.whatsapp || '94717336756'
 
   const visibleFrames = useMemo(
@@ -27,15 +27,27 @@ export default function FramesPage() {
   )
 
   const categories = useMemo(() => {
+    const configured = (frameCategories || [])
+      .filter((c) => c.active !== false)
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+
+    if (configured.length) {
+      return configured.map((c) => {
+        const key = (c.name || '').trim().toUpperCase()
+        const list = visibleFrames.filter((f) => (f.category || '').trim().toUpperCase() === key)
+        return { key, name: c.name, frames: list, photo: c.image_url || '' }
+      })
+    }
+
     const map = new Map()
     visibleFrames.forEach((f) => {
       const raw = (f.category || '').trim()
       const key = raw ? raw.toUpperCase() : 'OTHER'
-      if (!map.has(key)) map.set(key, { key, name: raw || 'Other Frames', frames: [] })
+      if (!map.has(key)) map.set(key, { key, name: raw || 'Other Frames', frames: [], photo: '' })
       map.get(key).frames.push(f)
     })
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name))
-  }, [visibleFrames])
+  }, [visibleFrames, frameCategories])
 
   const [selected, setSelected] = useState(null)
   const [query, setQuery] = useState('')
@@ -150,9 +162,9 @@ export default function FramesPage() {
                         onClick={() => setSelected(c.key)}
                         className="group relative w-full h-full min-h-[220px] rounded-3xl overflow-hidden text-left"
                       >
-                        {stats.sample ? (
+                        {(c.photo || stats.sample) ? (
                           <>
-                            <img src={stats.sample} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                            <img src={c.photo || stats.sample} alt={c.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
                           </>
                         ) : (

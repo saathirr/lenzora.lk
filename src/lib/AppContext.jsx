@@ -7,6 +7,7 @@ import {
   fetchOrders, createOrder, updateOrder,
   fetchSales, createSale, deleteSale,
   fetchFrames, createFrame, updateFrame, deleteFrame,
+  fetchFrameCategories, createFrameCategory, updateFrameCategory, deleteFrameCategory,
   fetchMessages, createMessage, updateMessage,
   createConversation, addMessageToConversation,
   fetchMyConversations, fetchMessagesByConversation,
@@ -24,6 +25,7 @@ export function AppProvider({ children }) {
   const [orders, setOrders] = useState([])
   const [sales, setSales] = useState([])
   const [frames, setFrames] = useState([])
+  const [frameCategories, setFrameCategories] = useState([])
   const [messages, setMessages] = useState([])
   const [settings, setSettings] = useState({
     id: 1,
@@ -48,7 +50,7 @@ export function AppProvider({ children }) {
 
   const loadAllData = async () => {
     try {
-      const [s, p, pr, o, m, sal, st, fr] = await Promise.all([
+      const [s, p, pr, o, m, sal, st, fr, fc] = await Promise.all([
         fetchServices(),
         fetchPortfolio(),
         fetchProducts(),
@@ -57,6 +59,7 @@ export function AppProvider({ children }) {
         fetchSales(),
         fetchSiteSettings(),
         fetchFrames(),
+        fetchFrameCategories().catch(() => []),
       ])
       setServices(s)
       setPortfolio(p)
@@ -65,6 +68,7 @@ export function AppProvider({ children }) {
       setMessages(m)
       setSales(sal)
       setFrames(fr)
+      setFrameCategories(fc || [])
       if (st) setSettings((prev) => ({ ...prev, ...st }))
     } catch (err) {
       console.error('Failed to load data:', err?.message || err)
@@ -158,6 +162,7 @@ export function AppProvider({ children }) {
       orders, setOrders,
       sales, setSales,
       frames, setFrames,
+      frameCategories, setFrameCategories,
       messages, setMessages,
       settings, setSettings, updateSiteSettings, toggleTheme,
       cart, setCart,
@@ -171,6 +176,7 @@ export function AppProvider({ children }) {
       createOrder, updateOrder,
       createSale, deleteSale,
       createFrame, updateFrame, deleteFrame,
+      createFrameCategory, updateFrameCategory, deleteFrameCategory,
       createMessage, updateMessage,
       createConversation, addMessageToConversation,
       fetchMyConversations, fetchMessagesByConversation,

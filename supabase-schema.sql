@@ -250,6 +250,32 @@ ALTER TABLE IF EXISTS frames ADD COLUMN IF NOT EXISTS description TEXT DEFAULT '
 ALTER TABLE IF EXISTS frames ADD COLUMN IF NOT EXISTS category TEXT DEFAULT '';
 ALTER TABLE IF EXISTS frames ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
 
+-- Frame Categories table (controls customer-site Frames page categories & photos)
+CREATE TABLE IF NOT EXISTS frame_categories (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  image_url TEXT DEFAULT '',
+  active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Backfill columns for existing databases
+ALTER TABLE IF EXISTS frame_categories ADD COLUMN IF NOT EXISTS image_url TEXT DEFAULT '';
+ALTER TABLE IF EXISTS frame_categories ADD COLUMN IF NOT EXISTS active BOOLEAN DEFAULT true;
+ALTER TABLE IF EXISTS frame_categories ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+
+-- Seed default frame categories (only if none exist)
+INSERT INTO frame_categories (name, sort_order) VALUES
+('A3 Frames', 1),
+('A4 Frames', 2),
+('6x6 Frames', 3),
+('5x5 Frames', 4),
+('4x4 Frames', 5),
+('Graduation Frames', 6),
+('Customize Size Frame', 7)
+ON CONFLICT (name) DO NOTHING;
+
 -- Payment Slips table
 CREATE TABLE IF NOT EXISTS payment_slips (
   id BIGSERIAL PRIMARY KEY,
@@ -293,14 +319,32 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 -- Add unique constraints if missing (for idempotent seed data)
-DO $$ BEGIN
+DO $$
+DECLARE
+  rec RECORD;
+BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'services_name_key') THEN
+    FOR rec IN SELECT name FROM services GROUP BY name HAVING COUNT(*) > 1 LOOP
+      DELETE FROM services
+      WHERE name = rec.name
+        AND id <> (SELECT MIN(id) FROM services WHERE name = rec.name);
+    END LOOP;
     ALTER TABLE services ADD CONSTRAINT services_name_key UNIQUE (name);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'portfolio_title_key') THEN
+    FOR rec IN SELECT title FROM portfolio GROUP BY title HAVING COUNT(*) > 1 LOOP
+      DELETE FROM portfolio
+      WHERE title = rec.title
+        AND id <> (SELECT MIN(id) FROM portfolio WHERE title = rec.title);
+    END LOOP;
     ALTER TABLE portfolio ADD CONSTRAINT portfolio_title_key UNIQUE (title);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'products_name_key') THEN
+    FOR rec IN SELECT name FROM products GROUP BY name HAVING COUNT(*) > 1 LOOP
+      DELETE FROM products
+      WHERE name = rec.name
+        AND id <> (SELECT MIN(id) FROM products WHERE name = rec.name);
+    END LOOP;
     ALTER TABLE products ADD CONSTRAINT products_name_key UNIQUE (name);
   END IF;
 END $$;
@@ -414,6 +458,17 @@ CREATE POLICY "Public can read frames" ON frames FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admin full access frames" ON frames;
 CREATE POLICY "Admin full access frames" ON frames FOR ALL
+  USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+-- Frame categories policies (public read; admin manage)
+ALTER TABLE IF EXISTS frame_categories ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can read frame categories" ON frame_categories;
+CREATE POLICY "Public can read frame categories" ON frame_categories FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin full access frame categories" ON frame_categories;
+CREATE POLICY "Admin full access frame categories" ON frame_categories FOR ALL
   USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'))
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 

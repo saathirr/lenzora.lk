@@ -115,6 +115,29 @@ export async function deleteFrame(id) {
   if (error) throw error
 }
 
+export async function fetchFrameCategories() {
+  const { data, error } = await supabase.from('frame_categories').select('*').order('sort_order')
+  if (error) throw error
+  return data
+}
+
+export async function createFrameCategory(category) {
+  const { data, error } = await supabase.from('frame_categories').insert(category).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function updateFrameCategory(id, updates) {
+  const { data, error } = await supabase.from('frame_categories').update(updates).eq('id', id).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteFrameCategory(id) {
+  const { error } = await supabase.from('frame_categories').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchOrders() {
   const { data, error } = await supabase
     .from('orders')
