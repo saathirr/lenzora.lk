@@ -616,7 +616,11 @@ CREATE POLICY "Users can insert own messages" ON messages
 
 -- Customer order policies
 DROP POLICY IF EXISTS "Users can read own orders" ON orders;
-CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
+CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (
+  auth.uid() = user_id
+  OR public.is_admin()
+  OR lower(customer_email) = lower((SELECT email FROM auth.users WHERE id = auth.uid()))
+);
 
 DROP POLICY IF EXISTS "Users can insert own orders" ON orders;
 CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);

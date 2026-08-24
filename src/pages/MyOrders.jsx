@@ -39,7 +39,7 @@ export default function MyOrders() {
 
   useEffect(() => {
     if (user) {
-      fetchCustomerOrders(user.id).then(setOrders).catch(console.error).finally(() => setLoading(false))
+      fetchCustomerOrders(user).then(setOrders).catch(console.error).finally(() => setLoading(false))
     }
   }, [user])
 

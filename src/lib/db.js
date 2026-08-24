@@ -176,12 +176,23 @@ export async function updateOrder(id, updates) {
   return data
 }
 
-export async function fetchCustomerOrders(userId) {
-  const { data, error } = await supabase
+export async function fetchCustomerOrders(userOrId) {
+  const isIdOnly = typeof userOrId === 'string'
+  const userId = isIdOnly ? userOrId : userOrId?.id
+  const email = isIdOnly ? null : userOrId?.email
+
+  if (!userId && !email) return []
+
+  let query = supabase
     .from('orders')
     .select('*, payment_slips!orders_payment_slip_id_fkey(slip_url)')
-    .eq('user_id', userId)
     .order('created_at', { ascending: false })
+
+  query = email
+    ? query.or(`user_id.eq.${userId},customer_email.eq.${email}`)
+    : query.eq('user_id', userId)
+
+  const { data, error } = await query
   if (error) throw error
   return data
 }
