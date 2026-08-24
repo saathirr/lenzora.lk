@@ -6,6 +6,9 @@ import {
   HiX, HiMail, HiPhone, HiGlobeAlt, HiDocumentText, HiUser,
   HiOfficeBuilding, HiCalendar, HiCollection, HiSparkles,
 } from 'react-icons/hi'
+import { FaWhatsapp } from 'react-icons/fa'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas-pro'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
 
@@ -208,6 +211,8 @@ export default function AdminInvoices() {
   const [tax, setTax] = useState('')
   const [notes, setNotes] = useState('')
   const [showPreview, setShowPreview] = useState(false)
+  const [sharing, setSharing] = useState(false)
+  const sheetRef = useRef(null)
 
   const totals = useMemo(() => {
     const subtotal = items.reduce((s, i) => s + (Number(i.qty) || 0) * (Number(i.rate) || 0), 0)
@@ -266,6 +271,67 @@ export default function AdminInvoices() {
   }
 
   const sheetData = { meta, from, billTo, items, discount, tax, notes, totals }
+
+  const invoiceMessage = () =>
+    [
+      `Hello ${billTo.name || 'there'}!`,
+      '',
+      `Here is your invoice ${meta.number} from ${from.name}.`,
+      '',
+      `Total Due: LKR ${fmtMoney(totals.grand)}`,
+      `Due Date: ${fmtDate(meta.dueDate)}`,
+      '',
+      'Thank you for your business!',
+    ].join('\n')
+
+  const makeInvoicePdf = async () => {
+    const canvas = await html2canvas(sheetRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
+    const imgData = canvas.toDataURL('image/jpeg', 0.95)
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const pageW = pdf.internal.pageSize.getWidth()
+    const pageH = pdf.internal.pageSize.getHeight()
+    const imgH = (canvas.height * pageW) / canvas.width
+    let position = 0
+    let heightLeft = imgH - pageH
+    pdf.addImage(imgData, 'JPEG', 0, 0, pageW, imgH)
+    while (heightLeft > 0) {
+      position -= pageH
+      pdf.addPage()
+      pdf.addImage(imgData, 'JPEG', 0, position, pageW, imgH)
+      heightLeft -= pageH
+    }
+    return pdf
+  }
+
+  const handleWhatsApp = async () => {
+    if (sharing) return
+    setSharing(true)
+    const fileName = `${meta.number || 'invoice'}.pdf`
+    try {
+      const pdf = await makeInvoicePdf()
+      const message = invoiceMessage()
+      const file = new File([pdf.output('blob')], fileName, { type: 'application/pdf' })
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: fileName, text: message })
+          setSharing(false)
+          return
+        } catch (err) {
+          if (err?.name === 'AbortError') {
+            setSharing(false)
+            return
+          }
+        }
+      }
+      pdf.save(fileName)
+      const digits = (billTo.phone || '').replace(/\D/g, '')
+      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(message)}`, '_blank', 'noopener')
+    } catch (err) {
+      console.error('Failed to prepare invoice PDF:', err)
+      alert('Could not prepare the invoice PDF. Please try again.')
+    }
+    setSharing(false)
+  }
 
   return (
     <div>
@@ -499,7 +565,7 @@ export default function AdminInvoices() {
           </div>
 
           <div className="rounded-2xl border border-primary/20 bg-primary/5 dark:bg-primary/10 p-5 text-xs text-gray-500 dark:text-slate-400 leading-relaxed">
-            <p><span className="font-bold text-dark dark:text-white">Tip:</span> Preview renders a print-accurate A4 sheet. Use <span className="font-semibold text-primary">Save PDF</span> in the preview and choose “Save as PDF” as the printer destination.</p>
+            <p><span className="font-bold text-dark dark:text-white">Tip:</span> Open the preview to <span className="font-semibold text-primary">send via WhatsApp</span> with the PDF attached, or use Save PDF / Print for an A4 export.</p>
           </div>
         </div>
       </div>
@@ -524,6 +590,14 @@ export default function AdminInvoices() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={handleWhatsApp}
+                    disabled={sharing}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#25D366] text-white text-xs font-bold rounded-full shadow-lg shadow-[#25D366]/30 hover:-translate-y-0.5 transition disabled:opacity-60"
+                  >
+                    <FaWhatsapp size={15} />
+                    {sharing ? 'Preparing…' : 'WhatsApp'}
+                  </button>
+                  <button
                     onClick={() => window.print()}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white text-xs font-bold rounded-full shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition"
                   >
@@ -547,10 +621,12 @@ export default function AdminInvoices() {
                 </div>
               </div>
 
-              <InvoiceSheet data={sheetData} logoSrc={logoSrc} />
+              <div ref={sheetRef}>
+                <InvoiceSheet data={sheetData} logoSrc={logoSrc} />
+              </div>
 
               <p className="print:hidden text-center text-white/50 text-xs mt-4 pb-2">
-                Tip: choose “Save as PDF” as the destination in the print dialog to export.
+                WhatsApp attaches the PDF automatically on phones. On desktop it downloads the PDF and opens the chat — just drag the file in.
               </p>
             </motion.div>
           </div>,

@@ -340,6 +340,45 @@ ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'unpaid'
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_slip_id BIGINT REFERENCES payment_slips(id);
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
 
+-- Invoices table (admin-created client invoices)
+CREATE TABLE IF NOT EXISTS invoices (
+  id BIGSERIAL PRIMARY KEY,
+  invoice_number TEXT NOT NULL UNIQUE,
+  issue_date DATE DEFAULT CURRENT_DATE,
+  due_date DATE,
+  from_name TEXT DEFAULT '',
+  from_tagline TEXT DEFAULT '',
+  from_email TEXT DEFAULT '',
+  from_phone TEXT DEFAULT '',
+  from_address TEXT DEFAULT '',
+  customer_name TEXT DEFAULT '',
+  customer_email TEXT DEFAULT '',
+  customer_phone TEXT DEFAULT '',
+  customer_address TEXT DEFAULT '',
+  discount_percent NUMERIC(5,2) DEFAULT 0 CHECK (discount_percent >= 0),
+  tax_percent NUMERIC(5,2) DEFAULT 0 CHECK (tax_percent >= 0),
+  subtotal NUMERIC(12,2) DEFAULT 0,
+  total NUMERIC(12,2) DEFAULT 0,
+  notes TEXT,
+  status TEXT DEFAULT 'draft' CHECK (status IN ('draft','sent','paid','cancelled')),
+  order_id BIGINT REFERENCES orders(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Invoice line items
+CREATE TABLE IF NOT EXISTS invoice_items (
+  id BIGSERIAL PRIMARY KEY,
+  invoice_id BIGINT REFERENCES invoices(id) ON DELETE CASCADE,
+  position INTEGER DEFAULT 0,
+  description TEXT NOT NULL DEFAULT '',
+  quantity NUMERIC(10,2) DEFAULT 1,
+  rate NUMERIC(12,2) DEFAULT 0,
+  amount NUMERIC(12,2) DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice ON invoice_items(invoice_id);
+
 -- Conversations table (for customer messaging)
 CREATE TABLE IF NOT EXISTS conversations (
   id BIGSERIAL PRIMARY KEY,
@@ -407,6 +446,8 @@ ALTER TABLE IF EXISTS payment_slips ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS sales ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS frames ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS invoice_items ENABLE ROW LEVEL SECURITY;
 
 -- Public read policies
 DROP POLICY IF EXISTS "Public can read services" ON services;
@@ -505,6 +546,20 @@ CREATE POLICY "Public can read frames" ON frames FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Admin full access frames" ON frames;
 CREATE POLICY "Admin full access frames" ON frames FOR ALL
   USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- Invoices policies (admin-only; invoices contain private client data)
+DROP POLICY IF EXISTS "Admin full access invoices" ON invoices;
+CREATE POLICY "Admin full access invoices" ON invoices FOR ALL
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Admin full access invoice items" ON invoice_items;
+CREATE POLICY "Admin full access invoice items" ON invoice_items FOR ALL
+  USING (
+    public.is_admin()
+    OR EXISTS (SELECT 1 FROM invoices WHERE id = invoice_items.invoice_id AND public.is_admin())
+  )
   WITH CHECK (public.is_admin());
 
 -- Frame categories policies (public read; admin manage)
