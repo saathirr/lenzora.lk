@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   HiPlus, HiTrash, HiEye, HiRefresh, HiDocumentDownload, HiPrinter,
   HiX, HiMail, HiPhone, HiGlobeAlt, HiDocumentText, HiUser,
@@ -146,17 +146,15 @@ function InvoiceSheet({ data, logoSrc }) {
         </div>
       </div>
 
-      {(notes || true) && (
-        <div className="px-7 sm:px-9 pb-7">
-          {notes && (
-            <div className="rounded-xl border border-dashed border-gray-200 p-4 text-xs text-gray-500 leading-relaxed whitespace-pre-line">
-              <span className="block font-bold text-gray-700 mb-1">Notes</span>
-              {notes}
-            </div>
-          )}
-          <p className="text-center text-xs text-gray-400 mt-5 italic">Thank you for choosing {from.name} — we appreciate your business!</p>
-        </div>
-      )}
+      <div className="px-7 sm:px-9 pb-7">
+        {notes && (
+          <div className="rounded-xl border border-dashed border-gray-200 p-4 text-xs text-gray-500 leading-relaxed whitespace-pre-line">
+            <span className="block font-bold text-gray-700 mb-1">Notes</span>
+            {notes}
+          </div>
+        )}
+        <p className="text-center text-xs text-gray-400 mt-5 italic">Thank you for choosing {from.name} — we appreciate your business!</p>
+      </div>
 
       <div className="relative bg-[#1a1a1a] text-white px-7 sm:px-9 py-5">
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#FF6B00] via-[#ff8c33] to-transparent" />
@@ -211,7 +209,7 @@ export default function AdminInvoices() {
   const [tax, setTax] = useState('')
   const [notes, setNotes] = useState('')
   const [showPreview, setShowPreview] = useState(false)
-  const [sharing, setSharing] = useState(false)
+  const [busy, setBusy] = useState('')
   const sheetRef = useRef(null)
 
   const totals = useMemo(() => {
@@ -285,6 +283,7 @@ export default function AdminInvoices() {
     ].join('\n')
 
   const makeInvoicePdf = async () => {
+    if (!sheetRef.current) throw new Error('Invoice sheet is not rendered')
     const canvas = await html2canvas(sheetRef.current, { scale: 2, backgroundColor: '#ffffff', useCORS: true })
     const imgData = canvas.toDataURL('image/jpeg', 0.95)
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
@@ -303,9 +302,23 @@ export default function AdminInvoices() {
     return pdf
   }
 
+  const handleDownloadPdf = async () => {
+    if (busy) return
+    setBusy('download')
+    const fileName = `${meta.number || 'invoice'}.pdf`
+    try {
+      const pdf = await makeInvoicePdf()
+      pdf.save(fileName)
+    } catch (err) {
+      console.error('Failed to generate invoice PDF:', err)
+      alert('Could not generate the PDF. Please try again.')
+    }
+    setBusy('')
+  }
+
   const handleWhatsApp = async () => {
-    if (sharing) return
-    setSharing(true)
+    if (busy) return
+    setBusy('whatsapp')
     const fileName = `${meta.number || 'invoice'}.pdf`
     try {
       const pdf = await makeInvoicePdf()
@@ -314,11 +327,11 @@ export default function AdminInvoices() {
       if (navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({ files: [file], title: fileName, text: message })
-          setSharing(false)
+          setBusy('')
           return
         } catch (err) {
           if (err?.name === 'AbortError') {
-            setSharing(false)
+            setBusy('')
             return
           }
         }
@@ -330,7 +343,7 @@ export default function AdminInvoices() {
       console.error('Failed to prepare invoice PDF:', err)
       alert('Could not prepare the invoice PDF. Please try again.')
     }
-    setSharing(false)
+    setBusy('')
   }
 
   return (
@@ -570,69 +583,72 @@ export default function AdminInvoices() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {showPreview && createPortal(
-          <div className="lenzora-invoice-host fixed inset-0 z-[100] overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 lg:p-10">
-            <style>{PRINT_CSS}</style>
-            <div className="lenzora-invoice-backdrop fixed inset-0" onClick={() => setShowPreview(false)} />
-            <motion.div
-              initial={{ opacity: 0, y: 32, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.97 }}
-              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-              className="lenzora-invoice-panel relative w-full max-w-4xl mx-auto"
-            >
-              <div className="print:hidden sticky top-0 z-10 -mx-1 px-1 pt-1 pb-3 flex flex-wrap items-center justify-between gap-3 backdrop-blur-md rounded-t-2xl">
-                <div className="flex items-center gap-2 text-white/90">
-                  <HiEye size={18} />
-                  <span className="text-sm font-bold">Invoice Preview</span>
-                  <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white/15 tracking-widest">{meta.number}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleWhatsApp}
-                    disabled={sharing}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#25D366] text-white text-xs font-bold rounded-full shadow-lg shadow-[#25D366]/30 hover:-translate-y-0.5 transition disabled:opacity-60"
-                  >
-                    <FaWhatsapp size={15} />
-                    {sharing ? 'Preparing…' : 'WhatsApp'}
-                  </button>
-                  <button
-                    onClick={() => window.print()}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white text-xs font-bold rounded-full shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition"
-                  >
-                    <HiDocumentDownload size={15} />
-                    Save PDF
-                  </button>
-                  <button
-                    onClick={() => window.print()}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-800 text-xs font-bold rounded-full hover:bg-gray-100 transition"
-                  >
-                    <HiPrinter size={15} />
-                    Print
-                  </button>
-                  <button
-                    onClick={() => setShowPreview(false)}
-                    title="Close (Esc)"
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 transition"
-                  >
-                    <HiX size={17} />
-                  </button>
-                </div>
+      {showPreview && createPortal(
+        <div className="lenzora-invoice-host fixed inset-0 z-[100] overflow-y-auto bg-black/60 backdrop-blur-sm p-3 sm:p-6 lg:p-10">
+          <style>{PRINT_CSS}</style>
+          <div
+            className="lenzora-invoice-backdrop fixed inset-0 cursor-pointer"
+            onClick={() => setShowPreview(false)}
+            aria-hidden
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 32, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="lenzora-invoice-panel relative w-full max-w-4xl mx-auto"
+          >
+            <div className="print:hidden sticky top-0 z-20 pt-1 pb-3 flex flex-wrap items-center justify-between gap-2 bg-gradient-to-b from-black/50 to-transparent rounded-t-2xl">
+              <div className="flex items-center gap-2 text-white drop-shadow">
+                <HiEye size={18} />
+                <span className="text-sm font-bold">Invoice Preview</span>
+                <span className="hidden sm:inline px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white/20 tracking-widest">{meta.number}</span>
               </div>
+              <button
+                onClick={() => setShowPreview(false)}
+                title="Close (Esc)"
+                type="button"
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-white text-gray-800 shadow hover:bg-gray-100 transition"
+              >
+                <HiX size={17} />
+              </button>
+            </div>
 
-              <div ref={sheetRef}>
-                <InvoiceSheet data={sheetData} logoSrc={logoSrc} />
-              </div>
+            <div ref={sheetRef}>
+              <InvoiceSheet data={sheetData} logoSrc={logoSrc} />
+            </div>
 
-              <p className="print:hidden text-center text-white/50 text-xs mt-4 pb-2">
-                WhatsApp attaches the PDF automatically on phones. On desktop it downloads the PDF and opens the chat — just drag the file in.
-              </p>
-            </motion.div>
-          </div>,
-          document.body
-        )}
-      </AnimatePresence>
+            <div className="print:hidden sticky bottom-0 z-20 mt-4 pb-1 grid grid-cols-2 sm:flex sm:flex-wrap sm:justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleWhatsApp}
+                disabled={!!busy}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#25D366] text-white text-sm font-bold rounded-xl shadow-lg shadow-[#25D366]/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:pointer-events-none transition"
+              >
+                <FaWhatsapp size={16} />
+                {busy === 'whatsapp' ? 'Preparing…' : 'Send WhatsApp'}
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                disabled={!!busy}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-primary to-primary-dark text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-60 disabled:pointer-events-none transition"
+              >
+                <HiDocumentDownload size={16} />
+                {busy === 'download' ? 'Generating…' : 'Download PDF'}
+              </button>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-white text-gray-800 text-sm font-bold rounded-xl shadow hover:-translate-y-0.5 active:translate-y-0 transition"
+              >
+                <HiPrinter size={16} />
+                Print / Save PDF
+              </button>
+            </div>
+          </motion.div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
