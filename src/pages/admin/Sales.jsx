@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { HiPlus, HiCheckCircle, HiPencil, HiX } from 'react-icons/hi'
+import { HiPlus, HiCheckCircle, HiPencil, HiX, HiTrash } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminSales() {
-  const { sales, setSales, frames, setFrames, createSale, updateSale, dataLoading } = useApp()
+  const { sales, setSales, frames, setFrames, createSale, updateSale, deleteSale, dataLoading } = useApp()
   const [form, setForm] = useState({ item_name: '', amount: '', notes: '' })
   const [editing, setEditing] = useState(null)
   const [editForm, setEditForm] = useState({ item_name: '', amount: '', notes: '' })
@@ -76,6 +76,22 @@ export default function AdminSales() {
       alert('Failed to update sale.')
     }
     setSaving(false)
+  }
+
+  const handleDelete = async (e) => {
+    if (e.type === 'frame') {
+      alert('Frame entries are managed on the Frames page.')
+      return
+    }
+    if (!confirm(`Delete sale "${e.item}" (LKR ${e.amount.toLocaleString()})?`)) return
+    try {
+      await deleteSale(e.id)
+      setSales((prev) => prev.filter((s) => s.id !== e.id))
+      if (editing === e.id) cancelEdit()
+    } catch (err) {
+      console.error('Failed to delete sale:', err)
+      alert('Failed to delete sale. It may still be protected - drop the sales delete trigger first.')
+    }
   }
 
   const handleAdd = async () => {
@@ -221,7 +237,7 @@ export default function AdminSales() {
                 <th className="p-4 font-medium hidden sm:table-cell">Details</th>
                 <th className="p-4 font-medium">Date</th>
                 <th className="p-4 font-medium">Status</th>
-                <th className="p-4 font-medium">Edit</th>
+                <th className="p-4 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -239,25 +255,34 @@ export default function AdminSales() {
                   <td className="p-4 text-gray-600 hidden sm:table-cell">{e.notes || '-'}</td>
                   <td className="p-4 text-gray-500">{e.created_at ? new Date(e.created_at).toLocaleDateString() : '-'}</td>
                   <td className="p-4">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400" title="Sales history is protected">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400" title="Recorded entry">
                       <HiCheckCircle size={13} />
-                      Kept
+                      Recorded
                     </span>
                   </td>
                   <td className="p-4">
-                    <button
-                      onClick={() => startEdit(e)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                      title={e.type === 'frame' ? 'Edit on Frames page' : 'Edit sale'}
-                    >
-                      <HiPencil size={16} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => startEdit(e)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                        title={e.type === 'frame' ? 'Edit on Frames page' : 'Edit sale'}
+                      >
+                        <HiPencil size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(e)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                        title={e.type === 'frame' ? 'Managed on Frames page' : 'Delete sale'}
+                      >
+                        <HiTrash size={16} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
               {combined.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-10 text-center text-gray-400">No sales recorded yet.</td>
+                  <td colSpan={7} className="p-10 text-center text-gray-400">No sales recorded yet.</td>
                 </tr>
               )}
             </tbody>
