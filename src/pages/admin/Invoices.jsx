@@ -3,10 +3,10 @@ import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import {
   HiPlus, HiTrash, HiEye, HiRefresh, HiDocumentDownload, HiPrinter,
-  HiX, HiMail, HiPhone, HiGlobeAlt, HiDocumentText, HiUser,
+  HiX, HiPhone, HiDocumentText, HiUser,
   HiOfficeBuilding, HiCalendar, HiCollection, HiSparkles,
 } from 'react-icons/hi'
-import { FaWhatsapp } from 'react-icons/fa'
+import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
 import { jsPDF } from 'jspdf'
 import html2canvas from 'html2canvas-pro'
 import { useApp } from '../../lib/AppContext'
@@ -163,22 +163,14 @@ function InvoiceSheet({ data, logoSrc }) {
             <p className="font-extrabold tracking-tight">{from.name}<span className="text-[#FF6B00]">.</span></p>
             <p className="text-[10px] uppercase tracking-[0.25em] text-white/40 mt-0.5">{from.tagline}</p>
           </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-white/70">
-            {from.email && (
-              <span className="inline-flex items-center gap-1.5">
-                <HiMail size={13} className="text-[#FF6B00]" />
-                {from.email}
-              </span>
-            )}
-            {from.phone && (
-              <span className="inline-flex items-center gap-1.5">
-                <HiPhone size={13} className="text-[#FF6B00]" />
-                {from.phone}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1.5">
-              <HiGlobeAlt size={13} className="text-[#FF6B00]" />
-              www.lenzora.lk
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <span className="inline-flex items-center gap-2 text-sm text-white/85">
+              <HiPhone size={15} className="text-[#FF6B00]" />
+              <span className="font-semibold tabular-nums">076 173 6756</span>
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <FaInstagram size={17} className="text-[#FF6B00]" />
+              <span className="text-base sm:text-lg font-extrabold tracking-tight">@lenzora.lk</span>
             </span>
           </div>
         </div>
