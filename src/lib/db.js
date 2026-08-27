@@ -75,9 +75,10 @@ export async function createSale(sale) {
   return data
 }
 
-export async function deleteSale(id) {
-  const { error } = await supabase.from('sales').delete().eq('id', id)
+export async function updateSale(id, updates) {
+  const { data, error } = await supabase.from('sales').update(updates).eq('id', id).select().single()
   if (error) throw error
+  return data
 }
 
 export async function fetchSiteSettings() {

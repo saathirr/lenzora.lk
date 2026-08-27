@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { HiPlus, HiCheckCircle } from 'react-icons/hi'
+import { HiPlus, HiCheckCircle, HiPencil, HiX } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminSales() {
-  const { sales, setSales, frames, setFrames, createSale, dataLoading } = useApp()
+  const { sales, setSales, frames, setFrames, createSale, updateSale, dataLoading } = useApp()
   const [form, setForm] = useState({ item_name: '', amount: '', notes: '' })
+  const [editing, setEditing] = useState(null)
+  const [editForm, setEditForm] = useState({ item_name: '', amount: '', notes: '' })
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
 
@@ -41,6 +43,40 @@ export default function AdminSales() {
       created_at: s.created_at,
     })),
   ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+
+  const startEdit = (e) => {
+    const sale = sales.find((s) => s.id === e.id)
+    if (e.type === 'frame') {
+      alert('Frame amounts are managed on the Frames page. Use Sales only for manual sale entries.')
+      return
+    }
+    if (!sale) return
+    setEditing(sale.id)
+    setEditForm({ item_name: sale.item_name || '', amount: sale.amount != null ? String(sale.amount) : '', notes: sale.notes || '' })
+  }
+
+  const cancelEdit = () => {
+    setEditing(null)
+    setEditForm({ item_name: '', amount: '', notes: '' })
+  }
+
+  const handleEdit = async () => {
+    if (!editing || !editForm.item_name.trim() || !editForm.amount) return
+    setSaving(true)
+    try {
+      const updated = await updateSale(editing, {
+        item_name: editForm.item_name.trim(),
+        amount: Number(editForm.amount),
+        notes: editForm.notes.trim() || null,
+      })
+      setSales((prev) => prev.map((s) => (s.id === editing ? { ...s, ...updated } : s)))
+      cancelEdit()
+    } catch (err) {
+      console.error('Failed to update sale:', err)
+      alert('Failed to update sale.')
+    }
+    setSaving(false)
+  }
 
   const handleAdd = async () => {
     if (!form.item_name.trim() || !form.amount) return
@@ -136,6 +172,45 @@ export default function AdminSales() {
         </div>
       )}
 
+      {editing && (
+        <div className="mb-6 p-6 bg-white border border-primary/30 rounded-2xl shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-dark">Edit Sale #{editing}</h3>
+            <button onClick={cancelEdit} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition">
+              <HiX size={18} />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <input
+              value={editForm.item_name}
+              onChange={(e) => setEditForm({ ...editForm, item_name: e.target.value })}
+              placeholder="Design / item name"
+              className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
+            />
+            <input
+              type="number"
+              min="0"
+              value={editForm.amount}
+              onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+              placeholder="Amount (LKR)"
+              className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
+            />
+            <input
+              value={editForm.notes}
+              onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+              placeholder="Notes (optional)"
+              className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
+            />
+            <div className="flex items-center gap-2">
+              <button onClick={handleEdit} disabled={saving || !editForm.item_name.trim() || !editForm.amount} className="px-4 py-2 bg-primary text-white text-sm rounded-full hover:bg-primary-dark disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+              <button onClick={cancelEdit} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -146,6 +221,7 @@ export default function AdminSales() {
                 <th className="p-4 font-medium hidden sm:table-cell">Details</th>
                 <th className="p-4 font-medium">Date</th>
                 <th className="p-4 font-medium">Status</th>
+                <th className="p-4 font-medium">Edit</th>
               </tr>
             </thead>
             <tbody>
@@ -168,11 +244,20 @@ export default function AdminSales() {
                       Kept
                     </span>
                   </td>
+                  <td className="p-4">
+                    <button
+                      onClick={() => startEdit(e)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                      title={e.type === 'frame' ? 'Edit on Frames page' : 'Edit sale'}
+                    >
+                      <HiPencil size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {combined.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-10 text-center text-gray-400">No sales recorded yet.</td>
+                  <td colSpan={6} className="p-10 text-center text-gray-400">No sales recorded yet.</td>
                 </tr>
               )}
             </tbody>
