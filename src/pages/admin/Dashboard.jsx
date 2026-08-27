@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { HiShoppingCart, HiCollection, HiPhotograph, HiMail, HiTrendingUp, HiSparkles } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
-const periodLabels = { daily: 'Today', weekly: 'This Week', monthly: 'This Month' }
+const periodLabels = { daily: 'Today', weekly: 'This Week', monthly: 'This Month', all: 'All Time' }
 
 function CountUp({ value, duration = 0.9 }) {
   const [display, setDisplay] = useState(0)
@@ -38,23 +38,18 @@ export default function AdminDashboard() {
       return d >= start && d <= now
     }
 
-    const periodOrders = orders.filter((o) => {
-      if (period === 'daily') return inPeriod(o.created_at, startOfDay)
-      if (period === 'weekly') return inPeriod(o.created_at, startOfWeek)
-      return inPeriod(o.created_at, startOfMonth)
-    })
+    const filterByPeriod = (list) => {
+      if (period === 'all') return list
+      if (period === 'daily') return list.filter((x) => inPeriod(x.created_at, startOfDay))
+      if (period === 'weekly') return list.filter((x) => inPeriod(x.created_at, startOfWeek))
+      return list.filter((x) => inPeriod(x.created_at, startOfMonth))
+    }
 
-    const periodSales = sales.filter((s) => {
-      if (period === 'daily') return inPeriod(s.created_at, startOfDay)
-      if (period === 'weekly') return inPeriod(s.created_at, startOfWeek)
-      return inPeriod(s.created_at, startOfMonth)
-    })
+    const periodOrders = filterByPeriod(orders)
 
-    const periodFrames = frames.filter((f) => {
-      if (period === 'daily') return inPeriod(f.created_at, startOfDay)
-      if (period === 'weekly') return inPeriod(f.created_at, startOfWeek)
-      return inPeriod(f.created_at, startOfMonth)
-    })
+    const periodSales = filterByPeriod(sales)
+
+    const periodFrames = filterByPeriod(frames)
 
     const totalIncome = periodOrders.reduce((s, o) => s + Number(o.amount), 0)
       + periodSales.reduce((s, sale) => s + Number(sale.amount), 0)
@@ -150,7 +145,7 @@ export default function AdminDashboard() {
               Income Overview
             </h2>
             <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
-              {['daily', 'weekly', 'monthly'].map((p) => (
+              {['daily', 'weekly', 'monthly', 'all'].map((p) => (
                 <button
                   key={p}
                   onClick={() => setPeriod(p)}
