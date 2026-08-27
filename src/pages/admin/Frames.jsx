@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { HiPlus, HiPencil, HiTrash, HiUpload } from 'react-icons/hi'
+import { HiPlus, HiPencil, HiUpload, HiCheckCircle } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import { uploadFile } from '../../lib/db'
 
 export default function AdminFrames() {
-  const { frames, setFrames, createFrame, updateFrame, deleteFrame, dataLoading } = useApp()
+  const { frames, setFrames, createFrame, updateFrame, dataLoading } = useApp()
   const [editing, setEditing] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -94,17 +94,6 @@ export default function AdminFrames() {
       alert('Failed to save frame.')
     }
     setSaving(false)
-  }
-
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this frame?')) return
-    try {
-      await deleteFrame(id)
-      setFrames((prev) => prev.filter((f) => f.id !== id))
-    } catch (err) {
-      console.error('Failed to delete frame:', err)
-      alert('Failed to delete frame.')
-    }
   }
 
   if (dataLoading) {
@@ -248,9 +237,12 @@ export default function AdminFrames() {
                   </td>
                   <td className="p-4 text-gray-500 dark:text-slate-400 hidden lg:table-cell">{f.created_at ? new Date(f.created_at).toLocaleDateString() : '-'}</td>
                   <td className="p-4">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                       <button onClick={() => openEdit(f)} className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition"><HiPencil size={16} /></button>
-                      <button onClick={() => handleDelete(f.id)} className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition"><HiTrash size={16} /></button>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400" title="Frame sales are protected">
+                        <HiCheckCircle size={12} />
+                        Kept
+                      </span>
                     </div>
                   </td>
                 </tr>

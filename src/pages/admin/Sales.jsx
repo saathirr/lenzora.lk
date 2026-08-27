@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { HiPlus, HiTrash } from 'react-icons/hi'
+import { HiPlus, HiCheckCircle } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminSales() {
-  const { sales, setSales, frames, setFrames, createSale, deleteSale, deleteFrame, dataLoading } = useApp()
+  const { sales, setSales, frames, setFrames, createSale, dataLoading } = useApp()
   const [form, setForm] = useState({ item_name: '', amount: '', notes: '' })
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -59,22 +59,6 @@ export default function AdminSales() {
       alert('Failed to add sale.')
     }
     setSaving(false)
-  }
-
-  const handleDelete = async (type, id) => {
-    if (!confirm('Delete this entry?')) return
-    try {
-      if (type === 'frame') {
-        await deleteFrame(id)
-        setFrames((prev) => prev.filter((f) => f.id !== id))
-      } else {
-        await deleteSale(id)
-        setSales((prev) => prev.filter((s) => s.id !== id))
-      }
-    } catch (err) {
-      console.error('Failed to delete:', err)
-      alert('Failed to delete.')
-    }
   }
 
   if (dataLoading) {
@@ -161,7 +145,7 @@ export default function AdminSales() {
                 <th className="p-4 font-medium">Amount</th>
                 <th className="p-4 font-medium hidden sm:table-cell">Details</th>
                 <th className="p-4 font-medium">Date</th>
-                <th className="p-4 font-medium">Actions</th>
+                <th className="p-4 font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -179,9 +163,10 @@ export default function AdminSales() {
                   <td className="p-4 text-gray-600 hidden sm:table-cell">{e.notes || '-'}</td>
                   <td className="p-4 text-gray-500">{e.created_at ? new Date(e.created_at).toLocaleDateString() : '-'}</td>
                   <td className="p-4">
-                    <button onClick={() => handleDelete(e.type, e.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
-                      <HiTrash size={16} />
-                    </button>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400" title="Sales history is protected">
+                      <HiCheckCircle size={13} />
+                      Kept
+                    </span>
                   </td>
                 </tr>
               ))}

@@ -626,6 +626,44 @@ DROP POLICY IF EXISTS "Users can insert own orders" ON orders;
 CREATE POLICY "Users can insert own orders" ON orders FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 -- ============================================
+-- FINANCIAL DATA PROTECTION (no accidental deletion)
+-- Blocks DELETE on sales-history / income tables so history
+-- and dashboard amounts can NEVER be removed.
+-- ============================================
+CREATE OR REPLACE FUNCTION public.prevent_revenue_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+  RAISE EXCEPTION 'Deleting % is not allowed. Sales/financial history is protected.', TG_TABLE_NAME
+    USING ERRCODE = '55000';
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS prevent_sales_delete ON public.sales;
+CREATE TRIGGER prevent_sales_delete
+  BEFORE DELETE ON public.sales
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_revenue_delete();
+
+DROP TRIGGER IF EXISTS prevent_frames_delete ON public.frames;
+CREATE TRIGGER prevent_frames_delete
+  BEFORE DELETE ON public.frames
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_revenue_delete();
+
+DROP TRIGGER IF EXISTS prevent_orders_delete ON public.orders;
+CREATE TRIGGER prevent_orders_delete
+  BEFORE DELETE ON public.orders
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_revenue_delete();
+
+DROP TRIGGER IF EXISTS prevent_invoices_delete ON public.invoices;
+CREATE TRIGGER prevent_invoices_delete
+  BEFORE DELETE ON public.invoices
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_revenue_delete();
+
+DROP TRIGGER IF EXISTS prevent_invoice_items_delete ON public.invoice_items;
+CREATE TRIGGER prevent_invoice_items_delete
+  BEFORE DELETE ON public.invoice_items
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_revenue_delete();
+
+-- ============================================
 -- SEED DATA
 -- ============================================
 
