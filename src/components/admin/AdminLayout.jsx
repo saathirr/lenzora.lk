@@ -8,6 +8,7 @@ import {
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
+import LiveClock from '../ui/LiveClock'
 
 const sidebarLinks = [
   { to: '/admin', icon: HiHome, label: 'Dashboard', end: true },
@@ -221,6 +222,7 @@ export default function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <LiveClock className="hidden md:inline-flex text-gray-700 dark:text-slate-300" />
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"

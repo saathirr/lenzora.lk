@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { HiMenu, HiX, HiUser, HiLogout, HiShoppingCart, HiMail, HiSun, HiMoon } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
+import LiveClock from '../ui/LiveClock'
 import defaultLogo from '../../assets/lenzora-logo.png'
 
 const links = [
@@ -81,6 +82,7 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
+            <LiveClock className="hidden lg:inline-flex text-gray-700 dark:text-slate-300" />
             <motion.button
               whileTap={{ scale: 0.85 }}
               onClick={toggleTheme}

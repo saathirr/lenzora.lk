@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { HiShoppingCart, HiCollection, HiPhotograph, HiMail, HiTrendingUp, HiSparkles } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
-const periodLabels = { daily: 'Today', weekly: 'This Week', monthly: 'This Month', all: 'All Time' }
+const periodLabels = { daily: 'Today', weekly: 'This Week', monthly: 'This Month', date: 'Pick Date', all: 'All Time' }
 
 function CountUp({ value, duration = 0.9 }) {
   const [display, setDisplay] = useState(0)
@@ -25,6 +25,7 @@ function CountUp({ value, duration = 0.9 }) {
 export default function AdminDashboard() {
   const { orders, services, portfolio, messages, sales, frames, dataLoading } = useApp()
   const [period, setPeriod] = useState('monthly')
+  const [customDate, setCustomDate] = useState(() => new Date().toISOString().slice(0, 10))
 
   const analytics = useMemo(() => {
     const now = new Date()
@@ -38,8 +39,16 @@ export default function AdminDashboard() {
       return d >= start && d <= now
     }
 
+    const sameDate = (dateStr) => {
+      const d = new Date(dateStr)
+      return d.getFullYear() === new Date(customDate).getFullYear()
+        && d.getMonth() === new Date(customDate).getMonth()
+        && d.getDate() === new Date(customDate).getDate()
+    }
+
     const filterByPeriod = (list) => {
       if (period === 'all') return list
+      if (period === 'date') return list.filter((x) => sameDate(x.created_at))
       if (period === 'daily') return list.filter((x) => inPeriod(x.created_at, startOfDay))
       if (period === 'weekly') return list.filter((x) => inPeriod(x.created_at, startOfWeek))
       return list.filter((x) => inPeriod(x.created_at, startOfMonth))
@@ -58,7 +67,7 @@ export default function AdminDashboard() {
     const pendingIncome = periodOrders.filter((o) => o.status === 'Pending').reduce((s, o) => s + Number(o.amount), 0)
 
     return { total: totalIncome, completed: completedIncome, pending: pendingIncome, count: periodOrders.length + periodSales.length + periodFrames.length }
-  }, [orders, sales, frames, period])
+  }, [orders, sales, frames, period, customDate])
 
   const completedOrders = orders.filter((o) => o.status === 'Completed').length
   const unreadMessages = messages.filter((m) => !m.read).length
@@ -144,18 +153,28 @@ export default function AdminDashboard() {
               </span>
               Income Overview
             </h2>
-            <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
-              {['daily', 'weekly', 'monthly', 'all'].map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPeriod(p)}
-                  className={`px-3 py-1 text-xs font-semibold rounded-full transition ${
-                    period === p ? 'bg-white dark:bg-white/15 text-primary shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700'
-                  }`}
-                >
-                  {periodLabels[p]}
-                </button>
-              ))}
+            <div className="flex flex-col items-end gap-2">
+              <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
+                {['daily', 'weekly', 'monthly', 'date', 'all'].map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    className={`px-3 py-1 text-xs font-semibold rounded-full transition ${
+                      period === p ? 'bg-white dark:bg-white/15 text-primary shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700'
+                    }`}
+                  >
+                    {periodLabels[p]}
+                  </button>
+                ))}
+              </div>
+              {period === 'date' && (
+                <input
+                  type="date"
+                  value={customDate}
+                  onChange={(e) => setCustomDate(e.target.value)}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-white/10 text-gray-700 dark:text-slate-200 outline-none focus:border-primary"
+                />
+              )}
             </div>
           </div>
           <div className="space-y-4">
