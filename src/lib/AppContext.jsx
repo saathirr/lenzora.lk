@@ -51,32 +51,37 @@ export function AppProvider({ children }) {
   const [dataLoading, setDataLoading] = useState(true)
 
   const loadAllData = async () => {
-    try {
-      const [s, p, pr, o, m, sal, st, fr, fc, fci] = await Promise.all([
-        fetchServices(),
-        fetchPortfolio(),
-        fetchProducts(),
-        fetchOrders(),
-        fetchMessages(),
-        fetchSales(),
-        fetchSiteSettings(),
-        fetchFrames(),
-        fetchFrameCategories().catch(() => []),
-        fetchFrameCategoryImages().catch(() => []),
-      ])
-      setServices(s)
-      setPortfolio(p)
-      setProducts(pr)
-      setOrders(o)
-      setMessages(m)
-      setSales(sal)
-      setFrames(fr)
-      setFrameCategories(fc || [])
-      setFrameCategoryImages(fci || [])
-      if (st) setSettings((prev) => ({ ...prev, ...st }))
-    } catch (err) {
-      console.error('Failed to load data:', err?.message || err)
-    }
+    const safe = (p, fallback = []) => p.catch((err) => {
+      console.error('Data load skip:', err?.message || err)
+      return fallback
+    })
+
+    const [s, p, pr, o, m, sal, st, fr, fc, fci] = await Promise.allSettled([
+      safe(fetchServices()),
+      safe(fetchPortfolio()),
+      safe(fetchProducts()),
+      safe(fetchOrders()),
+      safe(fetchMessages()),
+      safe(fetchSales()),
+      safe(fetchSiteSettings(), null),
+      safe(fetchFrames()),
+      safe(fetchFrameCategories()),
+      safe(fetchFrameCategoryImages()),
+    ])
+
+    const val = (r) => (r.status === 'fulfilled' ? r.value : (r.status === 'rejected' ? (r.reason ?? []) : r.value))
+
+    setServices(val(s))
+    setPortfolio(val(p))
+    setProducts(val(pr))
+    setOrders(val(o))
+    setMessages(val(m))
+    setSales(val(sal))
+    setFrames(val(fr))
+    setFrameCategories(val(fc) || [])
+    setFrameCategoryImages(val(fci) || [])
+    const settingsVal = val(st)
+    if (settingsVal) setSettings((prev) => ({ ...prev, ...settingsVal }))
     setDataLoading(false)
   }
 
