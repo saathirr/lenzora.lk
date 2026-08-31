@@ -32,7 +32,9 @@ const navItem = {
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showTop, setShowTop] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const scrollRef = useRef(null)
+  const profileMenuRef = useRef(null)
   const { user, profile, loading, signOut, settings, toggleTheme } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
@@ -53,6 +55,17 @@ export default function AdminLayout() {
     const top = scrollRef.current?.scrollTop || 0
     setShowTop(top > 420)
   }
+
+  useEffect(() => {
+    if (!profileOpen) return
+    const onClick = (e) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setProfileOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [profileOpen])
 
   const scrollToTop = () => {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
@@ -230,13 +243,54 @@ export default function AdminLayout() {
             >
               {dark ? <HiMoon size={18} /> : <HiSun size={18} />}
             </button>
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent2 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-primary/25">
-                {initials}
-              </div>
-              <span className="text-sm font-semibold text-gray-700 dark:text-slate-200 hidden sm:block">
-                {profile?.full_name || 'Admin'}
-              </span>
+            <div className="relative">
+              <button
+                onClick={() => setProfileOpen((o) => !o)}
+                aria-label="Profile menu"
+                className="flex items-center gap-3 rounded-full focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent2 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-primary/25">
+                  {initials}
+                </div>
+                <span className="text-sm font-semibold text-gray-700 dark:text-slate-200 hidden sm:block">
+                  {profile?.full_name || 'Admin'}
+                </span>
+              </button>
+
+              <AnimatePresence>
+                {profileOpen && (
+                  <motion.div
+                    ref={profileMenuRef}
+                    initial={{ opacity: 0, y: -8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-12 w-56 z-50 rounded-2xl bg-white dark:bg-[#1a1a1f] border border-gray-100 dark:border-[#2a2a2f] shadow-xl shadow-black/10 p-2"
+                  >
+                    <div className="px-3 py-2.5 mb-1 rounded-xl bg-gray-50 dark:bg-white/5">
+                      <p className="text-sm font-bold text-dark dark:text-white truncate">{profile?.full_name || 'Admin'}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 truncate">{profile?.email || user?.email || ''}</p>
+                      <span className="inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-primary/10 text-primary">
+                        Admin
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => { setProfileOpen(false); navigate('/') }}
+                      className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-gray-700 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-white/10 transition"
+                    >
+                      <HiLogout size={17} className="text-gray-500" />
+                      Back to Site
+                    </button>
+                    <button
+                      onClick={() => { setProfileOpen(false); handleSignOut() }}
+                      className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
+                    >
+                      <HiLogout size={17} />
+                      Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </header>
