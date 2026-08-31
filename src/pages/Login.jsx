@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Link, useNavigate } from 'react-router-dom'
-import { HiLockClosed, HiEye, HiEyeOff } from 'react-icons/hi'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { HiLockClosed, HiEye, HiEyeOff, HiCheckCircle } from 'react-icons/hi'
 import { supabase } from '../lib/supabase'
 
 export default function Login() {
@@ -9,10 +9,14 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [welcome, setWelcome] = useState('')
   const [loading, setLoading] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [resetSent, setResetSent] = useState(false)
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const justRegistered = searchParams.get('registered') === 'true'
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -28,21 +32,25 @@ export default function Login() {
         setError(authError.message || 'Login failed. Please try again.')
         return
       }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single()
+      setSuccess(true)
+      setWelcome(data.user?.user_metadata?.full_name || '')
+      setLoading(false)
+      setTimeout(() => {
+        if (profile?.role === 'admin') {
+          navigate('/admin')
+        } else {
+          navigate('/')
+        }
+      }, 2200)
     } catch (err) {
       setError(err?.message || 'An unexpected error occurred.')
       setLoading(false)
       return
-    }
-    setLoading(false)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-    if (profile?.role === 'admin') {
-      navigate('/admin')
-    } else {
-      navigate('/')
     }
   }
 
@@ -84,6 +92,24 @@ export default function Login() {
           <p className="text-gray-500 mt-2">Sign in to your account</p>
         </div>
 
+        {success && (
+          <div className="bg-white border border-green-200 rounded-2xl p-8 shadow-xl text-center mb-6">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <HiCheckCircle className="text-green-600" size={32} />
+            </div>
+            <h2 className="text-2xl font-bold text-dark mb-2">Welcome back, {welcome.split(' ')[0] || 'friend'}! 👋</h2>
+            <p className="text-green-600 font-semibold mb-1">Login successful!</p>
+            <p className="text-gray-500 text-sm">Redirecting you to your dashboard...</p>
+          </div>
+        )}
+
+        {!success && justRegistered && (
+          <div className="p-3 mb-6 bg-green-50 text-green-700 text-sm rounded-xl border border-green-200 flex items-center gap-2">
+            <HiCheckCircle size={18} className="shrink-0" />
+            <span>Welcome to Lenzora! Registration successful. Please sign in to continue.</span>
+          </div>
+        )}
+
         {resetSent ? (
           <div className="bg-white border border-gray-100 rounded-2xl p-8 shadow-xl text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -95,7 +121,7 @@ export default function Login() {
             </p>
           </div>
         ) : (
-          <form onSubmit={handleLogin} className="bg-white border border-gray-100 rounded-2xl p-8 shadow-xl space-y-4">
+          <form onSubmit={handleLogin} className={`bg-white border border-gray-100 rounded-2xl p-8 shadow-xl space-y-4 ${success ? 'hidden' : ''}`}>
             {error && (
               <div className="p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-200">
                 {error}

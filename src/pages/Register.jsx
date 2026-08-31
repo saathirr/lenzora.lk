@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import { HiUserAdd, HiEye, HiEyeOff } from 'react-icons/hi'
+import { HiUserAdd, HiEye, HiEyeOff, HiCheckCircle } from 'react-icons/hi'
 import { supabase } from '../lib/supabase'
 import { useApp } from '../lib/AppContext'
 
@@ -10,6 +10,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const { settings } = useApp()
@@ -45,7 +46,8 @@ export default function Register() {
         setError(authError.message || 'Registration failed. Please try again.')
         return
       }
-      navigate('/login?registered=true')
+      setSuccess(true)
+      setTimeout(() => navigate('/login?registered=true'), 2500)
     } catch (err) {
       setError(err?.message || 'An unexpected error occurred.')
     } finally {
@@ -69,6 +71,17 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleRegister} className="bg-white border border-gray-100 rounded-2xl p-8 shadow-xl space-y-4">
+          {success ? (
+            <div className="text-center py-2">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <HiCheckCircle className="text-green-600" size={32} />
+              </div>
+              <h2 className="text-2xl font-bold text-dark mb-2">Welcome, {form.fullName.split(' ')[0] || 'friend'}! 🎉</h2>
+              <p className="text-green-600 font-semibold mb-1">Registration successful!</p>
+              <p className="text-gray-500 text-sm">Redirecting you to sign in...</p>
+            </div>
+          ) : (
+            <>
           {error && (
             <div className="p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-200">
               {error}
@@ -154,6 +167,8 @@ export default function Register() {
           >
             {loading ? 'Creating account...' : 'Create Account'}
           </button>
+          </>
+          )}
         </form>
 
         <p className="text-center text-sm text-gray-500 mt-6">
