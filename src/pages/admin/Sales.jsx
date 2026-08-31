@@ -3,10 +3,11 @@ import { HiPlus, HiCheckCircle, HiPencil, HiX, HiTrash } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 export default function AdminSales() {
-  const { sales, setSales, frames, setFrames, createSale, updateSale, deleteSale, dataLoading } = useApp()
+  const { sales, setSales, frames, setFrames, createSale, updateSale, deleteSale, updateFrame, deleteFrame, dataLoading } = useApp()
   const [form, setForm] = useState({ item_name: '', amount: '', notes: '' })
   const [editing, setEditing] = useState(null)
-  const [editForm, setEditForm] = useState({ item_name: '', amount: '', notes: '' })
+  const [editingType, setEditingType] = useState(null)
+  const [editForm, setEditForm] = useState({ item_name: '', amount: '', price: '', cost: '', notes: '' })
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
 
@@ -45,25 +46,52 @@ export default function AdminSales() {
   ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
   const startEdit = (e) => {
-    const sale = sales.find((s) => s.id === e.id)
     if (e.type === 'frame') {
-      alert('Frame amounts are managed on the Frames page. Use Sales only for manual sale entries.')
+      const frame = frames.find((f) => f.id === e.id)
+      if (!frame) return
+      setEditingType('frame')
+      setEditing(frame.id)
+      setEditForm({
+        item_name: frame.frame_size || '',
+        price: frame.price != null ? String(frame.price) : '',
+        cost: frame.cost != null ? String(frame.cost) : '',
+        notes: frame.notes || '',
+      })
       return
     }
+    const sale = sales.find((s) => s.id === e.id)
     if (!sale) return
+    setEditingType('sale')
     setEditing(sale.id)
     setEditForm({ item_name: sale.item_name || '', amount: sale.amount != null ? String(sale.amount) : '', notes: sale.notes || '' })
   }
 
   const cancelEdit = () => {
     setEditing(null)
-    setEditForm({ item_name: '', amount: '', notes: '' })
+    setEditingType(null)
+    setEditForm({ item_name: '', amount: '', price: '', cost: '', notes: '' })
   }
 
   const handleEdit = async () => {
-    if (!editing || !editForm.item_name.trim() || !editForm.amount) return
+    if (!editing || !editForm.item_name.trim()) return
     setSaving(true)
     try {
+      if (editingType === 'frame') {
+        if (editForm.price === '') return
+        const price = Number(editForm.price)
+        const cost = Number(editForm.cost || 0)
+        const updated = await updateFrame(editing, {
+          frame_size: editForm.item_name.trim(),
+          price,
+          cost,
+          profit: price - cost,
+          notes: editForm.notes.trim() || null,
+        })
+        setFrames((prev) => prev.map((f) => (f.id === editing ? { ...f, ...updated } : f)))
+        cancelEdit()
+        return
+      }
+      if (!editForm.amount) return
       const updated = await updateSale(editing, {
         item_name: editForm.item_name.trim(),
         amount: Number(editForm.amount),
@@ -72,25 +100,27 @@ export default function AdminSales() {
       setSales((prev) => prev.map((s) => (s.id === editing ? { ...s, ...updated } : s)))
       cancelEdit()
     } catch (err) {
-      console.error('Failed to update sale:', err)
-      alert('Failed to update sale.')
+      console.error('Failed to update entry:', err)
+      alert('Failed to update entry.')
     }
     setSaving(false)
   }
 
   const handleDelete = async (e) => {
-    if (e.type === 'frame') {
-      alert('Frame entries are managed on the Frames page.')
-      return
-    }
-    if (!confirm(`Delete sale "${e.item}" (LKR ${e.amount.toLocaleString()})?`)) return
+    if (!confirm(`Delete ${e.type} "${e.item}"?`)) return
     try {
+      if (e.type === 'frame') {
+        await deleteFrame(e.id)
+        setFrames((prev) => prev.filter((f) => f.id !== e.id))
+        if (editing === e.id) cancelEdit()
+        return
+      }
       await deleteSale(e.id)
       setSales((prev) => prev.filter((s) => s.id !== e.id))
       if (editing === e.id) cancelEdit()
     } catch (err) {
-      console.error('Failed to delete sale:', err)
-      alert('Failed to delete sale. It may still be protected - drop the sales delete trigger first.')
+      console.error('Failed to delete entry:', err)
+      alert('Failed to delete entry. It may be protected - drop the delete trigger first if needed.')
     }
   }
 
@@ -191,7 +221,7 @@ export default function AdminSales() {
       {editing && (
         <div className="mb-6 p-6 bg-white border border-primary/30 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-dark">Edit Sale #{editing}</h3>
+            <h3 className="font-bold text-dark">{editingType === 'frame' ? `Edit Frame #${editing}` : `Edit Sale #${editing}`}</h3>
             <button onClick={cancelEdit} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition">
               <HiX size={18} />
             </button>
@@ -200,30 +230,56 @@ export default function AdminSales() {
             <input
               value={editForm.item_name}
               onChange={(e) => setEditForm({ ...editForm, item_name: e.target.value })}
-              placeholder="Design / item name"
+              placeholder={editingType === 'frame' ? 'Frame size' : 'Design / item name'}
               className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
             />
-            <input
-              type="number"
-              min="0"
-              value={editForm.amount}
-              onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
-              placeholder="Amount (LKR)"
-              className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
-            />
-            <input
-              value={editForm.notes}
-              onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-              placeholder="Notes (optional)"
-              className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
-            />
+            {editingType === 'frame' ? (
+              <>
+                <input
+                  type="number"
+                  min="0"
+                  value={editForm.price}
+                  onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                  placeholder="Sale Amount / Price (LKR)"
+                  className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
+                />
+                <input
+                  type="number"
+                  min="0"
+                  value={editForm.cost}
+                  onChange={(e) => setEditForm({ ...editForm, cost: e.target.value })}
+                  placeholder="Cost (LKR)"
+                  className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
+                />
+                <input
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                  placeholder="Notes (optional)"
+                  className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
+                />
+              </>
+            ) : (
+              <input
+                type="number"
+                min="0"
+                value={editForm.amount}
+                onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+                placeholder="Amount (LKR)"
+                className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-primary outline-none"
+              />
+            )}
             <div className="flex items-center gap-2">
-              <button onClick={handleEdit} disabled={saving || !editForm.item_name.trim() || !editForm.amount} className="px-4 py-2 bg-primary text-white text-sm rounded-full hover:bg-primary-dark disabled:opacity-50">
+              <button onClick={handleEdit} disabled={saving || !editForm.item_name.trim() || (editingType !== 'frame' && !editForm.amount)} className="px-4 py-2 bg-primary text-white text-sm rounded-full hover:bg-primary-dark disabled:opacity-50">
                 {saving ? 'Saving...' : 'Save'}
               </button>
               <button onClick={cancelEdit} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700">Cancel</button>
             </div>
           </div>
+          {editingType === 'frame' && (
+            <p className="mt-3 text-xs text-green-600 font-semibold">
+              New Profit: LKR {(Number(editForm.price || 0) - Number(editForm.cost || 0)).toLocaleString()}
+            </p>
+          )}
         </div>
       )}
 
@@ -265,14 +321,14 @@ export default function AdminSales() {
                       <button
                         onClick={() => startEdit(e)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                        title={e.type === 'frame' ? 'Edit on Frames page' : 'Edit sale'}
+                        title={e.type === 'frame' ? 'Edit frame sale amount' : 'Edit sale'}
                       >
                         <HiPencil size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(e)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                        title={e.type === 'frame' ? 'Managed on Frames page' : 'Delete sale'}
+                        title={e.type === 'frame' ? 'Delete frame' : 'Delete sale'}
                       >
                         <HiTrash size={16} />
                       </button>
