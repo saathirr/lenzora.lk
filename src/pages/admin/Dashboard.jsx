@@ -71,8 +71,7 @@ export default function AdminDashboard() {
     const pendingIncome = periodOrders.filter((o) => o.status === 'Pending').reduce((s, o) => s + Number(o.amount), 0)
 
     const allTimeTotal = orders.reduce((s, o) => s + Number(o.amount), 0)
-      + sales.reduce((s, sale) => s + Number(sale.amount), 0)
-      + frames.reduce((s, f) => s + Number(f.price || 0), 0)
+      + frames.reduce((s, f) => s + Number(f.profit), 0)
     const allTimeProfit = orders.reduce((s, o) => s + Number(o.amount), 0)
       + frames.reduce((s, f) => s + Number(f.profit), 0)
 
