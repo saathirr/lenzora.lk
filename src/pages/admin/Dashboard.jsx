@@ -70,10 +70,10 @@ export default function AdminDashboard() {
     const completedIncome = periodOrders.filter((o) => o.status === 'Completed').reduce((s, o) => s + Number(o.amount), 0)
     const pendingIncome = periodOrders.filter((o) => o.status === 'Pending').reduce((s, o) => s + Number(o.amount), 0)
 
-    const allTimeTotal = orders.reduce((s, o) => s + Number(o.amount), 0)
-      + frames.reduce((s, f) => s + Number(f.profit), 0)
-    const allTimeProfit = orders.reduce((s, o) => s + Number(o.amount), 0)
-      + frames.reduce((s, f) => s + Number(f.profit), 0)
+    const allTimeTotal = frames.reduce((s, f) => s + Number(f.profit), 0)
+      + sales.reduce((s, sale) => s + Number(sale.amount), 0)
+    const allTimeProfit = frames.reduce((s, f) => s + Number(f.profit), 0)
+      + sales.reduce((s, sale) => s + Number(sale.amount), 0)
 
     return { total: totalSales, profit: totalProfit, completed: completedIncome, pending: pendingIncome, allTimeTotal, allTimeProfit, count: periodOrders.length + periodSales.length + periodFrames.length }
   }, [orders, sales, frames, period, customDate])
