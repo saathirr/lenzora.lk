@@ -71,7 +71,7 @@ export default function AdminLayout() {
     : 'A'
 
   return (
-    <div className={`relative h-screen flex overflow-hidden transition-colors duration-500 ${dark ? 'bg-[#0a0a0a]' : 'bg-[#f4f5fa]'}`}>
+    <div className={`relative h-screen h-dvh flex overflow-hidden transition-colors duration-500 ${dark ? 'bg-[#0a0a0a]' : 'bg-[#f4f5fa]'}`}>
       {/* Decorative ambient background */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden>
         <div className={`absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full blur-3xl opacity-25 animate-float-slow ${dark ? 'bg-accent2/20' : 'bg-primary/20'}`} />
@@ -94,7 +94,7 @@ export default function AdminLayout() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 lg:z-40 h-screen w-72 shrink-0 text-white flex flex-col
+        className={`fixed lg:sticky top-0 left-0 z-50 lg:z-40 h-screen h-dvh w-72 shrink-0 text-white flex flex-col
           bg-gradient-to-b from-[#161022] via-[#150f22] to-[#0c0814]
           shadow-2xl shadow-black/40 transition-transform duration-300 ease-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
@@ -130,7 +130,7 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="relative z-10 p-4 space-y-1.5 flex-1 overflow-y-auto admin-scroll">
+        <nav className="relative z-10 p-4 space-y-1.5 flex-1 overflow-y-auto min-h-0 admin-scroll">
           {sidebarLinks.map((l, i) => (
             <motion.div key={l.to} variants={navItem} initial="hidden" animate="show" custom={i}>
               <NavLink
