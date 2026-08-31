@@ -25,7 +25,7 @@ export default function AdminProfit() {
     }
 
     orders.forEach((o) => add(o.created_at, Number(o.amount || 0), Number(o.amount || 0)))
-    sales.forEach((s) => add(s.created_at, Number(s.amount || 0), 0))
+    sales.forEach((s) => add(s.created_at, Number(s.amount || 0), Number(s.amount || 0)))
     frames.forEach((f) => add(f.created_at, Number(f.price || 0), Number(f.profit || 0)))
 
     const list = Array.from(map.values())

@@ -66,14 +66,15 @@ export default function AdminDashboard() {
     const frameProfit = periodFrames.reduce((s, f) => s + Number(f.profit), 0)
 
     const totalSales = orderTotal + salesTotal + frameSalesTotal
-    const totalProfit = orderTotal + frameProfit
+    const totalProfit = orderTotal + salesTotal + frameProfit
     const completedIncome = periodOrders.filter((o) => o.status === 'Completed').reduce((s, o) => s + Number(o.amount), 0)
     const pendingIncome = periodOrders.filter((o) => o.status === 'Pending').reduce((s, o) => s + Number(o.amount), 0)
 
     const allTimeTotal = frames.reduce((s, f) => s + Number(f.profit), 0)
       + sales.reduce((s, sale) => s + Number(sale.amount), 0)
-    const allTimeProfit = frames.reduce((s, f) => s + Number(f.profit), 0)
+    const allTimeProfit = orders.reduce((s, o) => s + Number(o.amount), 0)
       + sales.reduce((s, sale) => s + Number(sale.amount), 0)
+      + frames.reduce((s, f) => s + Number(f.profit), 0)
 
     return { total: totalSales, profit: totalProfit, completed: completedIncome, pending: pendingIncome, allTimeTotal, allTimeProfit, count: periodOrders.length + periodSales.length + periodFrames.length }
   }, [orders, sales, frames, period, customDate])
@@ -207,7 +208,7 @@ export default function AdminDashboard() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
-                <p className="text-sm text-gray-500 dark:text-emerald-200/70">Profit (design services + frames)</p>
+                <p className="text-sm text-gray-500 dark:text-emerald-200/70">Profit (design services + sales + frames)</p>
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                   LKR <CountUp value={analytics.profit} />
                 </p>
