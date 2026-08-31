@@ -60,13 +60,17 @@ export default function AdminDashboard() {
 
     const periodFrames = filterByPeriod(frames)
 
-    const totalIncome = periodOrders.reduce((s, o) => s + Number(o.amount), 0)
-      + periodSales.reduce((s, sale) => s + Number(sale.amount), 0)
-      + periodFrames.reduce((s, f) => s + Number(f.profit), 0)
+    const orderTotal = periodOrders.reduce((s, o) => s + Number(o.amount), 0)
+    const salesTotal = periodSales.reduce((s, sale) => s + Number(sale.amount), 0)
+    const frameSalesTotal = periodFrames.reduce((s, f) => s + Number(f.price || 0), 0)
+    const frameProfit = periodFrames.reduce((s, f) => s + Number(f.profit), 0)
+
+    const totalSales = orderTotal + salesTotal + frameSalesTotal
+    const totalProfit = frameProfit
     const completedIncome = periodOrders.filter((o) => o.status === 'Completed').reduce((s, o) => s + Number(o.amount), 0)
     const pendingIncome = periodOrders.filter((o) => o.status === 'Pending').reduce((s, o) => s + Number(o.amount), 0)
 
-    return { total: totalIncome, completed: completedIncome, pending: pendingIncome, count: periodOrders.length + periodSales.length + periodFrames.length }
+    return { total: totalSales, profit: totalProfit, completed: completedIncome, pending: pendingIncome, count: periodOrders.length + periodSales.length + periodFrames.length }
   }, [orders, sales, frames, period, customDate])
 
   const completedOrders = orders.filter((o) => o.status === 'Completed').length
@@ -180,13 +184,19 @@ export default function AdminDashboard() {
           <div className="space-y-4">
             <div className="relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 text-white shadow-lg shadow-green-500/20">
               <div className="pointer-events-none absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/10 blur-2xl animate-float-slow" />
-              <p className="text-sm text-white/80">Total Income ({periodLabels[period]})</p>
+              <p className="text-sm text-white/80">Total Sales ({periodLabels[period]})</p>
               <p className="text-3xl font-extrabold mt-1">
                 LKR <CountUp value={analytics.total} />
               </p>
               <p className="text-xs text-white/70 mt-1">{analytics.count} transactions in period</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20">
+                <p className="text-sm text-gray-500 dark:text-green-200/70">Profit</p>
+                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                  LKR <CountUp value={analytics.profit} />
+                </p>
+              </div>
               <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20">
                 <p className="text-sm text-gray-500 dark:text-green-200/70">Completed</p>
                 <p className="text-xl font-bold text-green-600 dark:text-green-400">
