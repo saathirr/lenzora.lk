@@ -195,18 +195,10 @@ export default function AdminDashboard() {
                 LKR <CountUp value={analytics.total} />
               </p>
               <p className="text-xs text-white/70 mt-1">{analytics.count} transactions in period</p>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-white/10 dark:bg-white/10 border border-white/20">
+              <div className="mt-4 pt-4 border-t border-white/20">
                 <p className="text-sm text-white/80">All Time Sales</p>
-                <p className="text-xl font-bold text-white">
+                <p className="text-2xl font-extrabold mt-0.5">
                   LKR <CountUp value={analytics.allTimeTotal} />
-                </p>
-              </div>
-              <div className="p-4 rounded-2xl bg-white/10 dark:bg-white/10 border border-white/20">
-                <p className="text-sm text-white/80">All Time Profit</p>
-                <p className="text-xl font-bold text-white">
-                  LKR <CountUp value={analytics.allTimeProfit} />
                 </p>
               </div>
             </div>
@@ -215,6 +207,12 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-500 dark:text-green-200/70">Profit (design services + frames)</p>
                 <p className="text-xl font-bold text-green-600 dark:text-green-400">
                   LKR <CountUp value={analytics.profit} />
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20">
+                <p className="text-sm text-gray-500 dark:text-green-200/70">All Time Profit</p>
+                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                  LKR <CountUp value={analytics.allTimeProfit} />
                 </p>
               </div>
               <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20">
