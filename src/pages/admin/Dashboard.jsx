@@ -157,7 +157,7 @@ export default function AdminDashboard() {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-dark flex items-center gap-2">
-              <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white shadow-md">
+              <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-md">
                 <HiTrendingUp size={17} />
               </span>
               Income Overview
@@ -187,30 +187,34 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="space-y-4">
-            <div className="relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 text-white shadow-lg shadow-green-500/20">
-              <div className="pointer-events-none absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/10 blur-2xl animate-float-slow" />
-              <p className="text-sm text-white/80">Total Sales ({periodLabels[period]})</p>
-              <p className="text-3xl font-extrabold mt-1">
-                LKR <CountUp value={analytics.total} />
-              </p>
-              <p className="text-xs text-white/70 mt-1">{analytics.count} transactions in period</p>
-              <div className="mt-4 pt-4 border-t border-white/20">
-                <p className="text-sm text-white/80">All Time Sales</p>
-                <p className="text-2xl font-extrabold mt-0.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-600 to-sky-700 text-white shadow-lg shadow-indigo-500/25">
+                <div className="pointer-events-none absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/10 blur-2xl animate-float-slow" />
+                <p className="text-sm text-indigo-100">Total Sales ({periodLabels[period]})</p>
+                <p className="text-3xl font-extrabold mt-1 tabular-nums">
+                  LKR <CountUp value={analytics.total} />
+                </p>
+                <p className="text-xs text-indigo-100/80 mt-1">{analytics.count} transactions in period</p>
+              </div>
+              <div className="relative overflow-hidden p-5 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-600 to-fuchsia-700 text-white shadow-lg shadow-violet-500/25">
+                <div className="pointer-events-none absolute -top-6 -right-6 w-32 h-32 rounded-full bg-white/10 blur-2xl animate-float" />
+                <p className="text-sm text-violet-100">All Time Sales</p>
+                <p className="text-3xl font-extrabold mt-1 tabular-nums">
                   LKR <CountUp value={analytics.allTimeTotal} />
                 </p>
+                <p className="text-xs text-violet-100/80 mt-1">{orders.length + sales.length + frames.length} total records</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20">
-                <p className="text-sm text-gray-500 dark:text-green-200/70">Profit (design services + frames)</p>
-                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
+                <p className="text-sm text-gray-500 dark:text-emerald-200/70">Profit (design services + frames)</p>
+                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                   LKR <CountUp value={analytics.profit} />
                 </p>
               </div>
-              <div className="p-4 rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/20">
-                <p className="text-sm text-gray-500 dark:text-green-200/70">All Time Profit</p>
-                <p className="text-xl font-bold text-green-600 dark:text-green-400">
+              <div className="p-4 rounded-2xl bg-teal-50 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20">
+                <p className="text-sm text-gray-500 dark:text-teal-200/70">All Time Profit</p>
+                <p className="text-xl font-bold text-teal-600 dark:text-teal-400">
                   LKR <CountUp value={analytics.allTimeProfit} />
                 </p>
               </div>

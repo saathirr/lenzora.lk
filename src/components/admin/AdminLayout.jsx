@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph,
   HiCube, HiMail, HiLogout, HiBadgeCheck, HiCog, HiTemplate,
-  HiSparkles, HiSun, HiMoon, HiArrowUp, HiAdjustments, HiDocumentText,
+  HiSparkles, HiSun, HiMoon, HiArrowUp, HiAdjustments, HiDocumentText, HiTrendingUp,
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
@@ -17,6 +17,7 @@ const sidebarLinks = [
   { to: '/admin/portfolio', icon: HiPhotograph, label: 'Portfolio' },
   { to: '/admin/products', icon: HiCube, label: 'Products' },
   { to: '/admin/sales', icon: HiBadgeCheck, label: 'Sales' },
+  { to: '/admin/profit', icon: HiTrendingUp, label: 'Profit' },
   { to: '/admin/invoices', icon: HiDocumentText, label: 'Invoices' },
   { to: '/admin/frames', icon: HiTemplate, label: 'Frames' },
   { to: '/admin/frames-settings', icon: HiAdjustments, label: 'Frames Setting' },
