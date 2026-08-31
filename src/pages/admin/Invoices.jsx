@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import {
   HiPlus, HiTrash, HiEye, HiRefresh, HiDocumentDownload, HiPrinter,
-  HiX, HiPhone, HiDocumentText, HiUser,
+  HiX, HiPhone, HiDocumentText, HiUser, HiTrendingUp, HiChartBar, HiCash,
   HiOfficeBuilding, HiCalendar, HiCollection, HiSparkles,
 } from 'react-icons/hi'
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa'
@@ -180,8 +180,11 @@ function InvoiceSheet({ data, logoSrc }) {
 }
 
 export default function AdminInvoices() {
-  const { settings, orders } = useApp()
+  const { settings, orders, sales, frames } = useApp()
   const logoSrc = settings.logo_url || defaultLogo
+
+  const [rangeStart, setRangeStart] = useState('')
+  const [rangeEnd, setRangeEnd] = useState('')
 
   const [meta, setMeta] = useState(() => ({
     number: makeInvNo(),
@@ -261,6 +264,48 @@ export default function AdminInvoices() {
   }
 
   const sheetData = { meta, from, billTo, items, discount, tax, notes, totals }
+
+  const analytics = useMemo(() => {
+    const records = [
+      ...orders.map((o) => ({ d: o.created_at, sales: Number(o.amount || 0), profit: Number(o.amount || 0) })),
+      ...sales.map((s) => ({ d: s.created_at, sales: Number(s.amount || 0), profit: Number(s.amount || 0) })),
+      ...frames.map((f) => ({ d: f.created_at, sales: Number(f.price || 0), profit: Number(f.profit || 0) })),
+    ]
+
+    const start = rangeStart ? new Date(`${rangeStart}T00:00:00`) : null
+    const end = rangeEnd ? new Date(`${rangeEnd}T23:59:59`) : null
+
+    const dayMap = new Map()
+    let totalSales = 0
+    let totalProfit = 0
+    let totalCount = 0
+
+    const keyOf = (dt) => {
+      const y = dt.getFullYear()
+      const m = String(dt.getMonth() + 1).padStart(2, '0')
+      const dd = String(dt.getDate()).padStart(2, '0')
+      return `${y}-${m}-${dd}`
+    }
+
+    for (const r of records) {
+      const dt = r.d ? new Date(r.d) : new Date()
+      if (isNaN(dt.getTime())) continue
+      if (start && dt < start) continue
+      if (end && dt > end) continue
+      const key = keyOf(dt)
+      if (!dayMap.has(key)) dayMap.set(key, { key, sales: 0, profit: 0, count: 0, ts: dt.getTime() })
+      const e = dayMap.get(key)
+      e.sales += r.sales
+      e.profit += r.profit
+      e.count += 1
+      totalSales += r.sales
+      totalProfit += r.profit
+      totalCount += r.count
+    }
+
+    const days = Array.from(dayMap.values()).sort((a, b) => a.ts - b.ts)
+    return { totalSales, totalProfit, totalCount, days }
+  }, [orders, sales, frames, rangeStart, rangeEnd])
 
   const invoiceMessage = () =>
     [
@@ -360,6 +405,89 @@ export default function AdminInvoices() {
             <HiEye size={17} />
             Preview Invoice
           </button>
+        </div>
+      </div>
+
+      <div className={cardCls}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-fuchsia-600 text-white flex items-center justify-center"><HiChartBar size={18} /></div>
+            <div>
+              <h3 className="font-bold text-dark dark:text-white">Profit Analytics</h3>
+              <p className="text-xs text-gray-400 dark:text-slate-500">Select days to view sales & profit</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <label className="flex items-center gap-2 text-sm text-gray-400 dark:text-slate-500">
+              <HiCalendar size={15} />
+              <input type="date" value={rangeStart} onChange={(e) => setRangeStart(e.target.value)} className={inputCls} />
+            </label>
+            <span className="text-gray-400 text-sm hidden sm:block">to</span>
+            <label className="flex items-center gap-2 text-sm text-gray-400 dark:text-slate-500">
+              <HiCalendar size={15} />
+              <input type="date" value={rangeEnd} onChange={(e) => setRangeEnd(e.target.value)} className={inputCls} />
+            </label>
+            {(rangeStart || rangeEnd) && (
+              <button onClick={() => { setRangeStart(''); setRangeEnd('') }} className="px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition">
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-600 to-sky-700 text-white shadow-lg shadow-indigo-500/25">
+            <p className="text-xs text-indigo-100">Sales{rangeStart || rangeEnd ? ' (selected)' : ' (all time)'}</p>
+            <p className="text-2xl font-extrabold mt-1 tabular-nums">LKR {Math.round(analytics.totalSales).toLocaleString()}</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-600 to-teal-700 text-white shadow-lg shadow-emerald-500/25">
+            <p className="text-xs text-emerald-100">Profit{rangeStart || rangeEnd ? ' (selected)' : ' (all time)'}</p>
+            <p className="text-2xl font-extrabold mt-1 tabular-nums">LKR {Math.round(analytics.totalProfit).toLocaleString()}</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-violet-500 via-purple-600 to-fuchsia-700 text-white shadow-lg shadow-violet-500/25">
+            <p className="text-xs text-violet-100">Records</p>
+            <p className="text-2xl font-extrabold mt-1 tabular-nums">{analytics.totalCount.toLocaleString()}</p>
+            <p className="text-xs text-violet-100/80 mt-0.5">{analytics.days.length} day{analytics.days.length !== 1 ? 's' : ''}</p>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-bold text-dark dark:text-white flex items-center gap-2">
+              <HiTrendingUp className="text-primary" size={16} />
+              Daily Sales vs Profit
+            </h4>
+            <div className="flex items-center gap-4 text-xs text-gray-400 dark:text-slate-500">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-gradient-to-br from-indigo-500 to-blue-600 inline-block" /> Sales</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 inline-block" /> Profit</span>
+            </div>
+          </div>
+
+          {analytics.days.length === 0 ? (
+            <div className="py-10 text-center text-gray-400 dark:text-slate-500">
+              No data{rangeStart || rangeEnd ? ' in the selected date range' : ''} yet.
+            </div>
+          ) : (
+            <div className="overflow-x-auto admin-scroll -mx-2 px-2">
+              <div className="flex items-end gap-1.5 sm:gap-2 h-48 min-w-[420px]">
+                {analytics.days.map((d) => {
+                  const maxV = Math.max(1, ...analytics.days.map((x) => Math.max(x.sales, x.profit)))
+                  const salesH = Math.max(Math.round((d.sales / maxV) * 100), 2)
+                  const profitH = Math.max(Math.round((d.profit / maxV) * 100), 2)
+                  const label = new Date(d.key).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                  return (
+                    <div key={d.key} className="flex-1 min-w-[16px] flex flex-col items-center justify-end h-full">
+                      <div className="flex-1 w-full flex items-end justify-center gap-0.5 sm:gap-1">
+                        <div title={`Sales ${d.key}: LKR ${Math.round(d.sales).toLocaleString()}`} className="w-full max-w-[18px] rounded-t bg-gradient-to-t from-indigo-600 to-blue-400" style={{ height: `${salesH}%` }} />
+                        <div title={`Profit ${d.key}: LKR ${Math.round(d.profit).toLocaleString()}`} className="w-full max-w-[18px] rounded-t bg-gradient-to-t from-emerald-600 to-green-400" style={{ height: `${profitH}%` }} />
+                      </div>
+                      <span className="mt-1.5 text-[10px] font-semibold text-gray-400 dark:text-slate-500 whitespace-nowrap">{label}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
