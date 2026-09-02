@@ -25,7 +25,18 @@ import AdminFrames from './pages/admin/Frames'
 import AdminFramesSettings from './pages/admin/FramesSettings'
 import AdminProfit from './pages/admin/Profit'
 import AdminSettings from './pages/admin/Settings'
+import AdminAccess from './pages/admin/Access'
+import AdminLoginLogs from './pages/admin/LoginLogs'
+import AdminAuditLogs from './pages/admin/AuditLogs'
+import SuperDashboard from './pages/admin/SuperDashboard'
+import RequireSuperAdmin from './components/admin/RequireSuperAdmin'
+import { useApp } from './lib/AppContext'
 import ScrollToTop from './components/ui/ScrollToTop'
+
+function AdminIndex() {
+  const { isSuperAdmin } = useApp()
+  return isSuperAdmin ? <SuperDashboard /> : <AdminDashboard />
+}
 
 export default function App() {
   return (
@@ -47,7 +58,7 @@ export default function App() {
           <Route path="my-messages" element={<MyMessages />} />
         </Route>
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminDashboard />} />
+          <Route index element={<AdminIndex />} />
           <Route path="services" element={<AdminServices />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="portfolio" element={<AdminPortfolio />} />
@@ -59,6 +70,9 @@ export default function App() {
           <Route path="profit" element={<AdminProfit />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="messages" element={<AdminMessages />} />
+          <Route path="access" element={<RequireSuperAdmin><AdminAccess /></RequireSuperAdmin>} />
+          <Route path="login-logs" element={<RequireSuperAdmin><AdminLoginLogs /></RequireSuperAdmin>} />
+          <Route path="audit-logs" element={<RequireSuperAdmin><AdminAuditLogs /></RequireSuperAdmin>} />
         </Route>
       </Routes>
     </BrowserRouter>

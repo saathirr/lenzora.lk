@@ -50,6 +50,9 @@ export function AppProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [dataLoading, setDataLoading] = useState(true)
 
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
+  const isSuperAdmin = profile?.role === 'super_admin'
+
   const loadAllData = async () => {
     const safe = (p, fallback = []) => p.catch((err) => {
       console.error('Data load skip:', err?.message || err)
@@ -180,6 +183,7 @@ export function AppProvider({ children }) {
       addOrder,
       user, profile, loading, signOut,
       dataLoading, loadAllData,
+      isAdmin, isSuperAdmin,
       createService, updateService, deleteService,
       createPortfolioItem, deletePortfolioItem,
       createProduct, updateProduct, deleteProduct,

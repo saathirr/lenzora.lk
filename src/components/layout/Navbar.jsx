@@ -140,7 +140,7 @@ export default function Navbar() {
                           <HiMail size={16} />
                           My Messages
                         </button>
-                        {profile?.role === 'admin' && (
+                        {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                           <button
                             onClick={() => { setDropdownOpen(false); navigate('/admin') }}
                             className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:pl-5 transition-all flex items-center gap-2"
@@ -264,7 +264,7 @@ export default function Navbar() {
                     >
                       My Messages
                     </Link>
-                    {profile?.role === 'admin' && (
+                    {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                       <Link
                         to="/admin"
                         onClick={() => setOpen(false)}

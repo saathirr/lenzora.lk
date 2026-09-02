@@ -344,3 +344,49 @@ export function subscribeToMessages(conversationId, callback) {
 
   return () => supabase.removeChannel(channel)
 }
+
+export async function insertLoginLog(entry) {
+  const { error } = await supabase.from('login_logs').insert(entry)
+  if (error) throw error
+}
+
+export async function fetchLoginLogs({ limit = 2000 } = {}) {
+  const { data, error } = await supabase
+    .from('login_logs')
+    .select('*')
+    .order('logged_in_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
+export async function fetchAuditLogs({ limit = 2000 } = {}) {
+  const { data, error } = await supabase
+    .from('audit_logs')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data
+}
+
+export async function listUsers() {
+  const { data, error } = await supabase.rpc('list_users')
+  if (error) throw error
+  return data
+}
+
+export async function grantAdminAccess(email) {
+  const { error } = await supabase.rpc('grant_admin_access', { target_email: email })
+  if (error) throw error
+}
+
+export async function grantSuperAdmin(email) {
+  const { error } = await supabase.rpc('grant_super_admin', { target_email: email })
+  if (error) throw error
+}
+
+export async function revokeAdminAccess(email) {
+  const { error } = await supabase.rpc('revoke_admin_access', { target_email: email })
+  if (error) throw error
+}

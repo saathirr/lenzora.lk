@@ -3,7 +3,8 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph,
-  HiCube, HiMail, HiLogout, HiBadgeCheck, HiCog, HiTemplate,
+  HiCube, HiMail, HiLogout, HiBadgeCheck, HiCog, HiTemplate, HiUserGroup,
+  HiClock, HiShieldCheck,
   HiSparkles, HiSun, HiMoon, HiArrowUp, HiAdjustments, HiDocumentText, HiTrendingUp,
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
@@ -25,6 +26,13 @@ const sidebarLinks = [
   { to: '/admin/messages', icon: HiMail, label: 'Messages' },
 ]
 
+const superAdminLinks = [
+  { to: '/admin', icon: HiShieldCheck, label: 'Super Dashboard', end: true },
+  { to: '/admin/access', icon: HiUserGroup, label: 'Admin Access' },
+  { to: '/admin/login-logs', icon: HiClock, label: 'Login Activity' },
+  { to: '/admin/audit-logs', icon: HiShieldCheck, label: 'Change Log' },
+]
+
 const navItem = {
   hidden: { opacity: 0, x: -16 },
   show: (i) => ({ opacity: 1, x: 0, transition: { delay: 0.04 + i * 0.04, type: 'spring', stiffness: 300, damping: 26 } }),
@@ -36,14 +44,14 @@ export default function AdminLayout() {
   const [profileOpen, setProfileOpen] = useState(false)
   const scrollRef = useRef(null)
   const profileMenuRef = useRef(null)
-  const { user, profile, loading, signOut, settings, toggleTheme } = useApp()
+  const { user, profile, loading, signOut, settings, toggleTheme, isSuperAdmin } = useApp()
   const navigate = useNavigate()
   const location = useLocation()
 
   const dark = settings?.theme === 'dark'
 
   useEffect(() => {
-    if (!loading && (!user || profile?.role !== 'admin')) {
+    if (!loading && (!user || (profile?.role !== 'admin' && profile?.role !== 'super_admin'))) {
       navigate('/login')
     }
   }, [user, profile, loading, navigate])
@@ -78,7 +86,7 @@ export default function AdminLayout() {
   }
 
   if (loading) return null
-  if (!user || profile?.role !== 'admin') return null
+  if (!user || (profile?.role !== 'admin' && profile?.role !== 'super_admin')) return null
 
   const initials = profile?.full_name
     ? profile.full_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
@@ -179,6 +187,49 @@ export default function AdminLayout() {
               </NavLink>
             </motion.div>
           ))}
+          {isSuperAdmin && (
+            <>
+              <div className="pt-4 pb-1 px-3 flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-accent2/20 text-accent3 border border-accent3/20">
+                  <HiShieldCheck size={11} />
+                  Super Admin
+                </span>
+              </div>
+              {superAdminLinks.map((l, i) => (
+                <motion.div key={l.to} variants={navItem} initial="hidden" animate="show" custom={i + sidebarLinks.length}>
+                  <NavLink
+                    to={l.to}
+                    onClick={() => setSidebarOpen(false)}
+                    className="group relative block"
+                  >
+                    {({ isActive }) => (
+                      <>
+                        {isActive && (
+                          <motion.span
+                            layoutId="superAdminActivePill"
+                            className="absolute inset-0 rounded-xl bg-gradient-to-r from-accent2 to-accent3 shadow-lg shadow-accent2/40"
+                            transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                          />
+                        )}
+                        <span
+                          className={`relative z-10 flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition
+                            ${isActive
+                              ? 'text-white'
+                              : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
+                        >
+                          <l.icon size={18} className={`transition ${isActive ? '' : 'group-hover:scale-110'}`} />
+                          {l.label}
+                          {!isActive && (
+                            <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/20 opacity-0 group-hover:opacity-100 transition" />
+                          )}
+                        </span>
+                      </>
+                    )}
+                  </NavLink>
+                </motion.div>
+              ))}
+            </>
+          )}
         </nav>
 
         <div className="relative z-10 p-4 border-t border-white/10 space-y-4">
@@ -189,8 +240,8 @@ export default function AdminLayout() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-white truncate">{profile?.full_name || 'Admin'}</p>
-                <span className="inline-flex mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-primary/20 text-secondary">
-                  Admin
+                <span className={`inline-flex mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${isSuperAdmin ? 'bg-accent2/20 text-accent3' : 'bg-primary/20 text-secondary'}`}>
+                  {isSuperAdmin ? 'Super Admin' : 'Admin'}
                 </span>
               </div>
             </div>
@@ -271,8 +322,8 @@ export default function AdminLayout() {
                     <div className="px-3 py-2.5 mb-1 rounded-xl bg-gray-50 dark:bg-white/5">
                       <p className="text-sm font-bold text-dark dark:text-white truncate">{profile?.full_name || 'Admin'}</p>
                       <p className="text-xs text-gray-500 dark:text-slate-400 truncate">{profile?.email || user?.email || ''}</p>
-                      <span className="inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-primary/10 text-primary">
-                        Admin
+                      <span className={`inline-flex mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${isSuperAdmin ? 'bg-accent2/20 text-accent3' : 'bg-primary/10 text-primary'}`}>
+                        {isSuperAdmin ? 'Super Admin' : 'Admin'}
                       </span>
                     </div>
                     <button

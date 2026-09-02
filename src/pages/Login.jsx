@@ -3,6 +3,14 @@ import { motion } from 'framer-motion'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { HiLockClosed, HiEye, HiEyeOff, HiCheckCircle } from 'react-icons/hi'
 import { supabase } from '../lib/supabase'
+import { insertLoginLog } from '../lib/db'
+
+const recordLogin = (entry) => {
+  insertLoginLog({
+    ...entry,
+    user_agent: (typeof navigator !== 'undefined' ? navigator.userAgent : '').slice(0, 500),
+  }).catch(() => {})
+}
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -29,6 +37,7 @@ export default function Login() {
     try {
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
       if (authError) {
+        recordLogin({ user_id: null, email, success: false })
         setError(authError.message || 'Login failed. Please try again.')
         return
       }
@@ -37,11 +46,12 @@ export default function Login() {
         .select('role')
         .eq('id', data.user.id)
         .single()
+      recordLogin({ user_id: data.user.id, email, success: true })
       setSuccess(true)
       setWelcome(data.user?.user_metadata?.full_name || '')
       setLoading(false)
       setTimeout(() => {
-        if (profile?.role === 'admin') {
+        if (profile?.role === 'admin' || profile?.role === 'super_admin') {
           navigate('/admin')
         } else {
           navigate('/')
