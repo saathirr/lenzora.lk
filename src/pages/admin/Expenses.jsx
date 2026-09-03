@@ -206,20 +206,18 @@ export default function AdminExpenses() {
             <p className="text-sm text-white/80 flex items-center gap-1.5">
               <HiCreditCard size={15} /> Bank Balance
             </p>
-            <div className="flex gap-1">
+            <div className="flex flex-col gap-1.5">
               <button
                 onClick={() => { setBankAction('deposit'); setBankModal(true) }}
-                className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition"
-                title="Deposit (add money)"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 transition text-xs font-semibold"
               >
-                <HiArrowDown size={14} />
+                <HiArrowDown size={13} /> Deposit
               </button>
               <button
                 onClick={() => { setBankAction('withdraw'); setBankModal(true) }}
-                className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition"
-                title="Withdraw"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 transition text-xs font-semibold"
               >
-                <HiArrowUp size={14} />
+                <HiArrowUp size={13} /> Withdraw
               </button>
             </div>
           </div>
