@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { HiCash, HiPlus, HiPencil, HiX, HiTrash, HiChartBar, HiTag, HiCalendar } from 'react-icons/hi'
+import { HiCash, HiPlus, HiPencil, HiX, HiTrash, HiChartBar, HiTag, HiCalendar, HiCreditCard, HiArrowDown, HiArrowUp } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 
 const CATEGORIES = [
@@ -10,13 +10,44 @@ const CATEGORIES = [
 const fmt = (n) => Math.round(Number(n)).toLocaleString()
 
 export default function AdminExpenses() {
-  const { expenses, setExpenses, createExpense, updateExpense, deleteExpense, dataLoading } = useApp()
+  const { expenses, setExpenses, createExpense, updateExpense, deleteExpense, settings, setSettings, updateSiteSettings, dataLoading } = useApp()
+  const [bankModal, setBankModal] = useState(false)
+  const [bankAction, setBankAction] = useState('deposit')
+  const [bankAmount, setBankAmount] = useState('')
+  const [bankSaving, setBankSaving] = useState(false)
   const [form, setForm] = useState({ title: '', amount: '', category: 'Other', notes: '', expense_date: new Date().toISOString().slice(0, 10) })
   const [editing, setEditing] = useState(null)
   const [editForm, setEditForm] = useState({ title: '', amount: '', category: 'Other', notes: '', expense_date: '' })
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [monthFilter, setMonthFilter] = useState('all')
+
+  const bankBalance = Number(settings.bank_balance || 0)
+
+  const adjustBank = async (delta) => {
+    const next = Math.round((bankBalance + delta) * 100) / 100
+    setSettings((prev) => ({ ...prev, bank_balance: next }))
+    try {
+      await updateSiteSettings(1, { bank_balance: next })
+    } catch (err) {
+      console.error('Failed to update bank balance:', err)
+      setSettings((prev) => ({ ...prev, bank_balance: bankBalance }))
+    }
+  }
+
+  const handleBankModal = async () => {
+    const amt = Number(bankAmount)
+    if (!amt || amt <= 0) return
+    setBankSaving(true)
+    if (bankAction === 'withdraw') {
+      await adjustBank(-amt)
+    } else {
+      await adjustBank(amt)
+    }
+    setBankSaving(false)
+    setBankAmount('')
+    setBankModal(false)
+  }
 
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
@@ -93,6 +124,7 @@ export default function AdminExpenses() {
         expense_date: form.expense_date || new Date().toISOString().slice(0, 10),
       })
       setExpenses((prev) => [created, ...prev])
+      await adjustBank(-Number(form.amount))
       setForm({ title: '', amount: '', category: 'Other', notes: '', expense_date: new Date().toISOString().slice(0, 10) })
       setShowForm(false)
     } catch (err) {
@@ -104,16 +136,20 @@ export default function AdminExpenses() {
 
   const handleEdit = async () => {
     if (!editing || !editForm.title.trim() || !editForm.amount) return
+    const original = expenses.find((e) => e.id === editing)
+    const oldAmount = original ? Number(original.amount) : 0
+    const newAmount = Number(editForm.amount)
     setSaving(true)
     try {
       const updated = await updateExpense(editing, {
         title: editForm.title.trim(),
-        amount: Number(editForm.amount),
+        amount: newAmount,
         category: editForm.category,
         notes: editForm.notes.trim() || null,
         expense_date: editForm.expense_date || new Date().toISOString().slice(0, 10),
       })
       setExpenses((prev) => prev.map((e) => (e.id === editing ? { ...e, ...updated } : e)))
+      await adjustBank(oldAmount - newAmount)
       cancelEdit()
     } catch (err) {
       console.error('Failed to update expense:', err)
@@ -127,6 +163,7 @@ export default function AdminExpenses() {
     try {
       await deleteExpense(e.id)
       setExpenses((prev) => prev.filter((x) => x.id !== e.id))
+      await adjustBank(Number(e.amount || 0))
       if (editing === e.id) cancelEdit()
     } catch (err) {
       console.error('Failed to delete expense:', err)
@@ -163,7 +200,32 @@ export default function AdminExpenses() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-white/80 flex items-center gap-1.5">
+              <HiCreditCard size={15} /> Bank Balance
+            </p>
+            <div className="flex gap-1">
+              <button
+                onClick={() => { setBankAction('deposit'); setBankModal(true) }}
+                className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition"
+                title="Deposit (add money)"
+              >
+                <HiArrowDown size={14} />
+              </button>
+              <button
+                onClick={() => { setBankAction('withdraw'); setBankModal(true) }}
+                className="p-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition"
+                title="Withdraw"
+              >
+                <HiArrowUp size={14} />
+              </button>
+            </div>
+          </div>
+          <p className="text-3xl font-bold mt-1 tabular-nums">LKR {fmt(bankBalance)}</p>
+          <p className="text-xs text-white/80 mt-1">Auto-deducts when you add an expense</p>
+        </div>
         <div className="p-5 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 text-white shadow-sm">
           <p className="text-sm text-white/80">Today's Total</p>
           <p className="text-3xl font-bold mt-1">LKR {fmt(todayTotal)}</p>
@@ -179,6 +241,45 @@ export default function AdminExpenses() {
           <p className="text-sm text-gray-500">{expenses.length} expense(s)</p>
         </div>
       </div>
+
+      {bankModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setBankModal(false)}>
+          <div className="w-full max-w-sm bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-xl p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-bold text-dark dark:text-white mb-1 flex items-center gap-2">
+              <HiCreditCard size={18} className="text-emerald-500" />
+              {bankAction === 'deposit' ? 'Deposit to Bank' : 'Withdraw from Bank'}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">
+              Current balance: <strong className="text-dark dark:text-white">LKR {fmt(bankBalance)}</strong>
+            </p>
+            <input
+              type="number"
+              min="0"
+              autoFocus
+              value={bankAmount}
+              onChange={(e) => setBankAmount(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleBankModal()}
+              placeholder="Amount (LKR)"
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-white/10 text-dark dark:text-slate-200 focus:border-primary outline-none"
+            />
+            <div className="flex items-center gap-2 mt-4">
+              <button
+                onClick={handleBankModal}
+                disabled={bankSaving || !Number(bankAmount)}
+                className="flex-1 px-4 py-2.5 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark transition disabled:opacity-50"
+              >
+                {bankSaving ? 'Saving...' : bankAction === 'deposit' ? 'Deposit' : 'Withdraw'}
+              </button>
+              <button
+                onClick={() => { setBankModal(false); setBankAmount('') }}
+                className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showForm && (
         <div className="mb-6 p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">

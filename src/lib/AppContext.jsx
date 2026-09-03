@@ -43,6 +43,7 @@ export function AppProvider({ children }) {
     instagram_url: 'https://instagram.com/lenzora.lk',
     announcement_enabled: false,
     announcement_text: '',
+    bank_balance: 0,
   })
   const [cart, setCart] = useState([])
   const [customerOrders, setCustomerOrders] = useState([])

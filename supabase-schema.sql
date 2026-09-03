@@ -249,6 +249,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
   instagram_url TEXT DEFAULT 'https://instagram.com/lenzora.lk',
   announcement_enabled BOOLEAN DEFAULT false,
   announcement_text TEXT DEFAULT '',
+  bank_balance NUMERIC(12,2) DEFAULT 0,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -257,6 +258,7 @@ ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS tagline TEXT DEFAUL
 ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS logo_url TEXT DEFAULT '';
 ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS facebook_url TEXT DEFAULT 'https://facebook.com/lenzora.lk';
 ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS instagram_url TEXT DEFAULT 'https://instagram.com/lenzora.lk';
+ALTER TABLE IF EXISTS site_settings ADD COLUMN IF NOT EXISTS bank_balance NUMERIC(12,2) DEFAULT 0;
 
 -- Seed default site settings (only if none exist)
 INSERT INTO site_settings (id, theme, site_name, whatsapp, contact_email, announcement_enabled, announcement_text)
