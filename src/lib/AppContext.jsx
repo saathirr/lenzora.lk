@@ -6,6 +6,7 @@ import {
   fetchProducts, createProduct, updateProduct, deleteProduct,
   fetchOrders, createOrder, updateOrder,
   fetchSales, createSale, updateSale, deleteSale,
+  fetchExpenses, createExpense, updateExpense, deleteExpense,
   fetchFrames, createFrame, updateFrame, deleteFrame,
   fetchFrameCategories, createFrameCategory, updateFrameCategory, deleteFrameCategory,
   fetchFrameCategoryImages, createFrameCategoryImage, deleteFrameCategoryImage,
@@ -25,6 +26,7 @@ export function AppProvider({ children }) {
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
   const [sales, setSales] = useState([])
+  const [expenses, setExpenses] = useState([])
   const [frames, setFrames] = useState([])
   const [frameCategories, setFrameCategories] = useState([])
   const [frameCategoryImages, setFrameCategoryImages] = useState([])
@@ -59,13 +61,14 @@ export function AppProvider({ children }) {
       return fallback
     })
 
-    const [s, p, pr, o, m, sal, st, fr, fc, fci] = await Promise.allSettled([
+    const [s, p, pr, o, m, sal, exp, st, fr, fc, fci] = await Promise.allSettled([
       safe(fetchServices()),
       safe(fetchPortfolio()),
       safe(fetchProducts()),
       safe(fetchOrders()),
       safe(fetchMessages()),
       safe(fetchSales()),
+      safe(fetchExpenses()),
       safe(fetchSiteSettings(), null),
       safe(fetchFrames()),
       safe(fetchFrameCategories()),
@@ -80,6 +83,7 @@ export function AppProvider({ children }) {
     setOrders(val(o))
     setMessages(val(m))
     setSales(val(sal))
+    setExpenses(val(exp))
     setFrames(val(fr))
     setFrameCategories(val(fc) || [])
     setFrameCategoryImages(val(fci) || [])
@@ -173,6 +177,7 @@ export function AppProvider({ children }) {
       products, setProducts,
       orders, setOrders,
       sales, setSales,
+      expenses, setExpenses,
       frames, setFrames,
       frameCategories, setFrameCategories,
       frameCategoryImages, setFrameCategoryImages,
@@ -189,6 +194,7 @@ export function AppProvider({ children }) {
       createProduct, updateProduct, deleteProduct,
       createOrder, updateOrder,
       createSale, updateSale, deleteSale,
+      createExpense, updateExpense, deleteExpense,
       createFrame, updateFrame, deleteFrame,
       createFrameCategory, updateFrameCategory, deleteFrameCategory,
       createFrameCategoryImage, deleteFrameCategoryImage,

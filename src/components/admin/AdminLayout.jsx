@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   HiMenu, HiX, HiHome, HiCollection, HiShoppingCart, HiPhotograph,
   HiCube, HiMail, HiLogout, HiBadgeCheck, HiCog, HiTemplate, HiUserGroup,
-  HiClock, HiShieldCheck,
+  HiClock, HiShieldCheck, HiCash,
   HiSparkles, HiSun, HiMoon, HiArrowUp, HiAdjustments, HiDocumentText, HiTrendingUp,
 } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
@@ -18,6 +18,7 @@ const sidebarLinks = [
   { to: '/admin/portfolio', icon: HiPhotograph, label: 'Portfolio' },
   { to: '/admin/products', icon: HiCube, label: 'Products' },
   { to: '/admin/sales', icon: HiBadgeCheck, label: 'Sales' },
+  { to: '/admin/expenses', icon: HiCash, label: 'Expenses' },
   { to: '/admin/profit', icon: HiTrendingUp, label: 'Profit' },
   { to: '/admin/invoices', icon: HiDocumentText, label: 'Invoices' },
   { to: '/admin/frames', icon: HiTemplate, label: 'Frames' },

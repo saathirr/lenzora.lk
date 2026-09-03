@@ -223,6 +223,19 @@ CREATE TABLE IF NOT EXISTS sales (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Daily Expenses table (admin-tracked business/personal expenses)
+CREATE TABLE IF NOT EXISTS expenses (
+  id BIGSERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  amount NUMERIC(10,2) NOT NULL DEFAULT 0,
+  category TEXT DEFAULT 'Other',
+  notes TEXT,
+  expense_date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE IF EXISTS expenses ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE IF EXISTS expenses ADD COLUMN IF NOT EXISTS expense_date DATE DEFAULT CURRENT_DATE;
+
 -- Site Settings table (single-row website configuration)
 CREATE TABLE IF NOT EXISTS site_settings (
   id INT PRIMARY KEY DEFAULT 1,
@@ -455,6 +468,7 @@ ALTER TABLE IF EXISTS contact_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS cart_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS payment_slips ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS sales ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS expenses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS site_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS frames ENABLE ROW LEVEL SECURITY;
 ALTER TABLE IF EXISTS invoices ENABLE ROW LEVEL SECURITY;
@@ -538,6 +552,15 @@ CREATE POLICY "Public can read sales" ON sales FOR SELECT USING (true);
 
 DROP POLICY IF EXISTS "Admin full access sales" ON sales;
 CREATE POLICY "Admin full access sales" ON sales FOR ALL
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- Expenses policies (admin manage; public read for reporting)
+DROP POLICY IF EXISTS "Public can read expenses" ON expenses;
+CREATE POLICY "Public can read expenses" ON expenses FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Admin full access expenses" ON expenses;
+CREATE POLICY "Admin full access expenses" ON expenses FOR ALL
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
@@ -795,7 +818,7 @@ DECLARE
 BEGIN
   FOREACH t IN ARRAY ARRAY[
     'services', 'portfolio', 'products', 'orders', 'contact_messages',
-    'sales', 'site_settings', 'frames', 'frame_categories', 'frame_category_images',
+    'sales', 'expenses', 'site_settings', 'frames', 'frame_categories', 'frame_category_images',
     'payment_slips', 'conversations', 'messages', 'invoices', 'invoice_items',
     'profiles', 'cart_items'
   ]
