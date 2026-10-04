@@ -86,6 +86,29 @@ export async function deleteSale(id) {
   if (error) throw error
 }
 
+export async function fetchCredits() {
+  const { data, error } = await supabase.from('credit').select('*').order('credit_date', { ascending: false })
+  if (error) throw error
+  return data
+}
+
+export async function createCredit(credit) {
+  const { data, error } = await supabase.from('credit').insert(credit).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function updateCredit(id, updates) {
+  const { data, error } = await supabase.from('credit').update(updates).eq('id', id).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteCredit(id) {
+  const { error } = await supabase.from('credit').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchExpenses() {
   const { data, error } = await supabase.from('expenses').select('*').order('expense_date', { ascending: false })
   if (error) throw error

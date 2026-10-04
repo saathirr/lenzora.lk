@@ -20,6 +20,7 @@ import AdminPortfolio from './pages/admin/Portfolio'
 import AdminProducts from './pages/admin/Products'
 import AdminMessages from './pages/admin/Messages'
 import AdminSales from './pages/admin/Sales'
+import AdminCredit from './pages/admin/Credit'
 import AdminExpenses from './pages/admin/Expenses'
 import AdminInvoices from './pages/admin/Invoices'
 import AdminFrames from './pages/admin/Frames'
@@ -65,6 +66,7 @@ export default function App() {
           <Route path="portfolio" element={<AdminPortfolio />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="sales" element={<AdminSales />} />
+          <Route path="credit" element={<AdminCredit />} />
           <Route path="expenses" element={<AdminExpenses />} />
           <Route path="invoices" element={<AdminInvoices />} />
           <Route path="frames" element={<AdminFrames />} />

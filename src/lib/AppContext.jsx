@@ -6,6 +6,7 @@ import {
   fetchProducts, createProduct, updateProduct, deleteProduct,
   fetchOrders, createOrder, updateOrder,
   fetchSales, createSale, updateSale, deleteSale,
+  fetchCredits, createCredit, updateCredit, deleteCredit,
   fetchExpenses, createExpense, updateExpense, deleteExpense,
   fetchFrames, createFrame, updateFrame, deleteFrame,
   fetchFrameCategories, createFrameCategory, updateFrameCategory, deleteFrameCategory,
@@ -26,6 +27,7 @@ export function AppProvider({ children }) {
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
   const [sales, setSales] = useState([])
+  const [credits, setCredits] = useState([])
   const [expenses, setExpenses] = useState([])
   const [frames, setFrames] = useState([])
   const [frameCategories, setFrameCategories] = useState([])
@@ -62,13 +64,14 @@ export function AppProvider({ children }) {
       return fallback
     })
 
-    const [s, p, pr, o, m, sal, exp, st, fr, fc, fci] = await Promise.allSettled([
+    const [s, p, pr, o, m, sal, cr, exp, st, fr, fc, fci] = await Promise.allSettled([
       safe(fetchServices()),
       safe(fetchPortfolio()),
       safe(fetchProducts()),
       safe(fetchOrders()),
       safe(fetchMessages()),
       safe(fetchSales()),
+      safe(fetchCredits()),
       safe(fetchExpenses()),
       safe(fetchSiteSettings(), null),
       safe(fetchFrames()),
@@ -84,6 +87,7 @@ export function AppProvider({ children }) {
     setOrders(val(o))
     setMessages(val(m))
     setSales(val(sal))
+    setCredits(val(cr))
     setExpenses(val(exp))
     setFrames(val(fr))
     setFrameCategories(val(fc) || [])
@@ -178,6 +182,7 @@ export function AppProvider({ children }) {
       products, setProducts,
       orders, setOrders,
       sales, setSales,
+      credits, setCredits,
       expenses, setExpenses,
       frames, setFrames,
       frameCategories, setFrameCategories,
@@ -194,7 +199,8 @@ export function AppProvider({ children }) {
       createPortfolioItem, deletePortfolioItem,
       createProduct, updateProduct, deleteProduct,
       createOrder, updateOrder,
-      createSale, updateSale, deleteSale,
+createSale, updateSale, deleteSale,
+      createCredit, updateCredit, deleteCredit,
       createExpense, updateExpense, deleteExpense,
       createFrame, updateFrame, deleteFrame,
       createFrameCategory, updateFrameCategory, deleteFrameCategory,
