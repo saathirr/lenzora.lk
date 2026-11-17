@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+﻿import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   HiUserGroup, HiClock, HiShieldCheck, HiShoppingCart, HiCash,
@@ -13,7 +13,7 @@ function Stat({ label, value, icon: Icon, grad, delay, suffix }) {
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: 'spring', stiffness: 240, damping: 24 }}
-      className="p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm"
+      className="p-5 rounded-2xl bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 shadow-sm"
     >
       <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${grad} flex items-center justify-center text-white shadow-lg mb-3`}>
         <Icon size={20} />
@@ -134,7 +134,7 @@ export default function SuperDashboard() {
         <button
           onClick={load}
           disabled={loading}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] text-sm font-semibold rounded-full hover:border-primary/40 transition disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#181825] border border-gray-200 dark:border-white/10 text-sm font-semibold rounded-full hover:border-primary/40 transition disabled:opacity-50"
         >
           <HiRefresh size={15} />
           Refresh
@@ -149,7 +149,7 @@ export default function SuperDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2 p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="lg:col-span-2 p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
               <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-md">
@@ -188,7 +188,7 @@ export default function SuperDashboard() {
           </div>
         </div>
 
-        <div className="p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2 mb-5">
             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent2 to-accent3 flex items-center justify-center text-white shadow-md">
               <HiCash size={17} />
@@ -200,11 +200,11 @@ export default function SuperDashboard() {
               <p className="text-sm text-indigo-100">All Time Sales</p>
               <p className="text-2xl font-extrabold mt-1 tabular-nums">LKR {fmt(allTimeSales)}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10">
+            <div className="p-4 rounded-2xl bg-white dark:bg-white/8 border border-gray-100 dark:border-white/10">
               <p className="text-sm text-gray-500 dark:text-slate-400">Sales entries</p>
               <p className="text-xl font-extrabold text-dark dark:text-white tabular-nums">{sales.length + frames.length}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10">
+            <div className="p-4 rounded-2xl bg-white dark:bg-white/8 border border-gray-100 dark:border-white/10">
               <p className="text-sm text-gray-500 dark:text-slate-400">Client orders</p>
               <p className="text-xl font-extrabold text-dark dark:text-white tabular-nums">{orders.length}</p>
             </div>
@@ -213,8 +213,8 @@ export default function SuperDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between">
+        <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
             <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
               <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-md">
                 <HiClock size={17} />
@@ -244,8 +244,8 @@ export default function SuperDashboard() {
           )}
         </div>
 
-        <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between">
+        <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
             <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
               <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent2 to-accent3 flex items-center justify-center text-white shadow-md">
                 <HiShieldCheck size={17} />
@@ -274,8 +274,8 @@ export default function SuperDashboard() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-[#262626] flex items-center justify-between">
+      <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
           <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent2 flex items-center justify-center text-white shadow-md">
               <HiUsers size={17} />
@@ -296,7 +296,7 @@ export default function SuperDashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
+                <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400">
                   <th className="p-4 font-medium">Email</th>
                   <th className="p-4 font-medium">Name</th>
                   <th className="p-4 font-medium">Role</th>

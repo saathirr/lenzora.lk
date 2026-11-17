@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { HiTrendingUp, HiCash, HiChartBar, HiCalendar } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
@@ -96,7 +96,7 @@ export default function AdminProfit() {
             <select
               value={selectedKey}
               onChange={(e) => setSelectedKey(e.target.value)}
-              className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#141414] text-sm font-semibold text-gray-700 dark:text-slate-200 focus:border-primary outline-none"
+              className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#181825] text-sm font-semibold text-gray-700 dark:text-slate-200 focus:border-primary outline-none"
             >
               {monthOptions.map((o) => (
                 <option key={o.key} value={o.key}>{o.label}</option>
@@ -125,7 +125,7 @@ export default function AdminProfit() {
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6"
+          className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm p-6"
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
@@ -177,7 +177,7 @@ export default function AdminProfit() {
           )}
 
           {chart.length >= 2 && selectedKey === '__all__' && (
-            <div className="mt-6 flex items-center gap-3 p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10">
+            <div className="mt-6 flex items-center gap-3 p-4 rounded-2xl bg-gray-50 dark:bg-white/8 border border-gray-100 dark:border-white/10">
               <HiTrendingUp className={`shrink-0 ${profitChange.up ? 'text-green-500' : 'text-red-500'}`} size={20} />
               <p className="text-sm text-gray-600 dark:text-slate-300">
                 Profit {profitChange.up ? 'increased' : 'decreased'} by{' '}
@@ -193,7 +193,7 @@ export default function AdminProfit() {
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6"
+          className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm p-6"
         >
           <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2 mb-6">
             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-md">
@@ -212,7 +212,7 @@ export default function AdminProfit() {
                   initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5"
+                  className="p-4 rounded-2xl bg-gray-50 dark:bg-white/8 border border-gray-100 dark:border-white/10"
                 >
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <span className="font-bold text-dark dark:text-white">{monthNames[m.month]} {m.year}</span>

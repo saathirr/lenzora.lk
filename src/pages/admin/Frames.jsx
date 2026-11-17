@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { HiPlus, HiPencil, HiUpload, HiCheckCircle } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import { uploadFile } from '../../lib/db'
@@ -142,7 +142,7 @@ export default function AdminFrames() {
       </div>
 
       {showForm && (
-        <div className="mb-6 p-6 bg-white border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="mb-6 p-6 bg-white border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-bold text-dark">{editing ? 'Edit Frame' : 'Add Frame'}</h3>
             <span className={`text-sm font-semibold ${computeProfit() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -152,7 +152,7 @@ export default function AdminFrames() {
 
           <div className="flex flex-col sm:flex-row gap-6 mb-5">
             <div className="w-full sm:w-44">
-              <div className={`w-44 h-44 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden ${previewSrc ? 'border-primary/40 bg-gray-50 dark:bg-white/5' : 'border-gray-300 dark:border-[#2f2f2f] bg-gray-50 dark:bg-white/5'}`}>
+              <div className={`w-44 h-44 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden ${previewSrc ? 'border-primary/40 bg-gray-50 dark:bg-white/8' : 'border-gray-300 dark:border-[#2f2f2f] bg-gray-50 dark:bg-white/8'}`}>
                 {previewSrc ? (
                   <img src={previewSrc} alt="Frame preview" className="w-full h-full object-contain p-2" />
                 ) : (
@@ -171,12 +171,12 @@ export default function AdminFrames() {
 
             <div className="flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <input value={form.frame_size} onChange={(e) => setForm({ ...form, frame_size: e.target.value })} placeholder="Frame size (e.g. 12x16)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white" />
-                <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Category (optional)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white" />
-                <input type="number" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price (LKR)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white" />
-                <input type="number" min="0" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder="Cost (LKR)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white" />
-                <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short description (optional)" className="sm:col-span-2 lg:col-span-4 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white" />
-                <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Private notes (only you see these)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white" />
+                <input value={form.frame_size} onChange={(e) => setForm({ ...form, frame_size: e.target.value })} placeholder="Frame size (e.g. 12x16)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white" />
+                <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Category (optional)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white" />
+                <input type="number" min="0" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price (LKR)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white" />
+                <input type="number" min="0" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder="Cost (LKR)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white" />
+                <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short description (optional)" className="sm:col-span-2 lg:col-span-4 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white" />
+                <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Private notes (only you see these)" className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white" />
               </div>
               <label className="flex items-center gap-2 mt-5 cursor-pointer">
                 <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="w-4 h-4 accent-primary" />
@@ -193,11 +193,11 @@ export default function AdminFrames() {
         </div>
       )}
 
-      <div className="bg-white border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-white/5">
+              <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-white/8">
                 <th className="p-4 font-medium">Frame</th>
                 <th className="p-4 font-medium hidden sm:table-cell">Category</th>
                 <th className="p-4 font-medium">Price</th>
@@ -216,7 +216,7 @@ export default function AdminFrames() {
                       {f.image_url ? (
                         <img src={f.image_url} alt={f.frame_size} className="w-11 h-11 rounded-lg object-cover shrink-0" />
                       ) : (
-                        <div className="w-11 h-11 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 shrink-0">
+                        <div className="w-11 h-11 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center text-gray-400 shrink-0">
                           <HiUpload size={16} />
                         </div>
                       )}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+﻿import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import {
@@ -12,8 +12,8 @@ import html2canvas from 'html2canvas-pro'
 import { useApp } from '../../lib/AppContext'
 import defaultLogo from '../../assets/lenzora-logo.png'
 
-const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#141414] text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500 text-sm'
-const cardCls = 'bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-5 sm:p-6'
+const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] bg-white dark:bg-[#181825] text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition placeholder:text-gray-400 dark:placeholder:text-slate-500 text-sm'
+const cardCls = 'bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm p-5 sm:p-6'
 const labelCls = 'text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500 mb-1.5 block'
 
 const PRINT_CSS = `
@@ -393,7 +393,7 @@ export default function AdminInvoices() {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleReset}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#2f2f2f] text-gray-600 dark:text-slate-300 text-sm font-semibold rounded-full hover:border-primary/40 hover:text-primary transition"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-[#181825] border border-gray-200 dark:border-[#2f2f2f] text-gray-600 dark:text-slate-300 text-sm font-semibold rounded-full hover:border-primary/40 hover:text-primary transition"
           >
             <HiRefresh size={16} />
             Reset
@@ -587,7 +587,7 @@ export default function AdminInvoices() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
             <div className="flex items-center justify-between gap-3 p-5 sm:p-6 pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-green-500/10 text-green-500 flex items-center justify-center"><HiCollection size={18} /></div>
@@ -598,7 +598,7 @@ export default function AdminInvoices() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[640px]">
                 <thead>
-                  <tr className="border-y border-gray-100 dark:border-[#262626] text-left text-gray-400 dark:text-slate-500 bg-gray-50 dark:bg-white/5 text-xs uppercase tracking-wider">
+                  <tr className="border-y border-gray-100 dark:border-white/10 text-left text-gray-400 dark:text-slate-500 bg-gray-50 dark:bg-white/8 text-xs uppercase tracking-wider">
                     <th className="py-3 pl-5 sm:pl-6 pr-2 font-medium w-10">#</th>
                     <th className="py-3 px-2 font-medium">Description</th>
                     <th className="py-3 px-2 font-medium w-24 text-right">Qty</th>
@@ -666,7 +666,7 @@ export default function AdminInvoices() {
                 <input type="number" min="0" step="any" value={tax} onChange={(e) => setTax(e.target.value)} className={inputCls} placeholder="0" />
               </div>
             </div>
-            <div className="space-y-2.5 text-sm border-t border-gray-100 dark:border-[#262626] pt-4">
+            <div className="space-y-2.5 text-sm border-t border-gray-100 dark:border-white/10 pt-4">
               <div className="flex justify-between text-gray-500 dark:text-slate-400">
                 <span>Subtotal</span>
                 <span className="tabular-nums font-medium text-dark dark:text-white">LKR {fmtMoney(totals.subtotal)}</span>

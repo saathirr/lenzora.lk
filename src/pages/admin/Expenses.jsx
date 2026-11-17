@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { HiCash, HiPlus, HiPencil, HiX, HiTrash, HiChartBar, HiTag, HiCalendar, HiCreditCard, HiArrowDown, HiArrowUp } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
@@ -242,7 +242,7 @@ export default function AdminExpenses() {
 
       {bankModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setBankModal(false)}>
-          <div className="w-full max-w-sm bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-xl p-6" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl p-6" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-bold text-dark dark:text-white mb-1 flex items-center gap-2">
               <HiCreditCard size={18} className="text-emerald-500" />
               {bankAction === 'deposit' ? 'Deposit to Bank' : 'Withdraw from Bank'}
@@ -382,15 +382,15 @@ export default function AdminExpenses() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-          <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-[#262626]">
+        <div className="lg:col-span-2 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+          <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/10">
             <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
               <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white shadow-md">
                 <HiChartBar size={17} />
               </span>
               Expense List
             </h2>
-            <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
+            <div className="flex gap-1 bg-gray-100 dark:bg-white/8 rounded-full p-1 border border-gray-100 dark:border-white/10">
               <button
                 onClick={() => setMonthFilter('all')}
                 className={`px-3 py-1 text-xs font-semibold rounded-full transition ${monthFilter === 'all' ? 'bg-white dark:bg-white/15 text-primary shadow-sm' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700'}`}
@@ -411,7 +411,7 @@ export default function AdminExpenses() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
+                <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400">
                   <th className="p-4 font-medium">Expense</th>
                   <th className="p-4 font-medium">Category</th>
                   <th className="p-4 font-medium">Amount</th>
@@ -461,7 +461,7 @@ export default function AdminExpenses() {
           </div>
         </div>
 
-        <div className="p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2 mb-5">
             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md">
               <HiTag size={17} />
@@ -478,7 +478,7 @@ export default function AdminExpenses() {
                     <span className="font-medium text-dark dark:text-slate-200">{cat}</span>
                     <span className="font-bold text-dark dark:text-white tabular-nums">LKR {fmt(amt)}</span>
                   </div>
-                  <div className="h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+                  <div className="h-2 rounded-full bg-gray-100 dark:bg-white/8 overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${(amt / maxCat) * 100}%` }}
@@ -488,7 +488,7 @@ export default function AdminExpenses() {
                   </div>
                 </div>
               ))}
-              <div className="pt-3 mt-3 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between">
+              <div className="pt-3 mt-3 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
                 <span className="font-semibold text-dark dark:text-white">Total</span>
                 <span className="font-extrabold text-dark dark:text-white tabular-nums">LKR {fmt(filteredTotal)}</span>
               </div>

@@ -1,9 +1,10 @@
 -- ============================================================
 -- ONE-SHOT SUPER ADMIN SETUP — Lenzora.lk
--- Paste this ENTIRE file into Supabase SQL editor and RUN.
+-- Paste this ENTIRE file into the Supabase SQL editor and run.
+-- Replace your-owner-email@gmail.com with your real email FIRST.
 -- ============================================================
 
--- 1) Repair any bad role values
+-- 1) Repair any bad role values BEFORE applying the constraint
 UPDATE public.profiles
 SET role = 'customer'
 WHERE role IS NULL OR role NOT IN ('customer', 'admin', 'super_admin');
@@ -212,16 +213,5 @@ BEGIN
   UPDATE public.profiles SET role = 'customer', updated_at = NOW() WHERE id = uid;
 END $$;
 
--- 12) PROMOTE mohammrdsaathir@gmail.com TO SUPER ADMIN (direct, no function call)
-UPDATE public.profiles
-SET role = 'super_admin', updated_at = NOW()
-WHERE id = (
-  SELECT id FROM auth.users WHERE lower(email) = lower('mohammrdsaathir@gmail.com')
-);
-
--- Edge case: if no profile row exists yet for this user
-INSERT INTO public.profiles (id, role, updated_at)
-SELECT id, 'super_admin', NOW()
-FROM auth.users
-WHERE lower(email) = lower('mohammrdsaathir@gmail.com')
-  AND id NOT IN (SELECT id FROM public.profiles);
+-- 12) >>> PROMOTE YOURSELF <<<  Replace with your real email before running!
+SELECT public.grant_super_admin('mohammrdsaathir@gmail.com');

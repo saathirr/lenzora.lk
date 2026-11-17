@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+﻿import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   HiUserGroup, HiShieldCheck, HiUserAdd, HiSearch, HiLockOpen,
@@ -123,7 +123,7 @@ export default function AdminAccess() {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06, type: 'spring', stiffness: 240, damping: 24 }}
-              className="p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm"
+              className="p-5 rounded-2xl bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 shadow-sm"
             >
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.grad} flex items-center justify-center text-white shadow-md mb-3`}>
                 <Icon size={18} />
@@ -148,7 +148,7 @@ export default function AdminAccess() {
         </div>
       )}
 
-      <div className="mb-6 p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+      <div className="mb-6 p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
         <h3 className="font-bold text-dark dark:text-white flex items-center gap-2 mb-1">
           <HiUserAdd size={18} className="text-primary" />
           Grant admin dashboard access
@@ -173,8 +173,8 @@ export default function AdminAccess() {
         </form>
       </div>
 
-      <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-[#262626]">
+      <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/10">
           <div>
             <h2 className="text-lg font-bold text-dark dark:text-white">Dashboard access emails</h2>
             <p className="text-sm text-gray-500 dark:text-slate-400">
@@ -195,7 +195,7 @@ export default function AdminAccess() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
+              <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400">
                 <th className="p-4 font-medium">User</th>
                 <th className="p-4 font-medium">Role</th>
                 <th className="p-4 font-medium hidden md:table-cell">Joined</th>

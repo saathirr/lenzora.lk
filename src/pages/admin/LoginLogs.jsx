@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+﻿import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   HiClock, HiCheckCircle, HiXCircle, HiSearch, HiRefresh, HiUserGroup, HiChartBar,
@@ -105,7 +105,7 @@ export default function AdminLoginLogs() {
         <button
           onClick={load}
           disabled={loading}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] text-sm font-semibold rounded-full hover:border-primary/40 transition disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#181825] border border-gray-200 dark:border-white/10 text-sm font-semibold rounded-full hover:border-primary/40 transition disabled:opacity-50"
         >
           <HiRefresh size={15} />
           Refresh
@@ -124,7 +124,7 @@ export default function AdminLoginLogs() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06, type: 'spring', stiffness: 240, damping: 24 }}
-            className="p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm"
+            className="p-5 rounded-2xl bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 shadow-sm"
           >
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.grad} flex items-center justify-center text-white shadow-md mb-3`}>
               <HiChartBar size={18} />
@@ -136,7 +136,7 @@ export default function AdminLoginLogs() {
       </div>
 
       {mostLoggedIn && (
-        <div className="mb-6 p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="mb-6 p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <h3 className="text-sm font-bold text-dark dark:text-white mb-4 flex items-center gap-2">
             <HiUserGroup size={16} className="text-primary" />
             Most frequent sign-ins
@@ -151,7 +151,7 @@ export default function AdminLoginLogs() {
                   <p className="text-sm font-semibold text-dark dark:text-white truncate">{u.email}</p>
                   <p className="text-xs text-gray-500 dark:text-slate-400">Last: {new Date(u.last).toLocaleString()}</p>
                 </div>
-                <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden max-w-[240px]">
+                <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/8 overflow-hidden max-w-[240px]">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${(u.count / maxTop) * 100}%` }}
@@ -172,8 +172,8 @@ export default function AdminLoginLogs() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 dark:border-[#262626]">
+      <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/10">
           <div className="relative w-full lg:w-72">
             <HiSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -184,7 +184,7 @@ export default function AdminLoginLogs() {
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
+            <div className="flex gap-1 bg-gray-100 dark:bg-white/8 rounded-full p-1 border border-gray-100 dark:border-white/10">
               {['all', 'success', 'failed'].map((s) => (
                 <button
                   key={s}
@@ -203,7 +203,7 @@ export default function AdminLoginLogs() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
+              <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400">
                 <th className="p-4 font-medium">Email</th>
                 <th className="p-4 font-medium">Date &amp; Time</th>
                 <th className="p-4 font-medium">Status</th>

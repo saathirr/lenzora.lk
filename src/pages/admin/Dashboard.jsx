@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+﻿import { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { HiShoppingCart, HiCollection, HiPhotograph, HiMail, HiTrendingUp, HiSparkles } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
@@ -83,10 +83,10 @@ export default function AdminDashboard() {
   const unreadMessages = messages.filter((m) => !m.read).length
 
   const stats = [
-    { icon: HiShoppingCart, label: 'Total Orders', value: orders.length, change: `${completedOrders} completed`, color: 'from-blue-500 to-blue-600', glow: 'group-hover:shadow-blue-500/30' },
-    { icon: HiCollection, label: 'Services', value: services.length, change: 'Active', color: 'from-primary to-primary-dark', glow: 'group-hover:shadow-primary/30' },
-    { icon: HiPhotograph, label: 'Portfolio Items', value: portfolio.length, change: 'Total', color: 'from-pink-500 to-pink-600', glow: 'group-hover:shadow-pink-500/30' },
-    { icon: HiMail, label: 'New Messages', value: unreadMessages, change: 'Unread', color: 'from-amber-500 to-amber-600', glow: 'group-hover:shadow-amber-500/30' },
+    { icon: HiShoppingCart, label: 'Total Orders',   value: orders.length,    change: `${completedOrders} completed`, color: 'from-blue-500 to-blue-600',   glow: 'group-hover:shadow-blue-500/40',   darkCard: '#0f1e38', darkBorder: 'rgba(99,138,255,0.25)' },
+    { icon: HiCollection,  label: 'Services',         value: services.length,  change: 'Active',                      color: 'from-primary to-primary-dark', glow: 'group-hover:shadow-primary/40',    darkCard: '#1a1230', darkBorder: 'rgba(139,92,246,0.25)' },
+    { icon: HiPhotograph,  label: 'Portfolio Items',  value: portfolio.length, change: 'Total',                       color: 'from-pink-500 to-pink-600',    glow: 'group-hover:shadow-pink-500/40',   darkCard: '#2a1020', darkBorder: 'rgba(236,72,153,0.25)' },
+    { icon: HiMail,        label: 'New Messages',     value: unreadMessages,   change: 'Unread',                      color: 'from-amber-500 to-amber-600',  glow: 'group-hover:shadow-amber-500/40',  darkCard: '#28180a', darkBorder: 'rgba(245,158,11,0.25)' },
   ]
 
   const completionPct = analytics.total ? Math.min(Math.round((analytics.pending / analytics.total) * 100), 100) : 0
@@ -129,21 +129,27 @@ export default function AdminDashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, type: 'spring', stiffness: 240, damping: 24 }}
               whileHover={{ y: -6, scale: 1.02 }}
-              className={`group relative p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm hover:shadow-xl ${s.glow} transition-all duration-300`}
+              className={`group relative p-5 rounded-2xl bg-white dark:border shadow-sm hover:shadow-xl ${s.glow} transition-all duration-300 overflow-hidden`}
+              style={{ '--tw-shadow-color': 'transparent' }}
             >
+              {/* dark-mode tinted card background */}
+              <span
+                className="pointer-events-none absolute inset-0 rounded-2xl hidden dark:block"
+                style={{ background: s.darkCard, border: `1px solid ${s.darkBorder}` }}
+              />
               <div className="pointer-events-none absolute -top-8 -right-8 w-28 h-28 rounded-full bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <div className="relative flex items-center justify-between mb-3">
                 <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300`}>
                   <Icon size={18} />
                 </div>
-                <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-500/10 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-semibold text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-500/10 px-2.5 py-1 rounded-full border border-green-100 dark:border-green-500/20">
                   {s.change}
                 </span>
               </div>
-              <p className="text-2xl font-extrabold text-dark dark:text-white">
+              <p className="relative text-2xl font-extrabold text-dark dark:text-white">
                 <CountUp value={s.value} />
               </p>
-              <p className="text-sm text-gray-500 dark:text-slate-400">{s.label}</p>
+              <p className="relative text-sm text-gray-500 dark:text-slate-400 mt-0.5">{s.label}</p>
             </motion.div>
           )
         })}
@@ -154,17 +160,17 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, x: -22 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2, type: 'spring', stiffness: 180, damping: 26 }}
-          className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6"
+          className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-indigo-900/10 p-6"
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-dark flex items-center gap-2">
+            <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
               <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-md">
                 <HiTrendingUp size={17} />
               </span>
               Income Overview
             </h2>
             <div className="flex flex-col items-end gap-2">
-              <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
+              <div className="flex gap-1 bg-gray-100 dark:bg-white/8 rounded-full p-1 border border-gray-100 dark:border-white/10">
                 {['daily', 'weekly', 'monthly', 'date', 'all'].map((p) => (
                   <button
                     key={p}
@@ -238,7 +244,7 @@ export default function AdminDashboard() {
                   <span>Pending share</span>
                   <span className="font-semibold">{completionPct}%</span>
                 </div>
-                <div className="h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+                <div className="h-2 rounded-full bg-gray-100 dark:bg-white/8 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${completionPct}%` }}
@@ -255,28 +261,41 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, x: 22 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.26, type: 'spring', stiffness: 180, damping: 26 }}
-          className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm p-6"
+          className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm dark:shadow-purple-900/10 p-6"
         >
-          <h2 className="text-lg font-bold text-dark mb-5">Quick Stats</h2>
+          <h2 className="text-lg font-bold text-dark dark:text-white mb-5 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse inline-block" />
+            Quick Stats
+          </h2>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { label: 'Total Orders', value: orders.length, color: 'text-dark', grad: 'from-indigo-500 to-blue-600' },
-              { label: 'Completed', value: completedOrders, color: 'text-green-600', grad: 'from-emerald-500 to-green-600' },
-              { label: 'Pending', value: orders.filter((o) => o.status === 'Pending').length, color: 'text-amber-600', grad: 'from-amber-500 to-orange-600' },
-              { label: 'Unread Messages', value: unreadMessages, color: 'text-blue-600', grad: 'from-sky-500 to-blue-600' },
+              { label: 'Total Orders',    value: orders.length,                                               lightBg: 'from-indigo-50 to-blue-50',   darkFrom: '#1e2a4a', darkTo: '#1a2540', border: 'border-indigo-100 dark:border-indigo-500/30',  numColor: 'text-indigo-600 dark:text-indigo-300',  dotColor: 'bg-indigo-500' },
+              { label: 'Completed',       value: completedOrders,                                              lightBg: 'from-emerald-50 to-green-50', darkFrom: '#132e22', darkTo: '#102a1e', border: 'border-emerald-100 dark:border-emerald-500/30', numColor: 'text-emerald-600 dark:text-emerald-300', dotColor: 'bg-emerald-500' },
+              { label: 'Pending',         value: orders.filter((o) => o.status === 'Pending').length,          lightBg: 'from-amber-50 to-orange-50',  darkFrom: '#2e200e', darkTo: '#2a1c0a', border: 'border-amber-100 dark:border-amber-500/30',   numColor: 'text-amber-600 dark:text-amber-300',    dotColor: 'bg-amber-500' },
+              { label: 'Unread Messages', value: unreadMessages,                                               lightBg: 'from-sky-50 to-blue-50',      darkFrom: '#102030', darkTo: '#0d1c2a', border: 'border-sky-100 dark:border-sky-500/30',       numColor: 'text-sky-600 dark:text-sky-300',        dotColor: 'bg-sky-500' },
             ].map((q, i) => (
               <motion.div
                 key={q.label}
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.35 + i * 0.08, type: 'spring', stiffness: 220, damping: 20 }}
-                whileHover={{ y: -4 }}
-                className="p-5 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 dark:from-white/5 dark:to-white/5 border border-gray-100 dark:border-white/5 text-center"
+                whileHover={{ y: -5, scale: 1.03 }}
+                className={`group relative p-5 rounded-2xl bg-gradient-to-br ${q.lightBg} dark:border ${q.border} text-center overflow-hidden transition-all duration-300 hover:shadow-lg`}
+                style={{ background: undefined }}
               >
-                <p className={`text-3xl font-extrabold ${q.color} dark:text-white`}>
-                  <CountUp value={q.value} duration={0.7} />
-                </p>
-                <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{q.label}</p>
+                {/* dark-mode gradient background via inline style */}
+                <span
+                  className="pointer-events-none absolute inset-0 rounded-2xl hidden dark:block"
+                  style={{ background: `linear-gradient(135deg, ${q.darkFrom}, ${q.darkTo})` }}
+                />
+                {/* subtle glow dot */}
+                <span className={`pointer-events-none absolute -top-4 -right-4 w-20 h-20 rounded-full blur-2xl opacity-30 ${q.dotColor}`} />
+                <div className="relative">
+                  <p className={`text-4xl font-black tabular-nums ${q.numColor}`}>
+                    <CountUp value={q.value} duration={0.7} />
+                  </p>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-slate-300 mt-2 uppercase tracking-wider">{q.label}</p>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -287,7 +306,7 @@ export default function AdminDashboard() {
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.32, type: 'spring', stiffness: 180, damping: 26 }}
-        className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden"
+        className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden"
       >
         <div className="flex items-center justify-between p-4 sm:p-6">
           <h2 className="text-lg font-bold text-dark flex items-center gap-2">
@@ -301,7 +320,7 @@ export default function AdminDashboard() {
         <div className="overflow-x-auto admin-scroll -mx-4 sm:-mx-6">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
+              <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400">
                 <th className="pb-3 font-medium px-4 sm:px-6">Order</th>
                 <th className="pb-3 font-medium px-4 sm:px-6">Customer</th>
                 <th className="pb-3 font-medium px-4 sm:px-6">Amount</th>

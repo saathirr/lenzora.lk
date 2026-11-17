@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   HiScale, HiPlus, HiPencil, HiX, HiTrash, HiCheckCircle, HiClock,
@@ -31,7 +31,7 @@ const daysMeta = (days) => {
 }
 
 const toneClass = {
-  gray: 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-slate-400',
+  gray: 'bg-gray-100 text-gray-500 dark:bg-white/8 dark:text-slate-400',
   green: 'bg-green-50 text-green-600 dark:bg-green-500/10 dark:text-green-400',
   amber: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
   red: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
@@ -235,12 +235,12 @@ export default function AdminCredit() {
           <p className="text-3xl font-bold mt-1 tabular-nums">LKR {fmt(collected)}</p>
           <p className="text-xs text-white/80 mt-1">{paid.length} paid credit(s)</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 shadow-sm">
           <p className="text-sm text-gray-500 dark:text-slate-400">Total Credited</p>
           <p className="text-3xl font-bold text-dark dark:text-white mt-1 tabular-nums">LKR {fmt(outstanding + collected)}</p>
           <p className="text-sm text-gray-500 dark:text-slate-400">{credits.length} credit(s)</p>
         </div>
-        <div className="p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm">
+        <div className="p-5 rounded-2xl bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 shadow-sm">
           <p className="text-sm text-gray-500 dark:text-slate-400">Overdue</p>
           <p className={`text-3xl font-bold mt-1 tabular-nums ${overdueCount > 0 ? 'text-red-600 dark:text-red-400' : 'text-dark dark:text-white'}`}>{overdueCount}</p>
           <p className="text-sm text-gray-500 dark:text-slate-400">past due date</p>
@@ -248,7 +248,7 @@ export default function AdminCredit() {
       </div>
 
       {showForm && (
-        <div className="mb-6 p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="mb-6 p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <h3 className="font-bold text-dark dark:text-white mb-4 flex items-center gap-2">
             <HiPlus size={16} className="text-primary" />
             Add Credit
@@ -308,7 +308,7 @@ export default function AdminCredit() {
       )}
 
       {editing && (
-        <div className="mb-6 p-6 bg-white dark:bg-[#141414] border border-primary/30 rounded-2xl shadow-sm">
+        <div className="mb-6 p-6 bg-white dark:bg-[#181825] border border-primary/30 rounded-2xl shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-dark dark:text-white">Edit Credit #{editing}</h3>
             <button onClick={cancelEdit} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition">
@@ -369,8 +369,8 @@ export default function AdminCredit() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 dark:border-[#262626]">
+      <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/10">
           <h2 className="text-lg font-bold text-dark dark:text-white flex items-center gap-2">
             <span className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-white shadow-md">
               <HiReceiptRefund size={17} />
@@ -387,7 +387,7 @@ export default function AdminCredit() {
                 className="w-full sm:w-60 pl-9 pr-3 py-2 text-sm rounded-full border border-gray-200 dark:border-slate-600 bg-white dark:bg-white/10 text-dark dark:text-slate-200 focus:border-primary outline-none"
               />
             </div>
-            <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
+            <div className="flex gap-1 bg-gray-100 dark:bg-white/8 rounded-full p-1 border border-gray-100 dark:border-white/10">
               {filters.map((f) => (
                 <button
                   key={f.key}
@@ -403,7 +403,7 @@ export default function AdminCredit() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
+              <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400">
                 <th className="p-4 font-medium">Name</th>
                 <th className="p-4 font-medium">Amount</th>
                 <th className="p-4 font-medium hidden md:table-cell">Description</th>
@@ -479,7 +479,7 @@ export default function AdminCredit() {
             </tbody>
           </table>
         </div>
-        <div className="p-4 sm:p-5 border-t border-gray-100 dark:border-[#262626] flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
           <span className="text-sm text-gray-500 dark:text-slate-400">{filtered.length} of {credits.length} credit(s)</span>
           <motion.span
             key={filtered.length}

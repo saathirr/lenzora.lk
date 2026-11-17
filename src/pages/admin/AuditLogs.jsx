@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+﻿import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   HiShieldCheck, HiRefresh, HiSearch, HiPlus, HiPencilAlt, HiTrash,
@@ -151,7 +151,7 @@ export default function AdminAuditLogs() {
         <button
           onClick={load}
           disabled={loading}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-[#262626] text-sm font-semibold rounded-full hover:border-primary/40 transition disabled:opacity-50"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#181825] border border-gray-200 dark:border-white/10 text-sm font-semibold rounded-full hover:border-primary/40 transition disabled:opacity-50"
         >
           <HiRefresh size={15} />
           Refresh
@@ -171,7 +171,7 @@ export default function AdminAuditLogs() {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, type: 'spring', stiffness: 240, damping: 24 }}
-            className="p-5 rounded-2xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] shadow-sm"
+            className="p-5 rounded-2xl bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 shadow-sm"
           >
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${s.grad} flex items-center justify-center text-white shadow-md mb-3`}>
               <HiChartBar size={18} />
@@ -183,7 +183,7 @@ export default function AdminAuditLogs() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <h3 className="text-sm font-bold text-dark dark:text-white mb-4 flex items-center gap-2">
             <HiUserGroup size={16} className="text-primary" />
             Most active contributors
@@ -196,7 +196,7 @@ export default function AdminAuditLogs() {
                   <p className="text-sm font-semibold text-dark dark:text-white truncate">{u.email}</p>
                   <p className="text-xs text-gray-500 dark:text-slate-400 truncate">{u.tables}</p>
                 </div>
-                <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden max-w-[200px]">
+                <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/8 overflow-hidden max-w-[200px]">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${(u.count / maxTop) * 100}%` }}
@@ -210,7 +210,7 @@ export default function AdminAuditLogs() {
           </div>
         </div>
 
-        <div className="p-6 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="p-6 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <h3 className="text-sm font-bold text-dark dark:text-white mb-4 flex items-center gap-2">
             <HiDatabase size={16} className="text-primary" />
             Changes by area (top tables)
@@ -220,7 +220,7 @@ export default function AdminAuditLogs() {
             {byTable.map(([tbl, count]) => (
               <div key={tbl} className="flex items-center gap-3">
                 <span className="w-32 truncate text-sm font-medium text-dark dark:text-slate-200">{tbl}</span>
-                <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden">
+                <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/8 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${(count / maxTable) * 100}%` }}
@@ -241,8 +241,8 @@ export default function AdminAuditLogs() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 dark:border-[#262626]">
+      <div className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-gray-100 dark:border-white/10">
           <div className="relative w-full lg:w-72">
             <HiSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -253,7 +253,7 @@ export default function AdminAuditLogs() {
             />
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex gap-1 bg-gray-100 dark:bg-white/5 rounded-full p-1 border border-gray-100 dark:border-white/5">
+            <div className="flex gap-1 bg-gray-100 dark:bg-white/8 rounded-full p-1 border border-gray-100 dark:border-white/10">
               {['ALL', 'INSERT', 'UPDATE', 'DELETE'].map((a) => (
                 <button
                   key={a}
@@ -281,7 +281,7 @@ export default function AdminAuditLogs() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-[#262626] text-left text-gray-500 dark:text-slate-400">
+              <tr className="border-b border-gray-100 dark:border-white/10 text-left text-gray-500 dark:text-slate-400">
                 <th className="p-4 font-medium">When</th>
                 <th className="p-4 font-medium">Who</th>
                 <th className="p-4 font-medium">Action</th>
@@ -346,7 +346,7 @@ export default function AdminAuditLogs() {
         </div>
 
         {expanded !== null && (
-          <div className="border-t border-gray-100 dark:border-[#262626] p-4 sm:p-6 bg-gray-50/50 dark:bg-white/5">
+          <div className="border-t border-gray-100 dark:border-white/10 p-4 sm:p-6 bg-gray-50/50 dark:bg-white/8">
             {(() => {
               const l = logs.find((x) => x.id === expanded)
               if (!l) return null
@@ -359,7 +359,7 @@ export default function AdminAuditLogs() {
                   {diff.length === 0 && <p className="text-sm text-gray-400">No field-level details recorded.</p>}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                     {diff.map((d) => (
-                      <div key={d.field} className="p-3 rounded-xl bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626]">
+                      <div key={d.field} className="p-3 rounded-xl bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-1">{d.field}</p>
                         <div className="flex items-start gap-2 text-xs">
                           {d.old !== undefined && (

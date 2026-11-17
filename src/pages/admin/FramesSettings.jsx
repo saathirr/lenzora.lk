@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+﻿import { useMemo, useRef, useState } from 'react'
 import { HiPlus, HiTrash, HiUpload, HiPhotograph, HiOutlineCheck, HiOutlineX, HiX } from 'react-icons/hi'
 import { useApp } from '../../lib/AppContext'
 import { uploadFile } from '../../lib/db'
@@ -201,14 +201,14 @@ export default function AdminFramesSettings() {
       </div>
 
       {showAdd && (
-        <div className="mb-6 p-6 bg-white border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="mb-6 p-6 bg-white border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <h3 className="font-bold text-dark mb-4">Add Category</h3>
           <div className="flex flex-col sm:flex-row gap-4">
             <input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Folder name (e.g. 8x10 Frames)"
-              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white"
+              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white"
             />
             <input
               type="number"
@@ -216,7 +216,7 @@ export default function AdminFramesSettings() {
               value={newPrice}
               onChange={(e) => setNewPrice(e.target.value)}
               placeholder="Folder price (LKR)"
-              className="w-full sm:w-44 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-dark dark:text-white"
+              className="w-full sm:w-44 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-dark dark:text-white"
             />
             <label className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary/10 text-primary text-sm font-semibold rounded-xl hover:bg-primary/20 transition cursor-pointer">
               <HiUpload size={16} />
@@ -241,15 +241,15 @@ export default function AdminFramesSettings() {
       )}
 
       {sorted.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm">
+        <div className="text-center py-16 bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm">
           <HiPhotograph size={40} className="mx-auto text-gray-300 dark:text-slate-600 mb-3" />
           <p className="text-gray-500 dark:text-slate-400">No categories yet. Add your first frame category.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {sorted.map((cat, i) => (
-            <div key={cat.id} className="bg-white dark:bg-[#141414] border border-gray-100 dark:border-[#262626] rounded-2xl shadow-sm overflow-hidden">
-              <div className="relative aspect-[4/3] bg-gray-100 dark:bg-white/5 overflow-hidden">
+            <div key={cat.id} className="bg-white dark:bg-[#181825] border border-gray-100 dark:border-white/10 rounded-2xl shadow-sm overflow-hidden">
+              <div className="relative aspect-[4/3] bg-gray-100 dark:bg-white/8 overflow-hidden">
                 {cat.image_url ? (
                   <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover" />
                 ) : (
@@ -285,7 +285,7 @@ export default function AdminFramesSettings() {
                         onChange={(e) => setPriceDrafts((prev) => ({ ...prev, [cat.id]: e.target.value }))}
                         onKeyDown={(e) => { if (e.key === 'Enter') handlePriceSave(cat) }}
                         placeholder="Custom quote"
-                        className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#141414] text-sm text-dark dark:text-white"
+                        className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-[#2f2f2f] focus:border-primary outline-none bg-white dark:bg-[#181825] text-sm text-dark dark:text-white"
                       />
                       {(priceDrafts[cat.id] !== undefined) && (
                         <button
@@ -328,7 +328,7 @@ export default function AdminFramesSettings() {
                   <button onClick={() => handleMove(cat, 1)} disabled={i === sorted.length - 1 || savingId === cat.id} className="text-xs font-semibold text-gray-500 hover:text-primary disabled:opacity-30 transition">Move Down ↓</button>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-[#262626]">
+                <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/10">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-bold uppercase tracking-wide text-gray-400">
                       Frame Designs ({(imagesByCat[cat.id] || []).length})
