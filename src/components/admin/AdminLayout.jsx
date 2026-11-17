@@ -270,8 +270,8 @@ export default function AdminLayout() {
       {/* Main column */}
       <div className="relative z-10 flex-1 flex flex-col min-w-0">
         <header className={`sticky top-0 z-30 h-16 px-4 sm:px-6 flex items-center justify-between
-          bg-white/75 dark:bg-[#141414]/70 backdrop-blur-xl
-          border-b border-gray-100 dark:border-[#262626] transition-colors duration-500`}>
+          bg-white/75 dark:bg-[#181825]/80 backdrop-blur-xl
+          border-b border-gray-100 dark:border-white/10 transition-colors duration-500`}>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen(true)}
